@@ -10,6 +10,9 @@ readme = "README.md"
 python = "^3.10"
 fastapi = "^0.110.2"
 uvicorn = "^0.29.0"
+haystack-ai = "^2.1.1"
+qdrant-haystack = "^3.5.0"
+sentence-transformers = ">=2.2.0"
 
 
 [build-system]
