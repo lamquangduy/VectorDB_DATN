@@ -27,7 +27,7 @@ from haystack.dataclasses import ChatMessage
 from haystack.components.generators.chat import OpenAIChatGenerator
 from haystack_integrations.components.retrievers.qdrant import QdrantEmbeddingRetriever
 from haystack.utils import Secret
-from haystack_integrations.document_stores.qdrant import QdrantDocumentStores
+from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 
 
 # Create a new column which have content is name + description + skill
