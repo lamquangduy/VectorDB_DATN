@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 class ChatInput(BaseModel):
     text: str
-    history: list[str]
+    history: list[dict]
 
 
 @router.post("/chat")
