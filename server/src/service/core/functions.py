@@ -179,7 +179,7 @@ def rag_pipeline_func(query: str):
 
 
 # Get info (name + description + skill) through course name
-def get_content_course(course_name: str, filepath: str = ".\courses.csv"):
+def get_content_course(course_name: str, filepath: str = "./courses.csv"):
     course_info = add_content_current_course(filepath)
     if course_name.upper() in course_info:
         content = course_info[course_name.upper()][2]

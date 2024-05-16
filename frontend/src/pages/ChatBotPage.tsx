@@ -140,6 +140,7 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
 const ChatBotPage: React.FC = () => {
   const [chatData, setChatData] = React.useState<IChatData[]>(mockData);
   const [message, setMessage] = React.useState<string>("");
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     document.documentElement.classList.toggle("fake-dark-mode");
@@ -150,6 +151,7 @@ const ChatBotPage: React.FC = () => {
     setChatData((chatData) => {
       return [...chatData, { sender: "user", message }];
     });
+    setIsLoading(true);
     setMessage("");
     axios
       .post("http://localhost:8000/chat", {
@@ -164,6 +166,17 @@ const ChatBotPage: React.FC = () => {
             message: res.data.response,
           },
         ]);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        setChatData([
+          ...chatData,
+          {
+            sender: "bot",
+            message: err.message ?? "There is somethings wrong!!",
+          },
+        ]);
+        setIsLoading(false);
       });
   };
 
@@ -226,13 +239,15 @@ const ChatBotPage: React.FC = () => {
               overflow: "auto",
             }}
           >
-            {chatData.map((data: IChatData) => {
+            {chatData.map((data: IChatData, idx: number) => {
               return data.sender === "bot" ? (
-                <BotText message={data.message} />
+                <BotText key={`chat-${idx}`} message={data.message} />
               ) : (
-                <UserText message={data.message} />
+                <UserText key={`chat-${idx}`} message={data.message} />
               );
             })}
+
+            {isLoading && <BotText message={"Loading...."} />}
           </Box>
 
           {/* <Box>
