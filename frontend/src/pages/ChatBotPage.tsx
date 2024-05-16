@@ -7,7 +7,7 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import React from "react";
 import axios from "axios";
-import { memo, useEffect, useState } from "react";
+
 import { Grid } from "@mui/material";
 interface IChatData {
   sender?: string;
@@ -55,7 +55,6 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({ value, handleClick }) => {
       </Button>
     </Grid>
   );
-
 };
 
 const HistoryPanel: React.FC = () => {
@@ -141,17 +140,21 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
 const ChatBotPage: React.FC = () => {
   const [chatData, setChatData] = React.useState<IChatData[]>(mockData);
   const [message, setMessage] = React.useState<string>("");
-  useEffect(() => {
+
+  React.useEffect(() => {
     document.documentElement.classList.toggle("fake-dark-mode");
   }, []);
-  const handleChat = (value: string) => {
-    setMessage(value);
+
+  const handleChat = () => {
+    // setMessage(value);
     setChatData((chatData) => {
-      return [...chatData, { sender: "user", message: value }];
+      return [...chatData, { sender: "user", message }];
     });
     setMessage("");
     axios
-      .get("http://localhost:8000/chat?query=" + encodeURIComponent(value))
+      .post("http://localhost:8000/chat", {
+        text: message,
+      })
       .then((res) => {
         console.log(res.data.response);
         setChatData((chatData) => [
@@ -163,6 +166,7 @@ const ChatBotPage: React.FC = () => {
         ]);
       });
   };
+
   return (
     <Box
       sx={{
@@ -280,9 +284,18 @@ const ChatBotPage: React.FC = () => {
               gridTemplateColumns: "repeat(2, 1fr)",
             }}
           >
-            <SuggestedTag value="which Java courses would you recommend for beginners?" handleClick={handleChat} />
-            <SuggestedTag value="which skill does the course name IBM Applied DevOps Engineering Professional Certificate have?" handleClick={handleChat} />
-            <SuggestedTag value="Tell me more about your ability" handleClick={handleChat} />
+            <SuggestedTag
+              value="which Java courses would you recommend for beginners?"
+              handleClick={handleChat}
+            />
+            <SuggestedTag
+              value="which skill does the course name IBM Applied DevOps Engineering Professional Certificate have?"
+              handleClick={handleChat}
+            />
+            <SuggestedTag
+              value="Tell me more about your ability"
+              handleClick={handleChat}
+            />
             <SuggestedTag value="Hello" handleClick={handleChat} />
           </Box>
           <Box
@@ -321,25 +334,7 @@ const ChatBotPage: React.FC = () => {
               }}
               onKeyDown={(e) => {
                 if (message !== "" && e.key === "Enter") {
-                  setChatData((chatData) => {
-                    return [...chatData, { sender: "user", message }];
-                  });
-                  setMessage("");
-                  axios
-                    .get(
-                      "http://localhost:8000/chat?query=" +
-                        encodeURIComponent(message)
-                    )
-                    .then((res) => {
-                      console.log(res.data.response);
-                      setChatData((chatData) => [
-                        ...chatData,
-                        {
-                          sender: "bot",
-                          message: res.data.response,
-                        },
-                      ]);
-                    });
+                  handleChat();
                 }
               }}
               placeholder="Type a new message here"
@@ -348,29 +343,7 @@ const ChatBotPage: React.FC = () => {
                 setMessage(e.target.value);
               }}
             />
-            <Button
-              onClick={() => {
-                setChatData((chatData) => {
-                  return [...chatData, { sender: "user", message }];
-                });
-                setMessage("");
-                axios
-                  .get(
-                    "http://localhost:8000/chat?query=" +
-                      encodeURIComponent(message)
-                  )
-                  .then((res) => {
-                    console.log(res.data.response);
-                    setChatData((chatData) => [
-                      ...chatData,
-                      {
-                        sender: "bot",
-                        message: res.data.response,
-                      },
-                    ]);
-                  });
-              }}
-            >
+            <Button onClick={handleChat}>
               <SendIcon />
             </Button>
           </Box>
