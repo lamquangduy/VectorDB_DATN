@@ -187,7 +187,7 @@ const ChatBotPage: React.FC = () => {
     setIsLoading(true);
     setMessage("");
     axios
-      .post("http://localhost:8000/chat", {
+      .post("http://localhost:8030/chat", {
         text: value,
       })
       .then((res) => {
