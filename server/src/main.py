@@ -7,12 +7,7 @@ from functions import chatbot_with_fc
 from haystack.dataclasses import ChatMessage
 # from src.utils.dto import StatusResponseDTO
 
-<<<<<<< Updated upstream
-from src.utils.dto import StatusResponseDTO
-from fastapi.middleware.cors import CORSMiddleware
-=======
 # from src.service.controller import router
->>>>>>> Stashed changes
 
 from utils.dto import StatusResponseDTO
 
@@ -90,27 +85,7 @@ manager = ConnectionManager()
 
 app.include_router(router)
 
-<<<<<<< Updated upstream
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://learnway.kurokid.info",
-    "https://api-learnway.kurokid.info",
-    "https://learnway.me",
-    "http://learnway.me",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-=======
-os.environ['OPENAI_API_KEY'] = 'sk-proj-sKXdJsf3kSUFPth90dKIT3BlbkFJFb7uz3ozGYWc09EXS41d'
->>>>>>> Stashed changes
+os.environ['OPENAI_API_KEY'] = 'sk-proj-jDAzVCBgNiUGwDHJR7KTT3BlbkFJ65bOSQ5ZBuOl8P5d1VEz'
 
 @app.get("/")
 async def health_check() -> StatusResponseDTO:
