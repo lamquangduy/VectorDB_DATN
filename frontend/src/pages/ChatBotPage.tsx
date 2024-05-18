@@ -175,7 +175,7 @@ const ChatBotPage: React.FC = () => {
   const [chatData, setChatData] = React.useState<IChatData[]>(chatHistory);
   const [message, setMessage] = React.useState<string>("");
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-
+  const [suggestion,setSuggestion]=React.useState<string[]>([]);
   // React.useEffect(() => {
   //   document.documentElement.classList.toggle("fake-dark-mode");
   // }, []);
@@ -191,13 +191,14 @@ const ChatBotPage: React.FC = () => {
         text: value,
       })
       .then((res) => {
-        console.log(res.data.response);
+        console.log(res.data.response.answer);
         chatHistory.push({
           sender: "bot",
-          message: res.data.response,
+          message: res.data.response.answer,
         });
         setChatData([...chatHistory]);
         setIsLoading(false);
+        setSuggestion(res.data.response.suggestions)
       })
       .catch((err) => {
         chatHistory.push({
@@ -295,19 +296,15 @@ const ChatBotPage: React.FC = () => {
               gridTemplateColumns: "repeat(2, 1fr)",
             }}
           >
-            <SuggestedTag
-              value="which Java courses would you recommend for beginners?"
+            { (suggestion.length && suggestion.map((data: string, idx:number)=>{
+              return <SuggestedTag
+              value={data}
               handleClick={handleChat}
             />
-            <SuggestedTag
-              value="which skill does the course name IBM Applied DevOps Engineering Professional Certificate have?"
-              handleClick={handleChat}
-            />
-            <SuggestedTag
-              value="Tell me more about your ability"
-              handleClick={handleChat}
-            />
-            <SuggestedTag value="Hello" handleClick={handleChat} />
+            }))|| <></>
+            
+            
+            }
           </Box>
           <Box
             sx={{
