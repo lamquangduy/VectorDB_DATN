@@ -6,14 +6,13 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import React from "react";
-import axios from "axios";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
-import { Grid } from "@mui/material";
 import getChatResponse from "../utils/api";
+
 interface IChatData {
   sender?: string;
   message: string;
@@ -21,6 +20,7 @@ interface IChatData {
 interface SuggestedTagProps {
   value: string;
   handleClick: (value: string) => void;
+  sx?: any;
 }
 
 const SelectModel = () => {
@@ -51,19 +51,36 @@ const SelectModel = () => {
   );
 };
 
+const scrollToBottom = () => {
+  const chatBox = document.getElementById("chat-box");
+  if (chatBox) {
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+};
 const mockData: IChatData[] = [
   { sender: "bot", message: "Hello, How can I help you?" },
 ];
 
-const SuggestedTag: React.FC<SuggestedTagProps> = ({ value, handleClick }) => {
+const SuggestedTag: React.FC<SuggestedTagProps> = ({
+  value,
+  handleClick,
+  sx,
+}) => {
   return (
-    <Grid item xs={6}>
+    <Box sx={sx}>
       <Button
+        variant="outlined"
         sx={{
-          border: 0,
-          outline: 0,
+          height: 44,
+          //   border: 0,
+          //   outline: 0,
           textAlign: "center",
           width: "100%",
+
+          "&:hover": {
+            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
+          },
+          bgcolor: "#f2f2f2",
         }}
         onClick={() => {
           handleClick(value);
@@ -72,22 +89,21 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({ value, handleClick }) => {
         <Typography
           variant="body1"
           sx={{
-            bgcolor: "#f2f2f2",
             borderRadius: "10px",
             overflow: "hidden",
             p: 1,
-            m: 0,
+
             fontSize: "0.8rem",
-            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
-            "&:hover": {
-              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
-            },
+            // boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
+            // "&:hover": {
+            //   boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
+            // },
           }}
         >
           {value}
         </Typography>
       </Button>
-    </Grid>
+    </Box>
   );
 };
 
@@ -186,16 +202,19 @@ const ChatBotPage: React.FC = () => {
     chatHistory.push({ sender: "user", message: value ?? message });
     setChatData([...chatHistory]);
     setIsLoading(true);
-    setMessage("");
-    getChatResponse(value ?? message)
+    scrollToBottom();
+    if (!Boolean(value)) setMessage("");
+
+    getChatResponse(message)
       .then((res) => {
-        console.log(res.data.response);
+        console.log(res);
         chatHistory.push({
           sender: "bot",
-          message: res.data.response,
+          message: res.response,
         });
         setChatData([...chatHistory]);
         setIsLoading(false);
+        scrollToBottom();
       })
       .catch((err) => {
         chatHistory.push({
@@ -204,23 +223,27 @@ const ChatBotPage: React.FC = () => {
         });
         setChatData([...chatHistory]);
         setIsLoading(false);
+        scrollToBottom();
       });
   };
 
   return (
     <Box
       sx={{
-        width: "100%",
         height: "100%",
+        width: "100%",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        // pt: 1,
       }}
     >
       <Box
         sx={{
-          width: "98%",
-          height: "96%",
+          width: "100%",
+          minHeight: 600,
+          height: "100%",
+          maxHeight: 1000,
           display: "flex",
           gap: 2,
 
@@ -232,7 +255,7 @@ const ChatBotPage: React.FC = () => {
 
         <Box
           sx={{
-            width: "80%",
+            width: "100%",
             height: "100%",
             backgroundColor: "#F8F8FF",
             boxShadow: 3,
@@ -242,7 +265,7 @@ const ChatBotPage: React.FC = () => {
         >
           <Box
             sx={{
-              height: 120,
+              height: 80,
               backgroundColor: "#019b01",
               display: "flex",
               justifyContent: "center",
@@ -267,13 +290,17 @@ const ChatBotPage: React.FC = () => {
           >
             <SelectModel />
           </Box>
+
           <Box
             sx={{
               width: "100%",
-              height: "calc(100% - 400px)",
+              //   height: "100%",
+              height: 512,
+              maxHeight: 692,
               padding: 2,
               overflow: "auto",
             }}
+            id="chat-box"
           >
             {chatData.map((data: IChatData, idx: number) => {
               return data.sender === "bot" ? (
@@ -288,47 +315,64 @@ const ChatBotPage: React.FC = () => {
 
           <Box
             sx={{
-              display: "grid",
-              gap: 1,
-              gridTemplateColumns: "repeat(2, 1fr)",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 0.5,
+              p: 0.5,
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <SuggestedTag
               value="which Java courses would you recommend for beginners?"
               handleClick={handleChat}
+              sx={{
+                width: "calc(50% - 4px)",
+              }}
             />
             <SuggestedTag
               value="which skill does the course name IBM Applied DevOps Engineering Professional Certificate have?"
               handleClick={handleChat}
+              sx={{
+                width: "calc(50% - 4px)",
+              }}
             />
             <SuggestedTag
               value="Tell me more about your ability"
               handleClick={handleChat}
+              sx={{
+                width: "calc(50% - 4px)",
+              }}
             />
-            <SuggestedTag value="Hello" handleClick={handleChat} />
+            <SuggestedTag
+              value="Hello"
+              handleClick={handleChat}
+              sx={{
+                width: "calc(50% - 4px)",
+              }}
+            />
           </Box>
           <Box
             sx={{
-              // position: "absolute",
-              // bottom: 20,
+              height: 80,
               width: "100%",
-              // borderTop: 1,
-              // p: 1,
-              // m: 3,
             }}
           >
             <Button
               onClick={() => {
-                setChatData(() => {
-                  return [];
+                chatHistory.splice(0, chatHistory.length);
+                chatHistory.push({
+                  sender: "bot",
+                  message: "Hello, How can I help you?",
                 });
+                setChatData([]);
                 setTimeout(() => {
                   setChatData(() => {
                     return [
                       { sender: "bot", message: "Hello, How can I help you?" },
                     ];
                   });
-                }, 3000);
+                }, 500);
               }}
             >
               <DeleteIcon />
@@ -337,8 +381,8 @@ const ChatBotPage: React.FC = () => {
               sx={{
                 border: 0,
                 outline: 0,
-                width: "90%",
-                p: 1,
+                width: "88%",
+                px: 1,
                 textAlign: "center",
               }}
               onKeyDown={(e) => {
