@@ -13,6 +13,7 @@ import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 import { Grid } from "@mui/material";
+import getChatResponse from "../utils/api";
 interface IChatData {
   sender?: string;
   message: string;
@@ -186,10 +187,7 @@ const ChatBotPage: React.FC = () => {
     setChatData([...chatHistory]);
     setIsLoading(true);
     setMessage("");
-    axios
-      .post("http://localhost:8030/chat", {
-        text: value,
-      })
+    getChatResponse(value ?? message)
       .then((res) => {
         console.log(res.data.response);
         chatHistory.push({
