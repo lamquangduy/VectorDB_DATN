@@ -272,7 +272,7 @@ def chatbot_with_fc(message, history=[]):
         # get suggestions for user to ask
         suggestions = get_suggestions(message + ". Answer: " + response["replies"][0].content)
 
-        return {"history": messages, "answer":response["replies"][0].content, "tag" : suggestions}
+        return {"answer":response["replies"][0].content, "tag" : suggestions}
 
 
 # Test chatbot qua interface duoc support boi gradio
