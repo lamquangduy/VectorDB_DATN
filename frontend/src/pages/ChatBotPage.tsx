@@ -219,7 +219,7 @@ const ChatBotPage: React.FC = () => {
         // const message = JSON.parse(e.data);
         const data = JSON.parse(e.data)
         console.log(data.tag)
-        chatHistory.push(...chatData, { sender: "bot",  message: data.answer});
+        chatHistory.push( {sender: "bot",  message: data.answer});
         setSuggestion(data.tag);
         setChatData([...chatHistory]);
          setIsLoading(false);
