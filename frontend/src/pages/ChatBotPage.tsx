@@ -208,7 +208,8 @@ const ChatBotPage: React.FC = () => {
   }, []);
   
   const sendMessage = (value?: string) => {
-    if (message.trim() && wsRef.current) {
+    console.log('sendMessage called with value:', value);
+    if ((message.trim()||value?.trim()) && wsRef.current) {
       wsRef.current.send(message);
       chatHistory.push({ sender: "user", message: value ?? message });
         setChatData([...chatHistory]);
