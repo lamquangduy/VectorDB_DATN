@@ -5,14 +5,15 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import React from "react";
-import axios from "axios";
+import React, { useEffect, useRef } from "react";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
-import { Grid } from "@mui/material";
+import getChatResponse from "../utils/api";
+import { all } from "axios";
+
 interface IChatData {
   sender?: string;
   message: string;
@@ -20,73 +21,62 @@ interface IChatData {
 interface SuggestedTagProps {
   value: string;
   handleClick: (value: string) => void;
+  sx?: any;
 }
 
-const SelectModel = () => {
-  const [model, setModel] = React.useState("");
-
-  const handleChange = (event: SelectChangeEvent) => {
-    setModel(event.target.value);
-  };
-
-  return (
-    <Box
-      sx={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "row-reverse",
-      }}
-    >
-      <FormControl variant="filled" sx={{ m: 1, minWidth: 150 }}>
-        <InputLabel>Model</InputLabel>
-        <Select onChange={handleChange} value={model}>
-          <MenuItem value={10}>Model-01</MenuItem>
-          <MenuItem value={20}>Model-02</MenuItem>
-          <MenuItem value={30}>Model-03</MenuItem>
-        </Select>
-      </FormControl>
-    </Box>
-  );
+const scrollToBottom = () => {
+  const chatBox = document.getElementById("chat-box");
+  if (chatBox) {
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
 };
-
 const mockData: IChatData[] = [
   { sender: "bot", message: "Hello, How can I help you?" },
 ];
 
-const SuggestedTag: React.FC<SuggestedTagProps> = ({ value, handleClick }) => {
+const SuggestedTag: React.FC<SuggestedTagProps> = ({
+  value,
+  handleClick,
+  sx,
+}) => {
   return (
-    <Grid item xs={6}>
+    <Box sx={sx}>
       <Button
+        variant="outlined"
         sx={{
-          border: 0,
-          outline: 0,
+          height: 44,
+          //   border: 0,
+          //   outline: 0,
           textAlign: "center",
           width: "100%",
+
+          "&:hover": {
+            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
+          },
+          bgcolor: "#f2f2f2",
         }}
         onClick={() => {
-          handleClick(value);
+           handleClick(value);
         }}
       >
         <Typography
           variant="body1"
           sx={{
-            bgcolor: "#f2f2f2",
             borderRadius: "10px",
             overflow: "hidden",
             p: 1,
-            m: 0,
+
             fontSize: "0.8rem",
-            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
-            "&:hover": {
-              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
-            },
+            // boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
+            // "&:hover": {
+            //   boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
+            // },
           }}
         >
           {value}
         </Typography>
       </Button>
-    </Grid>
+    </Box>
   );
 };
 
@@ -127,13 +117,16 @@ const BotText: React.FC<IChatData> = (props: IChatData) => {
       <Typography
         variant="body1"
         sx={{
-          bgcolor: "#f2f2f2",
-          borderRadius: "10px",
-          overflow: "hidden",
-          p: 2,
-          m: 1,
-          boxShadow: 1,
-          whiteSpace: "pre-wrap",
+          bgcolor: "#4E5652",
+                color: "#FFFFFF",
+                borderTopLeftRadius:"10px",
+                borderTopRightRadius:"10px",
+                borderBottomRightRadius:"10px",
+                overflow: "hidden",
+                m: 1,
+                padding:1,
+                boxShadow: 3,
+                fontSize:15,
         }}
       >
         {props.message}
@@ -151,20 +144,23 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
         alignItems: "center",
       }}
     >
-      <Typography
-        variant="body1"
-        sx={{
-          bgcolor: "#87B23C",
-          color: "#FFFFFF",
-          borderRadius: "10px",
-          overflow: "hidden",
-          p: 2,
-          m: 1,
-          boxShadow: 1,
-        }}
-      >
-        {props.message}
-      </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                bgcolor: "#25A18E",
+                color: "#FFFFFF",
+                borderTopLeftRadius:"10px",
+                borderTopRightRadius:"10px",
+                borderBottomLeftRadius:"10px",
+                overflow: "hidden",
+                m: 1,
+                padding:1,
+                boxShadow: 3,
+                fontSize:15,
+              }}
+            >
+              {props.message}
+            </Typography>
       <Avatar />
     </Box>
   );
@@ -176,6 +172,62 @@ const ChatBotPage: React.FC = () => {
   const [message, setMessage] = React.useState<string>("");
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [suggestion,setSuggestion]=React.useState<string[]>([]);
+  const wsRef = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    
+    // Initialize WebSocket connection
+    if (!wsRef.current) {
+        const ws = new WebSocket("ws://localhost:8000/ws");
+        wsRef.current = ws;
+    
+        ws.onopen = () => {
+          console.log("WebSocket connection established");
+        };
+    }
+
+  
+    // ws.onmessage = (e) => {
+    //   const messages = document.getElementById('messages') as HTMLUListElement;;
+    //   if (messages) {
+    //     const messageElement = document.createElement('li');
+    //     const content = document.createTextNode(e.data);
+    //     const message = JSON.parse(e.data);
+    //     setChatData([...chatData, { sender: "bot",  message: message}]);
+    //     messageElement.appendChild(content);
+    //     messages.appendChild(messageElement);
+    //   }
+    // };
+  
+    // Clean up WebSocket connection on component unmount
+    // return () => {
+    //   if (wsRef.current) {
+    //     wsRef.current.close();
+    //   }
+    // };
+  }, []);
+  
+  const sendMessage = (value?: string) => {
+    if (message.trim() && wsRef.current) {
+      wsRef.current.send(message);
+      chatHistory.push({ sender: "user", message: value ?? message });
+        setChatData([...chatHistory]);
+        setIsLoading(true);
+        scrollToBottom();
+        if (!Boolean(value)) setMessage("");
+      wsRef.current.onmessage = (e) => {
+        // const message = JSON.parse(e.data);
+        const data = JSON.parse(e.data)
+        console.log(data.tag)
+        chatHistory.push(...chatData, { sender: "bot",  message: data.answer});
+        setSuggestion(data.tag);
+        setChatData([...chatHistory]);
+         setIsLoading(false);
+            scrollToBottom();
+      };
+    }
+  };
+
   // React.useEffect(() => {
   //   document.documentElement.classList.toggle("fake-dark-mode");
   // }, []);
@@ -185,20 +237,19 @@ const ChatBotPage: React.FC = () => {
     chatHistory.push({ sender: "user", message: value ?? message });
     setChatData([...chatHistory]);
     setIsLoading(true);
-    setMessage("");
-    axios
-      .post("http://localhost:8000/chat", {
-        text: value,
-      })
+    scrollToBottom();
+    if (!Boolean(value)) setMessage("");
+
+    getChatResponse(message)
       .then((res) => {
-        console.log(res.data.response.answer);
+        console.log(res);
         chatHistory.push({
           sender: "bot",
-          message: res.data.response.answer,
+          message: res.response,
         });
         setChatData([...chatHistory]);
         setIsLoading(false);
-        setSuggestion(res.data.response.suggestions)
+        scrollToBottom();
       })
       .catch((err) => {
         chatHistory.push({
@@ -207,23 +258,28 @@ const ChatBotPage: React.FC = () => {
         });
         setChatData([...chatHistory]);
         setIsLoading(false);
+        scrollToBottom();
       });
   };
 
   return (
     <Box
       sx={{
-        width: "100%",
         height: "100%",
+        width: "100%",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        
+        // pt: 1,
       }}
     >
       <Box
         sx={{
-          width: "98%",
-          height: "96%",
+          width: "100%",
+          minHeight: 600,
+          height: "100%",
+          maxHeight: 1000,
           display: "flex",
           gap: 2,
 
@@ -235,31 +291,27 @@ const ChatBotPage: React.FC = () => {
 
         <Box
           sx={{
-            width: "80%",
+            width: "60%",
             height: "100%",
             backgroundColor: "#F8F8FF",
             boxShadow: 3,
             borderRadius: 2,
             overflow: "auto",
+            bgcolor:"EEEEEE"
           }}
         >
           <Box
-            sx={{
-              height: 120,
-              backgroundColor: "#019b01",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
           >
-            <Typography
-              variant="h2"
-              sx={{
-                color: "#FFFFFF",
-              }}
-            >
-              Chatbot
-            </Typography>
+            <Typography sx={{display: 'flex', 
+        justifyContent: 'center', 
+          alignItems: 'center',
+        textAlign: 'center',
+          backgroundColor: "#019b01",
+          fontSize:"30px",
+        borderRadius:"4px",
+          boxShadow:3}}>
+        ChatBot
+    </Typography>
           </Box>
           <Box
             sx={{
@@ -268,15 +320,18 @@ const ChatBotPage: React.FC = () => {
               display: "flex",
             }}
           >
-            <SelectModel />
           </Box>
+
           <Box
             sx={{
               width: "100%",
-              height: "calc(100% - 400px)",
+              //   height: "100%",
+              height: 512,
+              maxHeight: 692,
               padding: 2,
               overflow: "auto",
             }}
+            id="chat-box"
           >
             {chatData.map((data: IChatData, idx: number) => {
               return data.sender === "bot" ? (
@@ -291,58 +346,69 @@ const ChatBotPage: React.FC = () => {
 
           <Box
             sx={{
-              display: "grid",
-              gap: 1,
-              gridTemplateColumns: "repeat(2, 1fr)",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 0.5,
+              p: 0.5,
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            { (suggestion.length && suggestion.map((data: string, idx:number)=>{
-              return <SuggestedTag
-              value={data}
-              handleClick={handleChat}
-            />
-            }))|| <></>
-            
-            
+           
+            {
+                suggestion.length!==0  && !isLoading &&
+                suggestion.map((tag: string)=>{
+                    return <SuggestedTag  value={tag} handleClick={sendMessage}
+                    sx="5">
+
+                    </SuggestedTag>
+                })
             }
+        
           </Box>
           <Box
             sx={{
-              // position: "absolute",
-              // bottom: 20,
+              height: 80,
               width: "100%",
-              // borderTop: 1,
-              // p: 1,
-              // m: 3,
+              display:"flex",
+              flexWrap:"nowrap",
+              justifyContent:"space-around",
+              alignItems:"center",
+              marginTop:"30px"
             }}
           >
             <Button
               onClick={() => {
-                setChatData(() => {
-                  return [];
+                chatHistory.splice(0, chatHistory.length);
+                chatHistory.push({
+                  sender: "bot",
+                  message: "Hello, How can I help you?",
                 });
+                setChatData([]);
                 setTimeout(() => {
                   setChatData(() => {
                     return [
                       { sender: "bot", message: "Hello, How can I help you?" },
                     ];
                   });
-                }, 3000);
+                }, 500);
               }}
             >
               <DeleteIcon />
             </Button>
             <OutlinedInput
               sx={{
-                border: 0,
+                borderBlockStart:"1px",
                 outline: 0,
-                width: "90%",
-                p: 1,
+                width: "88%",
+                px: 1,
                 textAlign: "center",
+                borderRadius:"10px",
+                boxShadow:"3"
               }}
               onKeyDown={(e) => {
                 if (message !== "" && e.key === "Enter") {
-                  handleChat();
+                  sendMessage();
                 }
               }}
               placeholder="Type a new message here"
@@ -353,7 +419,8 @@ const ChatBotPage: React.FC = () => {
             />
             <Button
               onClick={() => {
-                handleChat();
+                // handleChat();
+                sendMessage()
               }}
             >
               <SendIcon />

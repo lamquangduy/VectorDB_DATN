@@ -5,27 +5,30 @@ from typing import List
 from fastapi.responses import HTMLResponse
 from functions import chatbot_with_fc
 from haystack.dataclasses import ChatMessage
+
 # from src.utils.dto import StatusResponseDTO
 
-# from src.service.controller import router
+from utils.dto import StatusResponseDTO
+from fastapi.middleware.cors import CORSMiddleware
 
 from utils.dto import StatusResponseDTO
-
+import json
 from service.controller import router
-
+import os
+os.environ['OPENAI_API_KEY'] = 'sk-proj-jDAzVCBgNiUGwDHJR7KTT3BlbkFJ65bOSQ5ZBuOl8P5d1VEz'
 app = FastAPI(on_startup=[])
 origins = [
     "http://localhost",
     "http://localhost:1416",
     "http://localhost:3000",
-    "http://localhost:8000"
+    "http://localhost:8000",
 ]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 html = """
 <!DOCTYPE html>
@@ -61,6 +64,7 @@ html = """
 </html>
 """
 
+
 class ConnectionManager:
 
     def __init__(self) -> None:
@@ -85,7 +89,23 @@ manager = ConnectionManager()
 
 app.include_router(router)
 
-os.environ['OPENAI_API_KEY'] = 'sk-proj-jDAzVCBgNiUGwDHJR7KTT3BlbkFJ65bOSQ5ZBuOl8P5d1VEz'
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://learnway.kurokid.info",
+    "https://api-learnway.kurokid.info",
+    "https://learnway.me",
+    "http://learnway.me",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.get("/")
 async def health_check() -> StatusResponseDTO:
@@ -97,15 +117,19 @@ async def health_check() -> StatusResponseDTO:
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     messages = [
-         ChatMessage.from_system(
-             "Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous."
-         )     ]
-    while True:
-        data = await websocket.receive_text()
-        result = chatbot_with_fc(message=data, messages=messages)
-        await websocket.send_text(f"Message text was: {result}")
+        ChatMessage.from_system(
+            "Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous."
+        )
+    ]
+    try:
+        while True:
+            data = await websocket.receive_text()
+            result = chatbot_with_fc(message=data, messages=messages)
+            await websocket.send_text(json.dumps(result))
+    except WebSocketDisconnect:
+        print("disconnect")
 
-#uvicorn main:app --reload
-#npm run dev
-#cd BACKEND\DOANTOTNGHIEP\VectorDB_DATN\server\src
-#cd VectorDB_DATN\frontend
+# uvicorn main:app --reload
+# npm run dev
+# cd BACKEND\DOANTOTNGHIEP\VectorDB_DATN\server\src
+# cd VectorDB_DATN\frontend

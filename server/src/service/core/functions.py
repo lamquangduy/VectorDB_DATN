@@ -179,7 +179,7 @@ def rag_pipeline_func(query: str):
 
 
 # Get info (name + description + skill) through course name
-def get_content_course(course_name: str, filepath: str = ".\courses.csv"):
+def get_content_course(course_name: str, filepath: str = "./courses.csv"):
     course_info = add_content_current_course(filepath)
     if course_name.upper() in course_info:
         content = course_info[course_name.upper()][2]
@@ -195,8 +195,7 @@ def get_suggestions(content):
     list_of_lines = response['replies'][0].splitlines()
     return list_of_lines
 
-def chatbot_with_fc(message, history=[]):
-    messages = []
+def chatbot_with_fc(message, messages = []):
     chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
     tools = [
         {
@@ -237,7 +236,7 @@ def chatbot_with_fc(message, history=[]):
 
     messages.append(ChatMessage.from_user(message))
     response = chat_generator.run(messages=messages, generation_kwargs={"tools": tools})
-
+    
     while True:
         # if OpenAI response is a tool call
         if response and response["replies"][0].meta["finish_reason"] == "tool_calls":
@@ -269,8 +268,10 @@ def chatbot_with_fc(message, history=[]):
         else:
             messages.append(response["replies"][0])
             break
-        suggestions = get_suggestions(message + ". Answer: " + response["replies"][0].content)
-        return {"answer":response["replies"][0].content, "suggestions" : suggestions}
+        # get suggestions for user to ask
+        
+    suggestions = get_suggestions(message + ". Answer: " + response["replies"][0].content)
+    return {"answer":response["replies"][0].content, "tag" : suggestions}
 
 
 # Test chatbot qua interface duoc support boi gradio
