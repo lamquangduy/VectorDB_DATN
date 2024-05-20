@@ -9,13 +9,13 @@ from haystack.dataclasses import ChatMessage
 # from src.utils.dto import StatusResponseDTO
 
 from utils.dto import StatusResponseDTO
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddlewares
 
 from utils.dto import StatusResponseDTO
 import json
 from service.controller import router
 import os
-os.environ['OPENAI_API_KEY'] = 'sk-proj-jDAzVCBgNiUGwDHJR7KTT3BlbkFJ65bOSQ5ZBuOl8P5d1VEz'
+ 
 app = FastAPI(on_startup=[])
 origins = [
     "http://localhost",
