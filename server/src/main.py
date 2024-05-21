@@ -1,19 +1,15 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
-import os
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from fastapi.responses import HTMLResponse
-from functions import chatbot_with_fc
 from haystack.dataclasses import ChatMessage
-
-# from src.utils.dto import StatusResponseDTO
-
-from utils.dto import StatusResponseDTO
-from fastapi.middleware.cors import CORSMiddlewares
-
-from utils.dto import StatusResponseDTO
+from src.utils.dto import StatusResponseDTO
+from src.service.controller import router
+from src.service.core.functions import chatbot_with_fc
+# from functions import chatbot_with_fc
+# from utils.dto import StatusResponseDTO
+# from service.controller import router
 import json
-from service.controller import router
 import os
  
 app = FastAPI(on_startup=[])
@@ -131,5 +127,5 @@ async def websocket_endpoint(websocket: WebSocket):
 
 # uvicorn main:app --reload
 # npm run dev
-# cd BACKEND\DOANTOTNGHIEP\VectorDB_DATN\server\src
+# cd VectorDB_DATN\server\src
 # cd VectorDB_DATN\frontend
