@@ -394,6 +394,7 @@ const ChatBotPage: React.FC = () => {
                   });
                 }, 500);
               }}
+              disabled={isLoading}
             >
               <DeleteIcon />
             </Button>
