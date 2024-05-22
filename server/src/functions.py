@@ -271,7 +271,7 @@ def chatbot_with_fc(message, messages = []):
         # get suggestions for user to ask
         
     suggestions = get_suggestions(message + ". Answer: " + response["replies"][0].content)
-    return {"answer":response["replies"][0].content, "tag" : suggestions}
+    return {"history":messages,"answer":response["replies"][0].content, "tag" : suggestions}
 
 
 # Test chatbot qua interface duoc support boi gradio
@@ -293,6 +293,7 @@ def chatbot_with_fc(message, messages = []):
 #         title="Ask me about description or similar course!",
 #     )
 #     return demo
+
 
 
 ## Uncomment the line below to launch the chat app with UI

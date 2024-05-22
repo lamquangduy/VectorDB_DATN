@@ -196,6 +196,7 @@ def get_suggestions(content):
     return list_of_lines
 
 def chatbot_with_fc(message, messages = []):
+    print(messages)
     chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
     tools = [
         {
@@ -271,7 +272,7 @@ def chatbot_with_fc(message, messages = []):
         # get suggestions for user to ask
         
     suggestions = get_suggestions(message + ". Answer: " + response["replies"][0].content)
-    return {"answer":response["replies"][0].content, "tag" : suggestions}
+    return {"history":messages,"answer":response["replies"][0].content, "tag" : suggestions}
 
 
 # Test chatbot qua interface duoc support boi gradio
