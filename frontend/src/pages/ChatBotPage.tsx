@@ -5,7 +5,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -129,7 +129,7 @@ const BotText: React.FC<IChatData> = (props: IChatData) => {
                 fontSize:15,
         }}
       >
-        {props.message}
+        <Typewriter text={props.message} delay={9} />
       </Typography>
     </Box>
   );
@@ -172,19 +172,20 @@ const ChatBotPage: React.FC = () => {
   const [message, setMessage] = React.useState<string>("");
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [suggestion,setSuggestion]=React.useState<string[]>([]);
+  const [trackServer,setTrackServer]=React.useState([])
   const wsRef = useRef<WebSocket | null>(null);
 
-  useEffect(() => {
+  // useEffect(() => {
     
-    // Initialize WebSocket connection
-    if (!wsRef.current) {
-        const ws = new WebSocket("ws://localhost:8000/ws");
-        wsRef.current = ws;
+  //   // Initialize WebSocket connection
+  //   if (!wsRef.current) {
+  //       const ws = new WebSocket("ws://localhost:8000/ws");
+  //       wsRef.current = ws;
     
-        ws.onopen = () => {
-          console.log("WebSocket connection established");
-        };
-    }
+  //       ws.onopen = () => {
+  //         console.log("WebSocket connection established");
+  //       };
+  //   }
 
   
     // ws.onmessage = (e) => {
@@ -205,29 +206,29 @@ const ChatBotPage: React.FC = () => {
     //     wsRef.current.close();
     //   }
     // };
-  }, []);
+  // }, []);
   
-  const sendMessage = (value?: string) => {
-    console.log('sendMessage called with value:', value);
-    if ((message.trim()||value?.trim()) && wsRef.current) {
-      wsRef.current.send(message);
-      chatHistory.push({ sender: "user", message: value ?? message });
-        setChatData([...chatHistory]);
-        setIsLoading(true);
-        scrollToBottom();
-        if (!Boolean(value)) setMessage("");
-      wsRef.current.onmessage = (e) => {
-        // const message = JSON.parse(e.data);
-        const data = JSON.parse(e.data)
-        console.log(data.tag)
-        chatHistory.push( {sender: "bot",  message: data.answer});
-        setSuggestion(data.tag);
-        setChatData([...chatHistory]);
-         setIsLoading(false);
-            scrollToBottom();
-      };
-    }
-  };
+  // const sendMessage = (value?: string) => {
+  //   console.log('handleChat called with value:', value);
+  //   if ((message.trim()||value?.trim()) && wsRef.current) {
+  //     wsRef.current.send(value??message);
+  //     chatHistory.push({ sender: "user", message: value ?? message });
+  //       setChatData([...chatHistory]);
+  //       setIsLoading(true);
+  //       scrollToBottom();
+  //       if (!Boolean(value)) setMessage("");
+  //     wsRef.current.onmessage = (e) => {
+  //       // const message = JSON.parse(e.data);
+  //       const data = JSON.parse(e.data)
+  //       console.log(data.respone.tag)
+  //       chatHistory.push( {sender: "bot",  message: data.respone.answer});
+  //       setSuggestion(data.tag);
+  //       setChatData([...chatHistory]);
+  //        setIsLoading(false);
+  //           scrollToBottom();
+  //     };
+  //   }
+  // };
 
   // React.useEffect(() => {
   //   document.documentElement.classList.toggle("fake-dark-mode");
@@ -241,14 +242,15 @@ const ChatBotPage: React.FC = () => {
     scrollToBottom();
     if (!Boolean(value)) setMessage("");
 
-    getChatResponse(message)
+    getChatResponse(message,trackServer)
       .then((res) => {
         console.log(res);
         chatHistory.push({
           sender: "bot",
-          message: res.response,
+          message: res.response.answer,
         });
         setChatData([...chatHistory]);
+        setTrackServer(res.response.history)
         setIsLoading(false);
         scrollToBottom();
       })
@@ -289,12 +291,11 @@ const ChatBotPage: React.FC = () => {
         }}
       >
         <HistoryPanel />
-
         <Box
           sx={{
             width: "60%",
             height: "100%",
-            backgroundColor: "#F8F8FF",
+            background: 'linear-gradient(to right bottom, #F8F8FF, #eeeef0)',
             boxShadow: 3,
             borderRadius: 2,
             overflow: "auto",
@@ -310,8 +311,10 @@ const ChatBotPage: React.FC = () => {
           backgroundColor: "#019b01",
           fontSize:"30px",
         borderRadius:"4px",
+        fontWeight:'bold',
+        color:'#e3e0e0',
           boxShadow:3}}>
-        ChatBot
+        Auto Bot
     </Typography>
           </Box>
           <Box
@@ -359,7 +362,7 @@ const ChatBotPage: React.FC = () => {
             {
                 suggestion.length!==0  && !isLoading &&
                 suggestion.map((tag: string)=>{
-                    return <SuggestedTag  value={tag} handleClick={sendMessage}
+                    return <SuggestedTag  value={tag} handleClick={handleChat}
                     sx="5">
 
                     </SuggestedTag>
@@ -406,11 +409,13 @@ const ChatBotPage: React.FC = () => {
                 px: 1,
                 textAlign: "center",
                 borderRadius:"10px",
-                boxShadow:"3"
+                boxShadow:"3",
+                background:'#f0eeee',
+                "::placeholder":'bold'
               }}
               onKeyDown={(e) => {
                 if (message !== "" && e.key === "Enter") {
-                  sendMessage();
+                  handleChat();
                 }
               }}
               placeholder="Type a new message here"
@@ -422,7 +427,7 @@ const ChatBotPage: React.FC = () => {
             <Button
               onClick={() => {
                 // handleChat();
-                sendMessage()
+                handleChat()
               }}
             >
               <SendIcon />
@@ -433,5 +438,29 @@ const ChatBotPage: React.FC = () => {
     </Box>
   );
 };
+
+interface TypewriterProps {
+  text: string;
+  delay: number;
+}
+
+const Typewriter: React.FC<TypewriterProps> = ({ text, delay }) => {
+  const [currentText, setCurrentText] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (currentIndex < text.length) {
+      const timeoutId = setTimeout(() => {
+        setCurrentText((prev) => prev + text[currentIndex]);
+        setCurrentIndex((prev) => prev + 1);
+      }, delay);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [currentIndex, text, delay]);
+
+  return <span>{currentText}</span>;
+};
+
 
 export default ChatBotPage;
