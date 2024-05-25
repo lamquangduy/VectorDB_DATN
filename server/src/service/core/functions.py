@@ -187,8 +187,7 @@ def get_content_course(course_name: str, filepath: str = "./courses.csv"):
         return list_name
     # fallback data
     else:
-        content = rag_pipeline_func(course_name)
-        return content
+        return {"reply": "None"}
 
 def get_suggestions(content):
     llm = OpenAIGenerator(model="gpt-3.5-turbo")
