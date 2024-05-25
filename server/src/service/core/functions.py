@@ -183,11 +183,12 @@ def get_content_course(course_name: str, filepath: str = "./courses.csv"):
     course_info = add_content_current_course(filepath)
     if course_name.upper() in course_info:
         content = course_info[course_name.upper()][2]
-        list_name = rag_pipeline_func("Get top 8 similar course of " + content + "?")
+        list_name = rag_pipeline_func(f"Get top 10 similar course of { content } ?")
         return list_name
     # fallback data
     else:
-        return {"reply": "No content"}
+        content = rag_pipeline_func(course_name)
+        return content
 
 def get_suggestions(content):
     llm = OpenAIGenerator(model="gpt-3.5-turbo")
