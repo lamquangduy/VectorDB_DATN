@@ -1,7 +1,7 @@
-import Box from "@mui/material/Box/Box";
-import Button from "@mui/material/Button/Button";
-import Typography from "@mui/material/Typography/Typography";
-import React from "react";
+import React, { useState } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 import UploadFileTwoToneIcon from "@mui/icons-material/UploadFileTwoTone";
 import { Avatar, Icon } from "@mui/material";
 import { Image } from "@mui/icons-material";
@@ -33,7 +33,7 @@ const UploadBox: React.FC<IUploadBoxProps> = (props: IUploadBoxProps) => {
         cursor: "pointer",
         boxShadow:3,
         ":hover":{
-          backgroundColor: props.selected ? "primary.main":"#92B9E3"
+          backgroundColor: props.selected ? "primary.main":"#dce7f4"
         }
       }}
       onClick={props.onClick}
@@ -50,11 +50,12 @@ const UploadBox: React.FC<IUploadBoxProps> = (props: IUploadBoxProps) => {
         marginRight:3,
         fontSize:"20px",
         fontWeight:"bold",
-        color:"#BOD4B8"
+        fontFamily:"inherit"
       }}>{title}</Typography>
     </Box>
   );
 };
+
 const listUpload: IUploadBox[] = [
   { title: "Upload PDF", icon: "/img/pdf.png" },
   { title: "Upload Word", icon: "/img/word.png" },
@@ -63,8 +64,80 @@ const listUpload: IUploadBox[] = [
   { title: "Upload Text", icon: "/img/text.png" },
   { title: "Upload URL", icon: "/img/url.png" },
 ];
+
+const validUrl= (str:string)=> {
+  const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  return !!pattern.test(str);
+}
+
 const AdminPage: React.FC = () => {
-  const [selectedMenu, setSelectedMenu] = React.useState<string>("Upload PDF");
+  const [selectedMenu, setSelectedMenu] = useState<string>("Upload PDF");
+  const [file, setFile] = useState<File | null>(null);
+  const [url,setUrl]=useState<string>("");
+
+  const handleInputFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setFile(event.target.files[0]);
+      console.log(event.target.files[0]);
+    }
+  };
+  const handleInputUrl = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUrl(event.target.value)
+  };
+  const handleSubmitUrl = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if(!validUrl(url)){
+      console.log("Invalid URL!")
+      return;
+    }
+    try {
+      const endpoint = "http://localhost:8000/uploadurl/";
+      const res = await fetch(endpoint, {
+        method: "POST",
+        body: JSON.stringify({ url: url }) ,
+      });
+
+      if (res.ok) {
+        console.log("Successful!");
+      } else {
+        console.error("Fail!");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+  }
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file_upload", file);
+
+    try {
+      const endpoint = "http://localhost:8000/uploadfile/";
+      const res = await fetch(endpoint, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        console.log("Successful!");
+      } else {
+        console.error("Fail!");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <Box
@@ -77,6 +150,7 @@ const AdminPage: React.FC = () => {
         alignItems: "center",
         p: 2,
         gap: 1,
+        
       }}
     >
       <Box
@@ -89,6 +163,7 @@ const AdminPage: React.FC = () => {
       >
         {listUpload.map((item) => (
           <UploadBox
+            key={item.title}
             title={item.title}
             icon={item.icon}
             selected={selectedMenu === item.title}
@@ -133,26 +208,28 @@ const AdminPage: React.FC = () => {
         >
          
           <input
+            required
             type="text"
             id="file-input"
+            onChange={handleInputUrl}
             style={{
-              borderBlockStart:"1px",
               outline: 0,
               height:30,
               width:550,
               textAlign: "center",
-              borderRadius:"10px",
-              boxShadow:"3",
+              borderRadius:"8px",
+              boxShadow:"1",
               background:'#f0eeee',
               marginBottom:20,
-            }}
+              fontSize:15
+              
+            }
+          }
           />
           <Button
             variant="contained"
             color="success"
-            onClick={() => {
-              document.getElementById("file-input")?.click();
-            }}
+            onClick={handleSubmitUrl}
             sx={{
               width: 160,
               height: 48,
@@ -172,7 +249,7 @@ const AdminPage: React.FC = () => {
             backgroundColor: "#C1E4C1",
             borderRadius: 4,
             cursor: "pointer",
-            
+            paddingY:20
           }}
         >
           <Box>
@@ -183,19 +260,26 @@ const AdminPage: React.FC = () => {
               }}
             />
           </Box>
+          {file && (
+            <Typography
+              sx={{
+                mt: 2,
+                fontSize: 16,
+              }}
+            >
+              Selected file: {file.name}
+            </Typography>
+          )}
           <input
             type="file"
             id="file-input"
-            style={{
-              display: "none",
-            }}
+            style={{ display: "none" }}
+            onChange={handleInputFile}
           />
           <Button
             variant="contained"
             color="success"
-            onClick={() => {
-              document.getElementById("file-input")?.click();
-            }}
+            onClick={() => document.getElementById("file-input")?.click()}
             sx={{
               width: 160,
               height: 48,
@@ -203,8 +287,20 @@ const AdminPage: React.FC = () => {
           >
             CHOOSE FILES
           </Button>
-        </Box>)
-        }
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            sx={{
+              width: 160,
+              height: 48,
+              mt: 2,
+            }}
+          >
+            UPLOAD
+          </Button>
+        </Box>
+        )}
       </Box>
     </Box>
   );
