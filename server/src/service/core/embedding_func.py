@@ -39,7 +39,7 @@ def embedding_content_fromURL(url: str):
     pipeline = Pipeline()
     pipeline.add_component("converter", HTMLToDocument())
     pipeline.add_component("cleaner", DocumentCleaner())
-    pipeline.add_component("splitter", DocumentSplitter(split_by="sentence", split_length=5))
+    pipeline.add_component("splitter", DocumentSplitter(split_by="word", split_length=200, split_overlap = 50))
     #pipeline.add_component("writer", DocumentWriter(document_store=document_store))
     pipeline.connect("converter", "cleaner")
     pipeline.connect("cleaner", "splitter")
@@ -92,7 +92,7 @@ def embedding_txt(filepath: str = "test.txt"):
     res = pipeline.run({"converter": {"sources": [filepath]}})
     docu = res['splitter']['documents']
         # init embedder
-    doc_embedder = SentenceTransformersDocumentEmbedder(model="Snowflake/snowflake-arctic-embed-m")
+    doc_embedder = SentenceTransformersDocumentEmbedder()
     doc_embedder.warm_up()
 
     ## Use embedder Embedding file document for Fetch và Indexing
