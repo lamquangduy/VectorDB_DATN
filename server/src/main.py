@@ -6,12 +6,13 @@ from haystack.dataclasses import ChatMessage
 from src.utils.dto import StatusResponseDTO
 from src.service.controller import router
 from src.service.core.functions import chatbot_with_fc
+
 # from functions import chatbot_with_fc
 # from utils.dto import StatusResponseDTO
 # from service.controller import router
 import json
 import os
- 
+
 app = FastAPI(on_startup=[])
 origins = [
     "http://localhost",
@@ -117,6 +118,7 @@ async def websocket_endpoint(websocket: WebSocket):
             "Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous."
         )
     ]
+
     try:
         while True:
             data = await websocket.receive_text()
@@ -124,6 +126,7 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.send_text(json.dumps(result))
     except WebSocketDisconnect:
         print("disconnect")
+
 
 # uvicorn main:app --reload
 # npm run dev

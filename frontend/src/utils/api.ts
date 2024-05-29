@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_APP_CHAT_SERVER_URL || "http://localhost:8000",
+  baseURL: import.meta.env.VITE_APP_CHAT_SERVER_URL || "http://localhost:8030",
 });
 // export default axiosInstance;
 

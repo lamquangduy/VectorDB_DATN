@@ -1,8 +1,12 @@
 import "./App.css";
-import ChatBotPage from "./pages/ChatBotPage";
+import NavigationRouter from "./routers/router";
 
 function App() {
-  return <ChatBotPage />;
+  return (
+    <>
+      <NavigationRouter />
+    </>
+  );
 }
 
 export default App;
