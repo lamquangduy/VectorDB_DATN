@@ -3,6 +3,8 @@ import Button from "@mui/material/Button/Button";
 import Typography from "@mui/material/Typography/Typography";
 import React from "react";
 import UploadFileTwoToneIcon from "@mui/icons-material/UploadFileTwoTone";
+import { Avatar, Icon } from "@mui/material";
+import { Image } from "@mui/icons-material";
 
 interface IUploadBox {
   title: string;
@@ -15,34 +17,51 @@ interface IUploadBoxProps extends IUploadBox {
 }
 
 const UploadBox: React.FC<IUploadBoxProps> = (props: IUploadBoxProps) => {
-  const { title } = props;
+  const { title,icon } = props;
   return (
     <Box
       sx={{
         height: 80,
         width: "80%",
-        border: "1px solid black",
-        borderRadius: 2,
+        minWidth:160,
+        borderRadius: 4,
         display: "flex",
-        justifyContent: "center",
+        justifyContent: "space-around",
         alignItems: "center",
         backgroundColor: props.selected ? "primary.main" : "white",
         color: props.selected ? "white" : "black",
         cursor: "pointer",
+        boxShadow:3,
+        ":hover":{
+          backgroundColor: props.selected ? "primary.main":"#92B9E3"
+        }
       }}
       onClick={props.onClick}
     >
-      <Typography>{title}</Typography>
+      <Box
+      component="img"
+      sx={{
+        width:"38px",
+        height:"40px"
+      }}
+      src={icon}
+      ></Box>
+      <Typography sx={{
+        marginRight:3,
+        fontSize:"20px",
+        fontWeight:"bold",
+        color:"#BOD4B8"
+      }}>{title}</Typography>
     </Box>
   );
 };
 const listUpload: IUploadBox[] = [
-  { title: "Upload PDF", icon: "" },
-  { title: "Upload Word", icon: "" },
-  { title: "Upload Excel", icon: "" },
-  { title: "Upload CSV", icon: "" },
-  { title: "Upload Text", icon: "" },
-  { title: "Upload URL", icon: "" },
+  { title: "Upload PDF", icon: "/img/pdf.png" },
+  { title: "Upload Word", icon: "/img/word.png" },
+  { title: "Upload Excel", icon: "/img/excel.png" },
+  { title: "Upload CSV", icon: "/img/csv.png" },
+  { title: "Upload Text", icon: "/img/text.png" },
+  { title: "Upload URL", icon: "/img/url.png" },
 ];
 const AdminPage: React.FC = () => {
   const [selectedMenu, setSelectedMenu] = React.useState<string>("Upload PDF");
@@ -52,7 +71,7 @@ const AdminPage: React.FC = () => {
       sx={{
         display: "flex",
         width: "100%",
-
+        boxShadow:3,
         height: "100%",
         justifyContent: "center",
         alignItems: "center",
@@ -76,12 +95,13 @@ const AdminPage: React.FC = () => {
             onClick={() => setSelectedMenu(item.title)}
           />
         ))}
+
       </Box>
       <Box
         sx={{
           width: "80%",
           height: "100%",
-          border: "1px solid black",
+          borderLeft: "2px solid #D3D3D3",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -96,7 +116,8 @@ const AdminPage: React.FC = () => {
         >
           {selectedMenu}
         </Typography>
-        <Box
+        {selectedMenu ==='Upload URL'? 
+        (<Box
           sx={{
             width: "50%",
             height: "30%",
@@ -104,9 +125,54 @@ const AdminPage: React.FC = () => {
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "primary.main",
+            backgroundColor: "#C1E4C1",
             borderRadius: 4,
             cursor: "pointer",
+            
+          }}
+        >
+         
+          <input
+            type="text"
+            id="file-input"
+            style={{
+              borderBlockStart:"1px",
+              outline: 0,
+              height:30,
+              width:550,
+              textAlign: "center",
+              borderRadius:"10px",
+              boxShadow:"3",
+              background:'#f0eeee',
+              marginBottom:20,
+            }}
+          />
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => {
+              document.getElementById("file-input")?.click();
+            }}
+            sx={{
+              width: 160,
+              height: 48,
+            }}
+          >
+            LOAD
+          </Button>
+        </Box>
+        ):(<Box
+          sx={{
+            width: "50%",
+            height: "30%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#C1E4C1",
+            borderRadius: 4,
+            cursor: "pointer",
+            
           }}
         >
           <Box>
@@ -137,7 +203,8 @@ const AdminPage: React.FC = () => {
           >
             CHOOSE FILES
           </Button>
-        </Box>
+        </Box>)
+        }
       </Box>
     </Box>
   );
