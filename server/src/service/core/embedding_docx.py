@@ -44,5 +44,3 @@ def embedding_docx(file_path):
     embedding_func.embedding_txt(new_file)
     document.Close()
 
-
-embedding_docx("F:\\BACKEND\\final_app\\VectorDB_DATN\\server\\src\\upload\\file.docx")
