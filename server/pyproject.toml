@@ -13,7 +13,8 @@ uvicorn = "^0.29.0"
 haystack-ai = "^2.1.1"
 qdrant-haystack = "^3.5.0"
 sentence-transformers = ">=2.2.0"
-
+Spire.Doc
+install pypdf
 
 [build-system]
 requires = ["poetry-core"]
