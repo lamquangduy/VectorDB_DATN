@@ -28,7 +28,7 @@ const scrollToBottom = () => {
   }
 };
 const mockData: IChatData[] = [
-  { sender: "bot", message: "Hello, How can I help you?" },
+  { sender: "bot", message: "Hello, (youtube.com) absdad?" },
 ];
 
 const SuggestedTag: React.FC<SuggestedTagProps> = ({
