@@ -31,7 +31,7 @@ def embedding_content_fromURL(url: str):
     http = urllib3.PoolManager()
     resp = http.request("Get", url)
     # store in file html
-    save_to = "//upload//Temp.html"
+    save_to = ".//upload//Temp.html"
     with open(os.path.join(save_to), 'wb') as f:
         f.write(resp.data)
 
