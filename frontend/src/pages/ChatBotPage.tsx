@@ -1,4 +1,3 @@
-import { ThemeProvider ,createTheme} from '@mui/material';
 import Typography from "@mui/material/Typography/Typography";
 import SendIcon from "@mui/icons-material/Send";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -8,6 +7,7 @@ import Button from "@mui/material/Button";
 import React, { useEffect, useState } from "react";
 import getChatResponse from "../utils/api";
 import Box from "@mui/material/Box/Box";
+import Linkify from 'react-linkify';
 
 
 interface IChatData {
@@ -444,6 +444,7 @@ interface TypewriterProps {
   delay: number;
 }
 
+
 const Typewriter: React.FC<TypewriterProps> = ({ text, delay }) => {
   const [currentText, setCurrentText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -459,8 +460,15 @@ const Typewriter: React.FC<TypewriterProps> = ({ text, delay }) => {
     }
   }, [currentIndex, text, delay]);
 
-  return <span>{currentText}</span>;
-};
+  return (
+    <Linkify
+      componentDecorator={(decoratedHref, decoratedText, key) => (
+        <a key={key} href={decoratedHref} style={{ color:"#92b9e3"  }}>{decoratedText}</a>
+      )}
+    >
+      {currentText}
+    </Linkify>
+  );
 
-
+}
 export default ChatBotPage;
