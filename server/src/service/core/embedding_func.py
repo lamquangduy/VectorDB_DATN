@@ -132,32 +132,3 @@ def embedding_pdf(filepath: str = "test.txt"):
   
 
     
-from spire.doc import *
-from spire.doc.common import *
-
-def get_name_format_file(file_path):
-    file_name = os.path.basename(file_path)
-    file = os.path.splitext(file_name)
-    return {'file_name':file_name, 'split_name': file}
-
-
-def embedding_docx(file_path):
-    #get file name
-    file = get_name_format_file(file_path)['split_name']
-    # Create a Document object
-    document = Document()
-    # Load a Word document
-    document.LoadFromFile(file_path)
-    # Extract the text of the document
-    document_text = document.GetText()
-    # Write the extracted text into a text file
-    with open(os.path.join(f"{file[0]}.txt"), "w", encoding="utf-8") as file:
-        file.write(document_text)
-    new_file = os.path.dirname(file_path)+f"\\{file[0]}.txt"
-    embedding_txt(new_file)
-    document.Close()
-
-
-
-    # pip install Spire.Doc
-    # pip install pypdf

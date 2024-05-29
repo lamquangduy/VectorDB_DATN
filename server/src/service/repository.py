@@ -1,6 +1,6 @@
 from .core.functions import chatbot_with_fc
 from haystack.dataclasses import ChatMessage
-from .core import embedding_func, embedding_csv
+from .core import embedding_func, embedding_csv, embedding_docx
 from pathlib import Path
 
 def get_chat_result(text, history=[]):
@@ -30,7 +30,7 @@ def embedding(formatFile: str, filepath):
             embedding_csv.embedding_csv(UPLOAD_DIR)
             return "zero"
         case ".docx":
-            embedding_func.embedding_docx(UPLOAD_DIR)
+            embedding_docx.embedding_docx(UPLOAD_DIR)
             return "one"
         case ".pdf":
             embedding_func.embedding_pdf(UPLOAD_DIR)

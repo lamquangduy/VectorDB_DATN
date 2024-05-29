@@ -15,7 +15,7 @@ from boilerpy3 import extractors
 import os
 import pandas as pd
 
-import embedding_func
+from . import embedding_func
 
 from spire.doc import *
 from spire.doc.common import *
@@ -27,6 +27,7 @@ def get_name_format_file(file_path):
 
 
 def embedding_docx(file_path):
+    print(file_path)
     #get file name
     file = get_name_format_file(file_path)['split_name']
     # Create a Document object
