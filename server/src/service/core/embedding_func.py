@@ -24,7 +24,7 @@ from haystack.components.converters import TextFileToDocument
 def get_name_format_file(file_path):
     file_name = os.path.basename(file_path)
     file = os.path.splitext(file_name)
-    return file
+    return {'file_name':file_name, 'split_name': file}
 
 def embedding_content_fromURL(url: str):
     # request to url to get data which have html format
