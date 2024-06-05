@@ -7,6 +7,7 @@ import NavBar from "./NavBar";
 import { SuccessStatus,ErrorStatus } from "./AlertStatus";
 import { Language } from "@mui/icons-material";
 import { Divider, Input, InputAdornment, InputLabel } from "@mui/material";
+import InProgress from "./InProgress";
 interface IUploadBox {
   title: string;
   icon: string;
@@ -94,7 +95,7 @@ const Import: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState<string>("");
   const [isOver, setIsOver] = useState<boolean>(false);
-  const [isFile, setIsFile] = useState<boolean>(false);
+  const [isFile, setIsFile] = useState<boolean>(true);
   const [isValidInput,setIsValidInput]= useState<string>("");
   useEffect(() => {
     if (file) {
@@ -155,10 +156,11 @@ const Import: React.FC = () => {
         method: "POST",
         body: JSON.stringify({ url: url }),
       });
-
+      setIsValidInput("inProgress");
       if (res.ok) {
         console.log("Successful!");
         setIsValidInput("validUrl");
+        setFile(null)
         setTimeout(() => {
             setIsValidInput("");
         }, 3000);
@@ -178,29 +180,75 @@ const Import: React.FC = () => {
     }
     const formData = new FormData();
     formData.append("file_upload", file);
-
+    setIsValidInput("inProgress");
     try {
       const endpoint = "http://localhost:8000/uploadfile/";
       const res = await fetch(endpoint, {
         method: "POST",
         body: formData,
       });
-
       if (res.ok) {
         console.log("Successful!");
         setIsValidInput("validFile");
+        setFile(null)
         setTimeout(() => {
             setIsValidInput("")
         }, 3000);
       } else {
         console.error("Fail!");
+        setIsValidInput("");
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  return file ? (
+  return (
+    <>
+    {isValidInput==='inProgress' && 
+    <Box
+    sx={{
+      display: "flex",
+      width: "100%",
+      boxShadow: 3,
+      height: "90%",
+      justifyContent: "center",
+      alignItems: "center",
+      p: 2,
+      gap: 1,
+      background: "#F3F7FD",
+    }}
+  >
+    <Box
+        sx={{
+          width: "80%",
+          height: "60%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          boxShadow: 3,
+          maxWidth: "800px",
+          minHeight: "350px",
+          minWidth: "300px",
+          backgroundColor: "white",
+          borderRadius: 5,
+        }}
+        >
+    <InProgress></InProgress>
+    <Typography
+    sx={{
+      fontSize:20,
+      marginTop:5,
+      fontWeight:"bold"
+    }}>
+      File is embedded...
+    </Typography>
+    </Box>
+    </Box>
+    }
+    { isValidInput !=='inProgress' && (
+    file ? (
     <Box
       sx={{
         display: "flex",
@@ -348,6 +396,7 @@ const Import: React.FC = () => {
               onDragEnter={handleDragEnter}
               onDragLeave={handleDragLeave}
             >
+
               <input
                 type="file"
                 id="file-input"
@@ -433,7 +482,11 @@ const Import: React.FC = () => {
         </Box>
       </Box>
     </Box>
-  );
+    
+  ))
+  }
+  </>
+  )      
 };
 
 export default Import;

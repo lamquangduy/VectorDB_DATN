@@ -31,10 +31,20 @@ export default function NavBar({isFile,setIsFile}) {
         backgroundColor : isFile ?"#1d649f":"#BBDEFB",
         borderRadius:2,
         boxShadow: isFile? 1:3,
+        color:isFile ? "white":"black",
+        ":hover":{
+          backgroundColor : isFile ?"#1d649f":"#f6f6f6",
+        borderRadius:2,
+        boxShadow: isFile? 1:3,
+        color:isFile ? "white":"black",
+        }
       }}
       onClick={handleFile}>
         <ListItemIcon>
-          <DescriptionIcon />
+          <DescriptionIcon
+          sx={{
+            color:isFile ? "white":"black"
+          }} />
         </ListItemIcon>
         <ListItemText primary="Import File" />
       </ListItemButton>
@@ -42,10 +52,20 @@ export default function NavBar({isFile,setIsFile}) {
         backgroundColor:isFile ?"#BBDEFB":"#1d649f",
         borderRadius:2,
         boxShadow: isFile? 3:1,
+        color:isFile ? "black":"white",
+        ":hover":{
+          backgroundColor:isFile ?"#f6f6f6":"#1d649f",
+        borderRadius:2,
+        boxShadow: isFile? 3:1,
+        color:isFile ? "black":"white",
+        }
       }}
       onClick={handleUrl}>
         <ListItemIcon>
-          <LinkIcon />
+          <LinkIcon 
+           sx={{
+            color:isFile ? "black":"white"
+          }}/>
         </ListItemIcon>
         <ListItemText primary="Import URL" />
       </ListItemButton>

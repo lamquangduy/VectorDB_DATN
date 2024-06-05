@@ -8,7 +8,13 @@ import React, { useEffect, useState } from "react";
 import getChatResponse from "../utils/api";
 import Box from "@mui/material/Box/Box";
 import Linkify from 'react-linkify';
+import { createTheme, ThemeProvider} from "@mui/material";
 
+const theme = createTheme({
+  typography: {
+    fontFamily: ["Montserrat"].join(","),
+  },
+});
 
 interface IChatData {
   sender?: string;
@@ -61,7 +67,7 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
             borderRadius: "10px",
             overflow: "hidden",
             p: 1,
-
+            textTransform:"capitalize",
             fontSize: "0.8rem",
             // boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
             // "&:hover": {
@@ -139,7 +145,6 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
         display: "flex",
         justifyContent: "flex-end",
         alignItems: "center",
-        fontFamily:"Roboto",
         whiteSpace:"pre-line"
       }}
     >
@@ -266,6 +271,7 @@ const ChatBotPage: React.FC = () => {
   };
 
   return (
+    <ThemeProvider theme={theme}>
     <Box
       sx={{
         height: "100%",
@@ -273,7 +279,7 @@ const ChatBotPage: React.FC = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        
+        background: "radial-gradient(343px at 46.3% 47.5%, rgb(242, 242, 242) 0%, rgb(241, 241, 241) 72.9%)",
         
         // pt: 1,
       }}
@@ -309,13 +315,13 @@ const ChatBotPage: React.FC = () => {
         justifyContent: 'center', 
           alignItems: 'center',
         textAlign: 'center',
-          backgroundColor: "#019b01",
-          fontSize:"30px",
+        background:"linear-gradient(315deg, #378b29 0%, #18a428 74%)",
+          fontSize:"20px",
         borderRadius:"4px",
         fontWeight:'bold',
         color:'#e3e0e0',
           boxShadow:3}}>
-        Auto Bot
+          LearnWayBot
     </Typography>
           </Box>
           <Box
@@ -346,7 +352,7 @@ const ChatBotPage: React.FC = () => {
               );
             })}
 
-            {isLoading && <BotText message={"Loading...."} />}
+            {isLoading && <BotText message={"Loading...."}  />}
           </Box>
 
           <Box
@@ -357,15 +363,16 @@ const ChatBotPage: React.FC = () => {
               p: 0.5,
               alignItems: "center",
               justifyContent: "center",
+              height:30
             }}
           >
            
             {
                 suggestion.length!==0  && !isLoading &&
                 suggestion.map((tag: string)=>{
+                  if(tag.length!==0)
                     return <SuggestedTag  value={tag} handleClick={handleChat}
                     sx="5">
-
                     </SuggestedTag>
                 })
             }
@@ -410,8 +417,8 @@ const ChatBotPage: React.FC = () => {
                 textAlign: "center",
                 borderRadius:"10px",
                 boxShadow:"3",
-                background:'#f0eeee',
-                "::placeholder":'bold'
+                background: "#fff",
+                "::placeholder":'bold',
               }}
               onKeyDown={(e) => {
                 if (message !== "" && e.key === "Enter") {
@@ -423,19 +430,21 @@ const ChatBotPage: React.FC = () => {
               onChange={(e) => {
                 setMessage(e.target.value);
               }}
-            />
-            <Button
-              onClick={() => {
-                // handleChat();
-                handleChat()
-              }}
             >
-              <SendIcon />
-            </Button>
+            </OutlinedInput>
+            <Button
+            onClick={() => {
+              // handleChat();
+              handleChat()
+            }}
+          >
+            <SendIcon/>
+          </Button>
           </Box>
         </Box>
       </Box>
     </Box>
+    </ThemeProvider>
   );
 };
 
