@@ -34,8 +34,7 @@ file_path = ".\courses.csv"
 url_cloud = "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333"
 api_key = "U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA"
 index_name = "ThongTinKhoaHoc"
-model_name_Document = SentenceTransformersDocumentEmbedder()
-model_name_Text = SentenceTransformersTextEmbedder()
+model_name = "sentence-transformers/all-mpnet-base-v2"
 embedding_dim = 768
 
 # Create a new column which have content is name + description + skill
@@ -150,7 +149,7 @@ def embedding_csv(index_name: str = index_name, filepath: str = ".\courses.csv")
             )
         )
     # init embedder
-    doc_embedder = model_name_Document
+    doc_embedder = SentenceTransformersDocumentEmbedder(model=model_name)
     doc_embedder.warm_up()
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docs)
@@ -176,7 +175,7 @@ def rag_pipe(index_name: str = index_name):
     """
     docstore = load_store()
     rag_pipe = Pipeline()
-    rag_pipe.add_component("embedder", model_name_Text)
+    rag_pipe.add_component("embedder", SentenceTransformersTextEmbedder(model=model_name))
     rag_pipe.add_component(
         "retriever", QdrantEmbeddingRetriever(document_store=docstore)
     )
