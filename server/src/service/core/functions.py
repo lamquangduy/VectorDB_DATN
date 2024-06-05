@@ -30,9 +30,16 @@ from haystack.utils import Secret
 from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 import time
 
+file_path = ".\courses.csv"
+url_cloud = "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333"
+api_key = "U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA"
+index_name = "ThongTinKhoaHoc"
+model_name_Document = SentenceTransformersDocumentEmbedder()
+model_name_Text = SentenceTransformersTextEmbedder()
+embedding_dim = 768
 
 # Create a new column which have content is name + description + skill
-def add_content_current_course(filepath: str):
+def add_content_current_course(filepath: str = file_path):
     df = pd.read_csv(filepath)
     df["content"] = (
         "Course Name: "
@@ -56,17 +63,15 @@ def add_content_current_course(filepath: str):
 
 # Call instance qdrant cloud
 def load_store(
-    index_name: str, url: str, token: str, embedding_dim: int = 768
+    index_name: str = index_name, url: str = url_cloud, token: str = api_key, embedding_dim: int = embedding_dim
 ) -> QdrantDocumentStore:
+    print(url_cloud, ", ,", token)
 
     return QdrantDocumentStore(
         index=index_name,
         url=url,
-        api_key=Secret.from_token(token=token),
-        embedding_dim=embedding_dim,
-        # use_sparse_embeddings=True,
-        hnsw_config= {  "m": 32,
-                "ef_construct": 123   } )
+        api_key=Secret.from_token(token=token), embedding_dim=embedding_dim
+)
               # "m": 16,
     # Number of neighbours to consider during the index building. Larger the value - more accurate the search, more time required to build index.
     # "ef_construct": 100,
@@ -84,11 +89,11 @@ def load_store(
 
 
 # Embed info
-def embedding_csv(index_name: str, filepath: str = ".\courses.csv"):
+def embedding_csv(index_name: str = index_name, filepath: str = ".\courses.csv"):
     doc_store = load_store(
         index_name,
-        "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333",
-        "U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA",
+        url_cloud,
+        api_key,
     )
     df = pd.read_csv(filepath)
     # Use data to initialize Document objects
@@ -145,7 +150,7 @@ def embedding_csv(index_name: str, filepath: str = ".\courses.csv"):
             )
         )
     # init embedder
-    doc_embedder = SentenceTransformersDocumentEmbedder()
+    doc_embedder = model_name_Document
     doc_embedder.warm_up()
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docs)
@@ -157,7 +162,7 @@ def embedding_csv(index_name: str, filepath: str = ".\courses.csv"):
 
 
 # RAG pipeline Q-A system
-def rag_pipe(index_name: str):
+def rag_pipe(index_name: str = index_name):
     
     template = """
     Answer the questions based on the given context.
@@ -169,13 +174,9 @@ def rag_pipe(index_name: str):
     Question: {{ question }}
     Answer:
     """
-    docstore = load_store(
-        index_name,
-        "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333",
-        "U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA",
-    )
+    docstore = load_store()
     rag_pipe = Pipeline()
-    rag_pipe.add_component("embedder", SentenceTransformersTextEmbedder())
+    rag_pipe.add_component("embedder", model_name_Text)
     rag_pipe.add_component(
         "retriever", QdrantEmbeddingRetriever(document_store=docstore)
     )
@@ -190,12 +191,10 @@ def rag_pipe(index_name: str):
 
 
 # Run RAG Q-A system with query input
-def rag_pipeline_func(query: str,index_name: str = "ThongTinKhoaHoc"):
-    start_time = time.time()
-    result = rag_pipe(index_name).run(
+def rag_pipeline_func(query: str):
+    result = rag_pipe().run(
         {"embedder": {"text": query}, "prompt_builder": {"question": query}}
     )
-    print("Time: ",time.time()- start_time)
     return {"reply": result["llm"]["replies"][0]}
 
 

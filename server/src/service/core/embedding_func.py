@@ -18,8 +18,29 @@ import docx
 from haystack.document_stores.types import DuplicatePolicy
 
 
-def get_name_format_file(file_path):
-    file_name = os.path.basename(file_path)
+file_path = ".\courses.csv"
+url_cloud = "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333"
+api_key = "U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA"
+index_name = "ThongTinKhoaHoc"
+model_name_Document = SentenceTransformersDocumentEmbedder()
+embedding_dim = 768
+split_by="word"
+split_length=200 
+split_overlap = 100
+
+# Call instance qdrant cloud
+def load_store(
+    index_name: str = index_name, url: str = url_cloud, token: str = api_key, embedding_dim: int = embedding_dim
+) -> QdrantDocumentStore:
+
+    return QdrantDocumentStore(
+        index=index_name,
+        url=url,
+        api_key=Secret.from_token(token=token), embedding_dim= embedding_dim
+)
+
+def get_name_format_file(filepath: str = file_path):
+    file_name = os.path.basename(filepath)
     file = os.path.splitext(file_name)
     return {'file_name':file_name, 'split_name': file}
 
@@ -36,7 +57,7 @@ def embedding_content_fromURL(url: str):
     pipeline = Pipeline()
     pipeline.add_component("converter", HTMLToDocument())
     pipeline.add_component("cleaner", DocumentCleaner())
-    pipeline.add_component("splitter", DocumentSplitter(split_by="word", split_length=200, split_overlap = 100))
+    pipeline.add_component("splitter", DocumentSplitter(split_by=split_by, split_length=split_length, split_overlap = split_overlap))
     #pipeline.add_component("writer", DocumentWriter(document_store=document_store))
     pipeline.connect("converter", "cleaner")
     pipeline.connect("cleaner", "splitter")
@@ -47,13 +68,9 @@ def embedding_content_fromURL(url: str):
     docu = res['splitter']['documents']
 
     #load qdrant cloud
-    document_store = QdrantDocumentStore(
-    index = "ThongTinKhoaHoc",
-        url = "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333",
-            api_key=Secret.from_token("U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA"),
-    )
+    document_store = load_store()
     # init embedder
-    doc_embedder = SentenceTransformersDocumentEmbedder()
+    doc_embedder = model_name_Document 
     doc_embedder.warm_up()
 
     ## Use embedder Embedding file document for Fetch và Indexing
@@ -66,22 +83,18 @@ def embedding_content_fromURL(url: str):
 
 def embedding_txt(filepath: str = "test.txt"):
 
-    document_store = QdrantDocumentStore(
-    index = "ThongTinKhoaHoc",
-        url = "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333",
-            api_key=Secret.from_token("U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA"),
-    )
+    document_store = load_store()
     pipeline = Pipeline()
     pipeline.add_component("converter", TextFileToDocument())
     pipeline.add_component("cleaner", DocumentCleaner())
-    pipeline.add_component("splitter", DocumentSplitter(split_by="word", split_length=200, split_overlap = 100))
+    pipeline.add_component("splitter", DocumentSplitter(split_by=split_by, split_length=split_length, split_overlap = split_overlap))
     pipeline.connect("converter", "cleaner")
     pipeline.connect("cleaner", "splitter")
 
     res = pipeline.run({"converter": {"sources": [filepath]}})
     docu = res['splitter']['documents']
         # init embedder
-    doc_embedder = SentenceTransformersDocumentEmbedder()
+    doc_embedder = model_name_Document 
     doc_embedder.warm_up()
 
     ## Use embedder Embedding file document for Fetch và Indexing
@@ -112,17 +125,13 @@ def embedding_docx(file_path: str):
 
 # Embed pdf
 def embedding_pdf(filepath: str = "test.txt"):
-    document_store = QdrantDocumentStore(
-    index = "ThongTinKhoaHoc",
-        url = "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333",
-            api_key=Secret.from_token("U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA"),
-    )
+    document_store = load_store()
     pipeline = Pipeline()
+    embedder = model_name_Document 
     pipeline.add_component("converter",  PyPDFToDocument())
     pipeline.add_component("cleaner", DocumentCleaner())
-    pipeline.add_component("splitter", DocumentSplitter(split_by="word", split_length=200, split_overlap=100 ))
-    pipeline.add_component("embedder", SentenceTransformersDocumentEmbedder())
-
+    pipeline.add_component("splitter", DocumentSplitter(split_by=split_by, split_length=split_length, split_overlap = split_overlap))
+    pipeline.add_component("embedder", embedder)
     pipeline.add_component("writer", DocumentWriter(document_store=document_store, policy=DuplicatePolicy.SKIP))
     pipeline.connect("converter", "cleaner")
     pipeline.connect("cleaner", "splitter")
@@ -147,19 +156,13 @@ def embedding_csv(filepath: str = ".\courses.csv"):
         docu.append(Document(content=data_row))
     # init embedder
     # init qdrant cloud instance
-    document_store = QdrantDocumentStore(
-    index = "ThongTinKhoaHoc",
-        url = "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333",
-            api_key=Secret.from_token("U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA")
-    )
+    document_store = load_store()
     ## Use embedder Embedding file document for Fetch và Indexing
-    embedder = SentenceTransformersDocumentEmbedder()
-    document_writer = DocumentWriter(document_store = document_store, policy=DuplicatePolicy.SKIP)
-    indexing_pipeline = Pipeline()
-    indexing_pipeline.add_component(instance=embedder, name="embedder")
-    indexing_pipeline.add_component(instance=document_writer, name="writer")
-    indexing_pipeline.connect("embedder", "writer")
-    indexing_pipeline.run({"embedder": {"documents": docu}})
+    embedder = model_name_Document 
+    embedder.warm_up()
+   
+    docs_with_embeddings =  embedder.run(docu)
+    document_store.write_documents(docs_with_embeddings["documents"], policy=DuplicatePolicy.SKIP)
     return "Success!"
     
 
