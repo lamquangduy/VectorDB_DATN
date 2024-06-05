@@ -292,7 +292,6 @@ const ChatBotPage: React.FC = () => {
           maxHeight: 1000,
           display: "flex",
           gap: 2,
-
           justifyContent: "center",
           alignItems: "center",
         }}
@@ -306,7 +305,11 @@ const ChatBotPage: React.FC = () => {
             boxShadow: 3,
             borderRadius: 2,
             overflow: "auto",
-            bgcolor:"EEEEEE"
+            bgcolor:"EEEEEE",
+            scrollbarWidth:"thin",
+            WebkitOverflowScrolling:{
+              display:"none"
+            },
           }}
         >
           <Box
@@ -327,20 +330,23 @@ const ChatBotPage: React.FC = () => {
           <Box
             sx={{
               width: "100%",
-              height: "5%",
+              height: "0%",
               display: "flex",
             }}
           >
           </Box>
-
           <Box
             sx={{
               width: "100%",
               //   height: "100%",
               height: "76vh",
               maxHeight: 692,
-              padding: 2,
-              overflow: "auto",
+              padding: 1,
+              overflow: "scroll",
+              scrollbarWidth:"none",
+              WebkitOverflowScrolling:{
+                display:"none"
+              }
             }}
             id="chat-box"
           >
@@ -363,7 +369,8 @@ const ChatBotPage: React.FC = () => {
               p: 0.5,
               alignItems: "center",
               justifyContent: "center",
-              height:30
+              height:20,
+             marginBlockEnd:7
             }}
           >
            
