@@ -4,9 +4,9 @@ import { Chip, Stack } from '@mui/material';
 const CustomChip = () => {
   const fileTypes = [
     { label: 'PDF', color: '#FFCDD2' },
-    { label: 'DOC', color: '#BBDEFB' },
+    // { label: 'DOC', color: '#BBDEFB' },
     { label: 'DOCX', color: '#C8E6C9' },
-    { label: 'PPT', color: '#FFE0B2' },
+    { label: 'CSV', color: '#FFE0B2' },
     { label: 'XLSX', color: '#FFECB3' },
     { label: 'TXT', color: '#FFECB3' },
   ];
