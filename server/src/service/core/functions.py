@@ -174,9 +174,10 @@ def rag_pipe(index_name: str = index_name):
     Question: {{ question }}
     Answer:
     """
+    embedder = model_name_Text
     docstore = load_store()
     rag_pipe = Pipeline()
-    rag_pipe.add_component("embedder", model_name_Text)
+    rag_pipe.add_component("embedder", embedder)
     rag_pipe.add_component(
         "retriever", QdrantEmbeddingRetriever(document_store=docstore)
     )
