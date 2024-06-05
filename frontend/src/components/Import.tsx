@@ -450,6 +450,7 @@ const Import: React.FC = () => {
               </InputLabel>
               <Input
                 id="input-with-icon-adornment"
+                placeholder="Example: https://www.google.com/"
                 startAdornment={
                   <InputAdornment position="start">
                     <Language/>
