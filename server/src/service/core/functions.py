@@ -9,7 +9,7 @@ import json
 
 # import gradio as gr
 import pandas as pd
-
+from haystack.document_stores.types import DuplicatePolicy
 from haystack import Pipeline
 from haystack.components.embedders import (
     SentenceTransformersTextEmbedder,
@@ -28,6 +28,7 @@ from haystack.components.generators.chat import OpenAIChatGenerator
 from haystack_integrations.components.retrievers.qdrant import QdrantEmbeddingRetriever
 from haystack.utils import Secret
 from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
+import time
 
 
 # Create a new column which have content is name + description + skill
@@ -63,7 +64,23 @@ def load_store(
         url=url,
         api_key=Secret.from_token(token=token),
         embedding_dim=embedding_dim,
-    )
+        # use_sparse_embeddings=True,
+        hnsw_config= {  "m": 32,
+                "ef_construct": 123   } )
+              # "m": 16,
+    # Number of neighbours to consider during the index building. Larger the value - more accurate the search, more time required to build index.
+    # "ef_construct": 100,
+    # Minimal size (in KiloBytes) of vectors for additional payload-based indexing.
+    # If payload chunk is smaller than `full_scan_threshold_kb` additional indexing won't be used -
+    # in this case full-scan search should be preferred by query planner and additional indexing is not required.
+    # Note: 1Kb = 1 vector of size 256
+    
+    # Number of parallel threads used for background index building. If 0 - auto selection.
+    # "max_indexing_threads": 0,
+    # Store HNSW index on disk. If set to false, index will be stored in RAM. Default: false
+
+
+
 
 
 # Embed info
@@ -113,7 +130,7 @@ def embedding_csv(index_name: str, filepath: str = ".\courses.csv"):
     ):
         docs.append(
             Document(
-                content=f"Course Name: {name}.With course description: {description}. And this course will help you for improving skills such as: {skill}",
+                content=f"Course Name: {name}. This course has a web link (or url) is: {url} .With course description: {description}. And this course will help you for improving skills such as: {skill}",
                 meta={
                     "name": name or "",
                     "url": url or "",
@@ -132,7 +149,7 @@ def embedding_csv(index_name: str, filepath: str = ".\courses.csv"):
     doc_embedder.warm_up()
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docs)
-    doc_store.write_documents(docs_with_embeddings["documents"])
+    doc_store.write_documents(docs_with_embeddings["documents"], policy=DuplicatePolicy.SKIP)
     if doc_store.count_documents() > 0:
         return "Success"
     else:
@@ -140,7 +157,8 @@ def embedding_csv(index_name: str, filepath: str = ".\courses.csv"):
 
 
 # RAG pipeline Q-A system
-def rag_pipe():
+def rag_pipe(index_name: str):
+    
     template = """
     Answer the questions based on the given context.
 
@@ -152,7 +170,7 @@ def rag_pipe():
     Answer:
     """
     docstore = load_store(
-        "ThongTinKhoaHoc",
+        index_name,
         "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333",
         "U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA",
     )
@@ -167,19 +185,22 @@ def rag_pipe():
     rag_pipe.connect("embedder.embedding", "retriever.query_embedding")
     rag_pipe.connect("retriever", "prompt_builder.documents")
     rag_pipe.connect("prompt_builder", "llm")
+    
     return rag_pipe
 
 
 # Run RAG Q-A system with query input
-def rag_pipeline_func(query: str):
-    result = rag_pipe().run(
+def rag_pipeline_func(query: str,index_name: str = "ThongTinKhoaHoc"):
+    start_time = time.time()
+    result = rag_pipe(index_name).run(
         {"embedder": {"text": query}, "prompt_builder": {"question": query}}
     )
+    print("Time: ",time.time()- start_time)
     return {"reply": result["llm"]["replies"][0]}
 
 
 # Get info (name + description + skill) through course name
-def get_content_course(course_name: str, filepath: str = "./courses.csv"):
+def get_content_course(course_name: str,query="", filepath: str = "./courses.csv"):
     course_info = add_content_current_course(filepath)
     if course_name.upper() in course_info:
         content = course_info[course_name.upper()][2]
@@ -187,13 +208,15 @@ def get_content_course(course_name: str, filepath: str = "./courses.csv"):
         return list_name
     # fallback data
     else:
-        return {"reply": "None"}
+        return rag_pipeline_func(query)
 
 def get_suggestions(content):
     llm = OpenAIGenerator(model="gpt-3.5-turbo")
     response = llm.run("Give me a list 4 suggestions question, which have less than 10 words, only text and don't need numberring, each line only have one question, for user to ask with previous question and its answer is:"+content)
     list_of_lines = response['replies'][0].splitlines()
     return list_of_lines
+
+
 
 def chatbot_with_fc(message, messages = []):
     print(messages)
@@ -226,10 +249,14 @@ def chatbot_with_fc(message, messages = []):
                     "properties": {
                         "course_name": {
                             "type": "string",
-                            "description": "The city and state, e.g. San Francisco, CA",
+                            "description": "Name of the course, e.g. Applied Software Engineering Fundamentals Specialization, AI Foundations for Everyone Specialization",
+                        },
+                         "query": {
+                            "type": "string",
+                            "description": "The query to use in the search. Infer this from the user's message. It should be a question or a statement",
                         }
                     },
-                    "required": ["course_name"],
+                    "required": ["course_name","query"],
                 },
             },
         },
@@ -275,6 +302,7 @@ def chatbot_with_fc(message, messages = []):
     return {"history":messages,"answer":response["replies"][0].content, "tag" : suggestions}
 
 
+
 # Test chatbot qua interface duoc support boi gradio
 # def chatbot_interface():
 #     response = None
@@ -294,6 +322,7 @@ def chatbot_with_fc(message, messages = []):
 #         title="Ask me about description or similar course!",
 #     )
 #     return demo
+
 
 
 ## Uncomment the line below to launch the chat app with UI
