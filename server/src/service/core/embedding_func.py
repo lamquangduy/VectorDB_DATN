@@ -17,8 +17,8 @@ import pandas as pd
 from haystack.dataclasses import Document
 from haystack.components.converters import PyPDFToDocument
 from haystack.components.converters import TextFileToDocument
-
-
+import docx  
+from haystack.document_stores.types import DuplicatePolicy
 
 
 def get_name_format_file(file_path):
@@ -39,7 +39,7 @@ def embedding_content_fromURL(url: str):
     pipeline = Pipeline()
     pipeline.add_component("converter", HTMLToDocument())
     pipeline.add_component("cleaner", DocumentCleaner())
-    pipeline.add_component("splitter", DocumentSplitter(split_by="word", split_length=200, split_overlap = 50))
+    pipeline.add_component("splitter", DocumentSplitter(split_by="word", split_length=200, split_overlap = 100))
     #pipeline.add_component("writer", DocumentWriter(document_store=document_store))
     pipeline.connect("converter", "cleaner")
     pipeline.connect("cleaner", "splitter")
@@ -55,24 +55,17 @@ def embedding_content_fromURL(url: str):
         url = "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333",
             api_key=Secret.from_token("U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA"),
     )
-
     # init embedder
     doc_embedder = SentenceTransformersDocumentEmbedder()
     doc_embedder.warm_up()
 
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docu)
-    document_store.write_documents(docs_with_embeddings["documents"])
+    document_store.write_documents(docs_with_embeddings["documents"], policy=DuplicatePolicy.SKIP)
     
-    if document_store.count_documents() > 0:
-        return "Success!"
-    else:
-        return("Fail!")
+    return "Success!"
   
 
-
-
-  
 
 
 def embedding_txt(filepath: str = "test.txt"):
@@ -85,7 +78,7 @@ def embedding_txt(filepath: str = "test.txt"):
     pipeline = Pipeline()
     pipeline.add_component("converter", TextFileToDocument())
     pipeline.add_component("cleaner", DocumentCleaner())
-    pipeline.add_component("splitter", DocumentSplitter(split_by="word", split_length=200, split_overlap = 50))
+    pipeline.add_component("splitter", DocumentSplitter(split_by="word", split_length=200, split_overlap = 100))
     pipeline.connect("converter", "cleaner")
     pipeline.connect("cleaner", "splitter")
 
@@ -97,11 +90,29 @@ def embedding_txt(filepath: str = "test.txt"):
 
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docu)
-    document_store.write_documents(docs_with_embeddings["documents"])
-    if document_store.count_documents() > 0:
-        return "Success"
-    else:
-        return "Fail"
+    document_store.write_documents(docs_with_embeddings["documents"], policy=DuplicatePolicy.SKIP)
+    return "Success!"
+
+
+def embedding_docx(file_path: str): 
+  doc = docx.Document(file_path) 
+  file = get_name_format_file(file_path)['split_name']
+  # print the list of paragraphs in the document 
+  print('List of paragraph objects:->>>') 
+  document_text= ""
+  for n in doc.paragraphs:
+    document_text = f"{document_text} \n {n.text}"
+
+  new_file = os.path.join(os.path.dirname(file_path),f"{file[0]}.txt")
+  with open(new_file, "w", encoding="utf-8") as file:
+          file.write(document_text)
+
+  embedding_txt(new_file)
+  return "Success!"
+
+    
+
+
 
 # Embed pdf
 def embedding_pdf(filepath: str = "test.txt"):
@@ -113,22 +124,45 @@ def embedding_pdf(filepath: str = "test.txt"):
     pipeline = Pipeline()
     pipeline.add_component("converter",  PyPDFToDocument())
     pipeline.add_component("cleaner", DocumentCleaner())
-    pipeline.add_component("splitter", DocumentSplitter(split_by="word", split_length=200, split_overlap=50 ))
+    pipeline.add_component("splitter", DocumentSplitter(split_by="word", split_length=200, split_overlap=100 ))
     pipeline.add_component("embedder", SentenceTransformersDocumentEmbedder())
 
-    pipeline.add_component("writer", DocumentWriter(document_store=document_store))
+    pipeline.add_component("writer", DocumentWriter(document_store=document_store, policy=DuplicatePolicy.SKIP))
     pipeline.connect("converter", "cleaner")
     pipeline.connect("cleaner", "splitter")
     pipeline.connect("splitter","embedder")
     pipeline.connect("embedder", "writer")
 
     pipeline.run({"converter": {"sources": [filepath]}})
-    if document_store.count_documents() > 0:
-        return "Success"
-    else:
-        return "Fail"
+
+    return "Success!"
+
 
 
   
-
+def embedding_csv(filepath: str = ".\courses.csv"):
+    df = pd.read_csv(filepath)
+    size_col = len(df.columns)
+    docu = []
+    for index, row in df.iterrows():
+        data_row= ""
+        for i in range(size_col):
+            data_row = f"{data_row}{df.columns[i]}:  {row.to_list()[i]}. "
+        docu.append(Document(content=data_row))
+    # init embedder
+    # init qdrant cloud instance
+    document_store = QdrantDocumentStore(
+    index = "ThongTinKhoaHoc",
+        url = "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333",
+            api_key=Secret.from_token("U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA")
+    )
+    ## Use embedder Embedding file document for Fetch và Indexing
+    embedder = SentenceTransformersDocumentEmbedder()
+    document_writer = DocumentWriter(document_store = document_store, policy=DuplicatePolicy.SKIP)
+    indexing_pipeline = Pipeline()
+    indexing_pipeline.add_component(instance=embedder, name="embedder")
+    indexing_pipeline.add_component(instance=document_writer, name="writer")
+    indexing_pipeline.connect("embedder", "writer")
+    indexing_pipeline.run({"embedder": {"documents": docu}})
+    return "Success!"
     
