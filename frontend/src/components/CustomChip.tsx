@@ -6,9 +6,9 @@ const CustomChip = () => {
     { label: 'PDF', color: '#FFCDD2' },
     // { label: 'DOC', color: '#BBDEFB' },
     { label: 'DOCX', color: '#C8E6C9' },
-    { label: 'CSV', color: '#FFE0B2' },
+    { label: 'CSV', color: '#BBDEFB' },
     { label: 'XLSX', color: '#FFECB3' },
-    { label: 'TXT', color: '#FFECB3' },
+    { label: 'TXT', color: '#FFE0B2' },
   ];
 
   return (

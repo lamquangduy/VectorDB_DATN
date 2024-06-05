@@ -242,7 +242,7 @@ const Import: React.FC = () => {
       marginTop:5,
       fontWeight:"bold"
     }}>
-      File is embedded...
+      File is being embedded...
     </Typography>
     </Box>
     </Box>
@@ -429,7 +429,51 @@ const Import: React.FC = () => {
               <CustomChip></CustomChip>
             </Box>
           ) : (
-            <Box
+            <>
+            {isValidInput==='inProgress' && 
+    <Box
+    sx={{
+      display: "flex",
+      width: "100%",
+      boxShadow: 3,
+      height: "90%",
+      justifyContent: "center",
+      alignItems: "center",
+      p: 2,
+      gap: 1,
+      background: "#F3F7FD",
+    }}
+  >
+    <Box
+        sx={{
+          width: "80%",
+          height: "60%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          boxShadow: 3,
+          maxWidth: "800px",
+          minHeight: "350px",
+          minWidth: "300px",
+          backgroundColor: "white",
+          borderRadius: 5,
+        }}
+        >
+    <InProgress></InProgress>
+    <Typography
+    sx={{
+      fontSize:20,
+      marginTop:5,
+      fontWeight:"bold"
+    }}>
+      URL is being embedded...
+    </Typography>
+    </Box>
+    </Box>
+    }
+            { isValidInput!=='inProgress'&&
+             <Box
               sx={{
                 width: "90%",
                 height: "75%",
@@ -478,8 +522,9 @@ const Import: React.FC = () => {
         >
           Submit
         </Button>
-            </Box>
-          )}
+            </Box>}
+          </>
+        )}
         </Box>
       </Box>
     </Box>
