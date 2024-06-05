@@ -9,9 +9,6 @@ from haystack.components.writers import DocumentWriter
 from haystack_integrations.components.retrievers.qdrant import QdrantEmbeddingRetriever
 from haystack.utils import Secret
 from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
-from pathlib import Path
-import requests
-from boilerpy3 import extractors
 import os
 import pandas as pd
 from haystack.dataclasses import Document
@@ -65,7 +62,6 @@ def embedding_content_fromURL(url: str):
     
     return "Success!"
   
-
 
 
 def embedding_txt(filepath: str = "test.txt"):
@@ -166,3 +162,15 @@ def embedding_csv(filepath: str = ".\courses.csv"):
     indexing_pipeline.run({"embedder": {"documents": docu}})
     return "Success!"
     
+
+def embedding_excel(file_path: str): 
+# Looping through each file
+  # Reading multiple sheets from an Excel file
+  sheets_dict = pd.read_excel(file_path, engine="openpyxl", sheet_name=None)
+
+  # Accessing individual sheets and displaying their contents
+  for sheet_name, df in sheets_dict.items():
+      print(f"Sheet '{sheet_name}':\n{df}\n")
+      df.to_csv(f'{sheet_name}.csv')
+      embedding_csv(f'{sheet_name}.csv')
+  return "Success!"

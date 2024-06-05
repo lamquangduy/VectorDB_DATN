@@ -27,10 +27,10 @@ def embedding(formatFile: str, filepath):
     print(UPLOAD_DIR)
     match formatFile:
         case ".csv":
-            embedding_csv.embedding_csv(UPLOAD_DIR)
+            embedding_func.embedding_csv(UPLOAD_DIR)
             return "zero"
         case ".docx":
-            embedding_docx.embedding_docx(UPLOAD_DIR)
+            embedding_func.embedding_docx(UPLOAD_DIR)
             return "one"
         case ".pdf":
             embedding_func.embedding_pdf(UPLOAD_DIR)
@@ -38,8 +38,9 @@ def embedding(formatFile: str, filepath):
         case ".txt":
             embedding_func.embedding_txt(UPLOAD_DIR)
             return "three"
-        case default:
-            return "something"
+        case ".xlsx":
+            embedding_func.embedding_excel(UPLOAD_DIR)
+
         
 def getformat(filepath:str):
     return embedding_func.get_name_format_file(filepath)
