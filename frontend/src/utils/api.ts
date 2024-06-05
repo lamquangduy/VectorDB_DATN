@@ -5,13 +5,13 @@ const axiosInstance = axios.create({
 });
 // export default axiosInstance;
 
-const getChatResponse = async (text: string,history: []) => {
+const getChatResponse = async (text: string, history: any[]) => {
   const response = await axiosInstance({
     method: "post",
     url: "/chat",
     data: {
       text: text,
-      history:history, 
+      history: history,
     },
   });
   return response.data;
