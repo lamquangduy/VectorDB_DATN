@@ -210,7 +210,7 @@ def get_content_course(course_name: str,query="", filepath: str = "./courses.csv
 
 def get_suggestions(content):
     llm = OpenAIGenerator(model="gpt-3.5-turbo")
-    response = llm.run("Give me a list 4 suggestions question, which have less than 10 words, only text and don't need numberring, each line only have one question, for user to ask with previous question and its answer is:"+content)
+    response = llm.run("You are an user. Your purpose is to find a course, or career path fits your desire, you can use open question if content isn't help. Give a list of 4 question to ask based on this content: {content}")
     list_of_lines = response['replies'][0].splitlines()
     return list_of_lines
 
