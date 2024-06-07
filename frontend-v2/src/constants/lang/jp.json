@@ -1,0 +1,13 @@
+{
+  "SIGN IN": "サインイン ",
+  "Email":"メール",
+  "Password":"パスワード",
+  "UPLOAD":"アップロード",
+  "Username":"ユーザー名",
+  "Hello":"こんにちは",
+  "Sign out":"サインアウト",
+  "Extracted data":"抽出のデータ",
+  "Confidence":"信頼度",
+  "No data, please upload new image":"データがありません。画像をアップロードしてください。",
+  "Incorrect username or password":"ユーザー名もしくはパスワードが間違っています。"
+}
