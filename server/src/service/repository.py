@@ -3,27 +3,33 @@ from haystack.dataclasses import ChatMessage
 from .core import embedding_func
 from pathlib import Path
 
+
 def get_chat_result(text, history=[]):
     result = chatbot_with_fc(text, history)
     return {"response": result}
 
-def dict_2_messages(history = []):
+
+def dict_2_messages(history=[]):
     messages = []
     for n in history:
-        if(n["role"] == "system"):
+        if n["role"] == "system":
             messages.append(ChatMessage.from_system(n["content"]))
         elif n["role"] == "user":
             messages.append(ChatMessage.from_user(n["content"]))
         elif n["role"] == "function":
-            messages.append(ChatMessage.from_function(content=n["content"],name=n["name"]))
+            messages.append(
+                ChatMessage.from_function(content=n["content"], name=n["name"])
+            )
         else:
             messages.append(ChatMessage.from_assistant(n["content"]))
     return messages
 
 
-
 def embedding(formatFile: str, filepath):
-    UPLOAD_DIR = Path().resolve() / f"upload//{embedding_func.get_name_format_file(filepath)['file_name']}"
+    UPLOAD_DIR = (
+        Path().resolve()
+        / f"upload//{embedding_func.get_name_format_file(filepath)['file_name']}"
+    )
     print(UPLOAD_DIR)
     match formatFile:
         case ".csv":
@@ -41,8 +47,8 @@ def embedding(formatFile: str, filepath):
         case ".xlsx":
             embedding_func.embedding_excel(UPLOAD_DIR)
 
-        
-def getformat(filepath:str):
+
+def get_format(filepath: str):
     return embedding_func.get_name_format_file(filepath)
 
 
