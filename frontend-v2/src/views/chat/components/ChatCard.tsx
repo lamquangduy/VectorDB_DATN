@@ -22,17 +22,20 @@ const ChatCard: React.FC<ChatCard> = ({history}) => {
   const handleClick=()=>{
     setShowMore(true)
   }
+  const showHistory=()=>{
+
+  }
   return (
     <Card sx={{
     width:300,
-    height:100,
+    height:80,
     backgroundColor:"white" }}>
     <CardActionArea
     sx={{
         width:"100%",
-        height:"80%"
+        height:"100%"
     }}
-    onClick={handleClick}>
+    onClick={showHistory}>
       <CardContent>
         <Box
         sx={{

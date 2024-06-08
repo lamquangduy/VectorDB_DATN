@@ -151,12 +151,12 @@ const Import: React.FC = () => {
       return;
     }
     try {
-      const endpoint = "http://localhost:8000/uploadurl/";
+      const endpoint = import.meta.env.VITE_APP_CHAT_SERVER_URL+"/uploadurl/";
       const res = await fetch(endpoint, {
         method: "POST",
         body: JSON.stringify({ url: url }),
       });
-      setIsValidInput("inProgress");
+      setIsValidInput(()=>"inProgress");
       if (res.ok) {
         console.log("Successful!");
         setIsValidInput("validUrl");
@@ -182,7 +182,7 @@ const Import: React.FC = () => {
     formData.append("file_upload", file);
     setIsValidInput("inProgress");
     try {
-      const endpoint = "http://localhost:8000/uploadfile/";
+      const endpoint = import.meta.env.VITE_APP_CHAT_SERVER_URL+'/uploadfile/';
       const res = await fetch(endpoint, {
         method: "POST",
         body: formData,
@@ -345,6 +345,7 @@ const Import: React.FC = () => {
         p: 2,
         gap: 1,
         background: "#F3F7FD",
+        
       }}
     >
       <Box
@@ -353,8 +354,8 @@ const Import: React.FC = () => {
           height: "70%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
+          // justifyContent: "center",
+          // alignItems: "center",
           backgroundColor: "white",
           boxShadow: 3,
           minHeight: "350px",
@@ -368,12 +369,14 @@ const Import: React.FC = () => {
             width: "100%",
           }}
         >
+          <Box>
           <NavBar isFile={isFile} setIsFile={setIsFile}></NavBar>
           <Divider
             sx={{
               borderBottomWidth: 3,
             }}
           ></Divider>
+          </Box>
           { isValidInput==="invalidFile" &&<ErrorStatus title="File is not supported"></ErrorStatus>}
         {isValidInput==="invalidUrl" && <ErrorStatus title="Invalid URL"></ErrorStatus>}
         {isValidInput==="validFile"&&<SuccessStatus title="Upload file successfuly"></SuccessStatus>}
@@ -381,8 +384,8 @@ const Import: React.FC = () => {
           {isFile ? (
             <Box
               sx={{
-                width: "90%",
-                height: "75%",
+                width: "100%",
+                height: 300,
                 margin: "auto",
                 display: "flex",
                 justifyContent: "center",
@@ -476,7 +479,7 @@ const Import: React.FC = () => {
              <Box
               sx={{
                 width: "90%",
-                height: "75%",
+                height:300,
                 margin: "auto",
                 display: "flex",
                 justifyContent: "center",

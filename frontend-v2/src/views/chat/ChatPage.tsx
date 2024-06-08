@@ -91,17 +91,18 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
 };
 
 const HistoryPanel: React.FC = () => {
-  const historyList = ["History 1", "History 2", "History 3", "History 4"];
+  const historyList = ["History 1", "History 2", "History 3", "History 4","History 1", "History 2", "History 3", "History 4"];
   return (
     <Box
       sx={{
         width: "20%",
-        height: "100%",
+        height: 670,
         borderRadius: 2,
         display:"flex",
         flexDirection:"column",
         justifyContent:"space-between",
-        backgroundColor:"whitesmoke"
+        backgroundColor:"whitesmoke",
+        marginTop:4
       }}
     >
       <Box
@@ -110,6 +111,7 @@ const HistoryPanel: React.FC = () => {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
+          overflowY:"scroll"
         }}
       >
         {historyList.map((history, idx) => {
@@ -242,7 +244,7 @@ const ChatBotPage: React.FC = () => {
         console.log(res);
         chatHistory.push({
           sender: "bot",
-          message: res.response.answer.replace("*",""),
+          message: res.response.answer,
         });
         setChatData([...chatHistory]);
         setTrackServer(res.response.history);
@@ -273,7 +275,6 @@ const ChatBotPage: React.FC = () => {
          width:"100%",
         height:700,
           display: "flex",
-          // gap: 2,
           justifyContent: "center",
         }}>
         <Box
@@ -281,12 +282,12 @@ const ChatBotPage: React.FC = () => {
             width: "100%",
             height:700,
             display: "flex",
-            // gap: 2,
             justifyContent: "center",
             alignItems: "flex-start",
             
           }}
         >
+          
           <HistoryPanel />
           <Box
             sx={{
