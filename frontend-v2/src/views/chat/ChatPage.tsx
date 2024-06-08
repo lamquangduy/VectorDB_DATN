@@ -10,7 +10,9 @@ import React from "react";
 import getChatResponse from "../../services/chat/chat";
 
 import Linkify from "react-linkify";
-import { createTheme, ThemeProvider } from "@mui/material";
+import { createTheme, Divider, ThemeProvider } from "@mui/material";
+import ChatCard from "./components/ChatCard";
+import { OpenInNew } from "@mui/icons-material";
 
 const theme = createTheme({
   typography: {
@@ -89,7 +91,6 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
 };
 
 const HistoryPanel: React.FC = () => {
-  return <Box></Box>;
   const historyList = ["History 1", "History 2", "History 3", "History 4"];
   return (
     <Box
@@ -97,7 +98,10 @@ const HistoryPanel: React.FC = () => {
         width: "20%",
         height: "100%",
         borderRadius: 2,
-        backgroundColor: "#FFFFF0FF",
+        display:"flex",
+        flexDirection:"column",
+        justifyContent:"space-between",
+        backgroundColor:"whitesmoke"
       }}
     >
       <Box
@@ -122,17 +126,31 @@ const HistoryPanel: React.FC = () => {
                 boxShadow: 3,
               }}
             >
-              <Typography
-                variant="body1"
-                sx={{
-                  color: "#000000",
-                }}
-              >
-                {history}
-              </Typography>
+             <ChatCard history={history}></ChatCard>
+             <Divider sx={{
+              borderBottomWidth:1
+             }}></Divider>
             </Box>
           );
         })}
+      </Box>
+      <Box
+      sx={{
+       
+      }}>
+        <Button sx={{
+         backgroundColor:"#222222",
+         color:"white",
+          width:"100%",
+          height:50,
+          ":hover":{
+            backgroundColor:"#222222",
+          }
+        }}>
+          <OpenInNew sx={{
+            
+          }}></OpenInNew>
+             New Chat</Button>
       </Box>
     </Box>
   );
@@ -224,7 +242,7 @@ const ChatBotPage: React.FC = () => {
         console.log(res);
         chatHistory.push({
           sender: "bot",
-          message: res.response.answer,
+          message: res.response.answer.replace("*",""),
         });
         setChatData([...chatHistory]);
         setTrackServer(res.response.history);
@@ -247,27 +265,26 @@ const ChatBotPage: React.FC = () => {
     <ThemeProvider theme={theme}>
       <Box
         sx={{
-          height: "100%",
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          background:
-            "radial-gradient(343px at 46.3% 47.5%, rgb(242, 242, 242) 0%, rgb(241, 241, 241) 72.9%)",
-
-          // pt: 1,
+        
         }}
       >
         <Box
+        sx={{
+         width:"100%",
+        height:700,
+          display: "flex",
+          // gap: 2,
+          justifyContent: "center",
+        }}>
+        <Box
           sx={{
             width: "100%",
-            minHeight: 600,
-            height: "100%",
-            maxHeight: 1000,
+            height:700,
             display: "flex",
             // gap: 2,
             justifyContent: "center",
             alignItems: "flex-start",
+            
           }}
         >
           <HistoryPanel />
@@ -275,11 +292,9 @@ const ChatBotPage: React.FC = () => {
             sx={{
               width: "80%",
               height: "100%",
-              background: "linear-gradient(to right bottom, #F8F8FF, #eeeef0)",
               boxShadow: 3,
               borderRadius: 2,
-              overflow: "auto",
-              bgcolor: "EEEEEE",
+              overflow: "auto", 
               scrollbarWidth: "thin",
               WebkitOverflowScrolling: {
                 display: "none",
@@ -302,26 +317,15 @@ const ChatBotPage: React.FC = () => {
                   boxShadow: 3,
                 }}
               >
-                LearnWayBot
+                Learning Assistant
               </Typography>
             </Box>
             <Box
               sx={{
-                width: "100%",
-                height: "0%",
-                display: "flex",
-              }}
-            ></Box>
-            <Box
-              sx={{
-                width: "100%",
-                height: "100%",
-                // height: "76vh",
-                // maxHeight: 692,
-                minHeight: 660,
+                 height:570,
                 padding: 1,
-                overflow: "scroll",
-                scrollbarWidth: "none",
+                overflowY: "scroll",
+                scrollbarWidth: "thin",
                 WebkitOverflowScrolling: {
                   display: "none",
                 },
@@ -348,7 +352,6 @@ const ChatBotPage: React.FC = () => {
                 alignItems: "center",
                 justifyContent: "center",
                 height: 20,
-                marginBlockEnd: 7,
               }}
             >
               {suggestion.length !== 0 &&
@@ -403,6 +406,7 @@ const ChatBotPage: React.FC = () => {
                   outline: 0,
                   width: "88%",
                   px: 1,
+                  height:50,
                   textAlign: "center",
                   borderRadius: "10px",
                   boxShadow: "3",
@@ -430,6 +434,7 @@ const ChatBotPage: React.FC = () => {
               </Button>
             </Box>
           </Box>
+        </Box>
         </Box>
       </Box>
     </ThemeProvider>

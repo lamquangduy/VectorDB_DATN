@@ -13,7 +13,7 @@ const ChatAdminPage = () => {
     <ThemeProvider theme={theme}>
       {/* <Header></Header> */}
       <Box>
-        <Typography variant="h4">Chat Admin Page</Typography>
+        <Typography>Chat Admin Page</Typography>
       </Box>
       <Import></Import>
       {/* <Footer></Footer> */}
