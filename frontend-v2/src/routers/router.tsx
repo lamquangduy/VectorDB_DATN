@@ -34,7 +34,7 @@ const NavigationRouter: React.FC = () => {
     if (isAuthenticated) {
       fetchGetUser(user?.email || "")
         .then((data) => {
-          console.log("data here:  ", data);
+          // console.log("data here:  ", data);
           if (data) {
             dispatch(setUser(data));
           } else {

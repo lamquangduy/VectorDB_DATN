@@ -35,7 +35,7 @@ const Auth0Guard = ({ children }) => {
     if (isAuthenticated && reduxUser.email === "") {
       fetchGetUser(user.email || "")
         .then((data) => {
-          console.log(data);
+          // console.log(data);
           if (data) {
             dispatch(setUser(data));
             // navigate("/");

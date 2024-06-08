@@ -2,6 +2,10 @@ from .core.functions import chatbot_with_fc
 from haystack.dataclasses import ChatMessage
 from .core import embedding_func
 from pathlib import Path
+from src.database.mongodb.repository import mongo_client
+
+from bson import json_util
+import json
 
 
 def get_chat_result(text, history=[]):
@@ -55,3 +59,32 @@ def get_format(filepath: str):
 def embedding_URL(url: str):
     embedding_func.embedding_content_fromURL(url)
     return "embedded"
+
+
+def get_chat_history(email: str, chat_id: str = None):
+    db = mongo_client["chatbot"]
+    collection = db["chat_history"]
+    condition = {"email": email}
+    if chat_id:
+        condition["chat_id"] = chat_id
+    result = collection.find(condition, {"_id": 0})
+    result = json.loads(json_util.dumps(result))
+    return result
+
+
+def save_chat_history(email: str, history: list, chat_id: str = None):
+    db = mongo_client["chatbot"]
+    collection = db["chat_history"]
+    collection.find_one_and_update(
+        {"email": email, "chat_id": chat_id},
+        {"$set": {"history": history}},
+        upsert=True,
+    )
+    return "saved"
+
+
+def delete_chat_history(email: str, chat_id: str):
+    db = mongo_client["chatbot"]
+    collection = db["chat_history"]
+    collection.delete_one({"email": email, "chat_id": chat_id})
+    return True

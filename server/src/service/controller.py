@@ -1,3 +1,5 @@
+from typing import Optional
+import uuid
 from fastapi import APIRouter, UploadFile, Request
 from . import repository
 from pathlib import Path
@@ -13,8 +15,40 @@ if not os.path.exists(UPLOAD_DIR):
 
 
 class ChatInput(BaseModel):
+    chat_id: str
     text: str
-    history: list[dict] = []
+    history: Optional[list]
+
+
+@router.get("/chat/{email}", response_model=list[dict])
+async def chat(email: str):
+    messages = repository.get_chat_history(email)
+
+    return messages
+
+
+from fastapi.encoders import jsonable_encoder
+
+
+@router.post("/chat/{email}")
+async def chat(email: str, data: ChatInput):
+    if data.chat_id is None:
+        data.chat_id = str(uuid.uuid4())
+    messages = repository.get_chat_history(email, data.chat_id)
+    history = repository.dict_2_messages(messages)
+
+    result = repository.get_chat_result(data.text, history)
+    data_to_save = jsonable_encoder(result["response"]["history"])
+    repository.save_chat_history(email, data_to_save, data.chat_id)
+
+    return result
+
+
+@router.delete("/chat/{email}/{chat_id}")
+async def chat(email: str, chat_id: str):
+    repository.delete_chat_history(email, chat_id)
+
+    return {"message": "Chat history deleted"}
 
 
 @router.post("/chat")

@@ -13,6 +13,7 @@ import Linkify from "react-linkify";
 import { createTheme, Divider, ThemeProvider } from "@mui/material";
 import ChatCard from "./components/ChatCard";
 import { OpenInNew } from "@mui/icons-material";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const theme = createTheme({
   typography: {
@@ -91,18 +92,27 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
 };
 
 const HistoryPanel: React.FC = () => {
-  const historyList = ["History 1", "History 2", "History 3", "History 4","History 1", "History 2", "History 3", "History 4"];
+  const historyList = [
+    "History 1",
+    "History 2",
+    "History 3",
+    "History 4",
+    "History 1",
+    "History 2",
+    "History 3",
+    "History 4",
+  ];
   return (
     <Box
       sx={{
         width: "20%",
         height: 670,
         borderRadius: 2,
-        display:"flex",
-        flexDirection:"column",
-        justifyContent:"space-between",
-        backgroundColor:"whitesmoke",
-        marginTop:4
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        backgroundColor: "whitesmoke",
+        marginTop: 4,
       }}
     >
       <Box
@@ -111,7 +121,7 @@ const HistoryPanel: React.FC = () => {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          overflowY:"scroll"
+          overflowY: "scroll",
         }}
       >
         {historyList.map((history, idx) => {
@@ -128,31 +138,31 @@ const HistoryPanel: React.FC = () => {
                 boxShadow: 3,
               }}
             >
-             <ChatCard history={history}></ChatCard>
-             <Divider sx={{
-              borderBottomWidth:1
-             }}></Divider>
+              <ChatCard history={history}></ChatCard>
+              <Divider
+                sx={{
+                  borderBottomWidth: 1,
+                }}
+              ></Divider>
             </Box>
           );
         })}
       </Box>
-      <Box
-      sx={{
-       
-      }}>
-        <Button sx={{
-         backgroundColor:"#222222",
-         color:"white",
-          width:"100%",
-          height:50,
-          ":hover":{
-            backgroundColor:"#222222",
-          }
-        }}>
-          <OpenInNew sx={{
-            
-          }}></OpenInNew>
-             New Chat</Button>
+      <Box sx={{}}>
+        <Button
+          sx={{
+            backgroundColor: "#222222",
+            color: "white",
+            width: "100%",
+            height: 50,
+            ":hover": {
+              backgroundColor: "#222222",
+            },
+          }}
+        >
+          <OpenInNew sx={{}}></OpenInNew>
+          New Chat
+        </Button>
       </Box>
     </Box>
   );
@@ -224,6 +234,7 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
 };
 
 const ChatBotPage: React.FC = () => {
+  const { user } = useAuth0();
   const chatHistory: IChatData[] = mockData;
   const [chatData, setChatData] = React.useState<IChatData[]>(chatHistory);
   const [message, setMessage] = React.useState<string>("");
@@ -263,179 +274,182 @@ const ChatBotPage: React.FC = () => {
       });
   };
 
+  React.useEffect(() => {
+    console.log("====================================");
+    console.log("user");
+    console.log(user);
+    console.log("====================================");
+  }, [user]);
+
   return (
     <ThemeProvider theme={theme}>
-      <Box
-        sx={{
-        
-        }}
-      >
-        <Box
-        sx={{
-         width:"100%",
-        height:700,
-          display: "flex",
-          justifyContent: "center",
-        }}>
+      <Box sx={{}}>
         <Box
           sx={{
             width: "100%",
-            height:700,
+            height: 700,
             display: "flex",
             justifyContent: "center",
-            alignItems: "flex-start",
-            
           }}
         >
-          
-          <HistoryPanel />
           <Box
             sx={{
-              width: "80%",
-              height: "100%",
-              boxShadow: 3,
-              borderRadius: 2,
-              overflow: "auto", 
-              scrollbarWidth: "thin",
-              WebkitOverflowScrolling: {
-                display: "none",
-              },
+              width: "100%",
+              height: 700,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "flex-start",
             }}
           >
-            <Box>
-              <Typography
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  textAlign: "center",
-                  background:
-                    "linear-gradient(315deg, #378b29 0%, #18a428 74%)",
-                  fontSize: "20px",
-                  borderRadius: "4px",
-                  fontWeight: "bold",
-                  color: "#e3e0e0",
-                  boxShadow: 3,
-                }}
-              >
-                Learning Assistant
-              </Typography>
-            </Box>
+            <HistoryPanel />
             <Box
               sx={{
-                 height:570,
-                padding: 1,
-                overflowY: "scroll",
+                width: "80%",
+                height: "100%",
+                boxShadow: 3,
+                borderRadius: 2,
+                overflow: "auto",
                 scrollbarWidth: "thin",
                 WebkitOverflowScrolling: {
                   display: "none",
                 },
               }}
-              id="chat-box"
             >
-              {chatData.map((data: IChatData, idx: number) => {
-                return data.sender === "bot" ? (
-                  <BotText key={`chat-${idx}`} message={data.message} />
-                ) : (
-                  <UserText key={`chat-${idx}`} message={data.message} />
-                );
-              })}
-
-              {isLoading && <BotText message={"Loading...."} />}
-            </Box>
-
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 0.5,
-                p: 0.5,
-                alignItems: "center",
-                justifyContent: "center",
-                height: 20,
-              }}
-            >
-              {suggestion.length !== 0 &&
-                !isLoading &&
-                suggestion.map((tag: string) => {
-                  if (tag.length !== 0)
-                    return (
-                      <SuggestedTag
-                        value={tag}
-                        handleClick={handleChat}
-                        sx="5"
-                      ></SuggestedTag>
-                    );
-                })}
-            </Box>
-            <Box
-              sx={{
-                height: 80,
-                width: "100%",
-                display: "flex",
-                flexWrap: "nowrap",
-                justifyContent: "space-around",
-                alignItems: "center",
-              }}
-            >
-              <Button
-                onClick={() => {
-                  chatHistory.splice(0, chatHistory.length);
-                  chatHistory.push({
-                    sender: "bot",
-                    message: "Hello, How can I help you?",
-                  });
-                  setChatData([]);
-                  setTimeout(() => {
-                    setChatData(() => {
-                      return [
-                        {
-                          sender: "bot",
-                          message: "Hello, How can I help you?",
-                        },
-                      ];
-                    });
-                  }, 500);
-                }}
-                disabled={isLoading}
-              >
-                <DeleteIcon />
-              </Button>
-              <OutlinedInput
+              <Box>
+                <Typography
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    textAlign: "center",
+                    background:
+                      "linear-gradient(315deg, #378b29 0%, #18a428 74%)",
+                    fontSize: "20px",
+                    borderRadius: "4px",
+                    fontWeight: "bold",
+                    color: "#e3e0e0",
+                    boxShadow: 3,
+                  }}
+                >
+                  Learning Assistant
+                </Typography>
+              </Box>
+              <Box
                 sx={{
-                  borderBlockStart: "1px",
-                  outline: 0,
-                  width: "88%",
-                  px: 1,
-                  height:50,
-                  textAlign: "center",
-                  borderRadius: "10px",
-                  boxShadow: "3",
-                  background: "#fff",
-                  "::placeholder": "bold",
+                  height: 570,
+                  padding: 1,
+                  overflowY: "scroll",
+                  scrollbarWidth: "thin",
+                  WebkitOverflowScrolling: {
+                    display: "none",
+                  },
                 }}
-                onKeyDown={(e) => {
-                  if (message !== "" && e.key === "Enter") {
-                    handleChat();
-                  }
-                }}
-                placeholder="Type a new message here"
-                value={message}
-                onChange={(e) => {
-                  setMessage(e.target.value);
-                }}
-              ></OutlinedInput>
-              <Button
-                onClick={() => {
-                  // handleChat();
-                  handleChat();
+                id="chat-box"
+              >
+                {chatData.map((data: IChatData, idx: number) => {
+                  return data.sender === "bot" ? (
+                    <BotText key={`chat-${idx}`} message={data.message} />
+                  ) : (
+                    <UserText key={`chat-${idx}`} message={data.message} />
+                  );
+                })}
+
+                {isLoading && <BotText message={"Loading...."} />}
+              </Box>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 0.5,
+                  p: 0.5,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: 20,
                 }}
               >
-                <SendIcon />
-              </Button>
+                {suggestion.length !== 0 &&
+                  !isLoading &&
+                  suggestion.map((tag: string, idx: number) => {
+                    if (tag.length !== 0)
+                      return (
+                        <SuggestedTag
+                          value={tag}
+                          handleClick={handleChat}
+                          sx="5"
+                          key={idx}
+                        ></SuggestedTag>
+                      );
+                  })}
+              </Box>
+              <Box
+                sx={{
+                  height: 80,
+                  width: "100%",
+                  display: "flex",
+                  flexWrap: "nowrap",
+                  justifyContent: "space-around",
+                  alignItems: "center",
+                }}
+              >
+                <Button
+                  onClick={() => {
+                    chatHistory.splice(0, chatHistory.length);
+                    chatHistory.push({
+                      sender: "bot",
+                      message: "Hello, How can I help you?",
+                    });
+                    setChatData([]);
+                    setTimeout(() => {
+                      setChatData(() => {
+                        return [
+                          {
+                            sender: "bot",
+                            message: "Hello, How can I help you?",
+                          },
+                        ];
+                      });
+                    }, 500);
+                  }}
+                  disabled={isLoading}
+                >
+                  <DeleteIcon />
+                </Button>
+                <OutlinedInput
+                  sx={{
+                    borderBlockStart: "1px",
+                    outline: 0,
+                    width: "88%",
+                    px: 1,
+                    height: 50,
+                    textAlign: "center",
+                    borderRadius: "10px",
+                    boxShadow: "3",
+                    background: "#fff",
+                    "::placeholder": "bold",
+                  }}
+                  onKeyDown={(e) => {
+                    if (message !== "" && e.key === "Enter") {
+                      handleChat();
+                    }
+                  }}
+                  placeholder="Type a new message here"
+                  value={message}
+                  onChange={(e) => {
+                    setMessage(e.target.value);
+                  }}
+                ></OutlinedInput>
+                <Button
+                  onClick={() => {
+                    // handleChat();
+                    handleChat();
+                  }}
+                >
+                  <SendIcon />
+                </Button>
+              </Box>
             </Box>
           </Box>
-        </Box>
         </Box>
       </Box>
     </ThemeProvider>
