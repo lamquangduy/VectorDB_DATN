@@ -5,15 +5,18 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import React from "react";
-
+import React, { useEffect, useState } from "react";
+import ViewSidebarIcon from '@mui/icons-material/ViewSidebar';
 import getChatResponse from "../../services/chat/chat";
-
+import {getChatHistory} from "../../services/chat/chat";
 import Linkify from "react-linkify";
-import { createTheme, Divider, ThemeProvider } from "@mui/material";
+import { createTheme, Divider, Drawer, IconButton, ThemeProvider } from "@mui/material";
 import ChatCard from "./components/ChatCard";
-import { OpenInNew } from "@mui/icons-material";
+import { ConstructionOutlined, OpenInNew } from "@mui/icons-material";
 import { useAuth0 } from "@auth0/auth0-react";
+import { List } from "echarts";
+import DrawerNavigation from "./components/Drawer";
+import { Console } from "console";
 
 const theme = createTheme({
   typography: {
@@ -91,17 +94,22 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
   );
 };
 
-const HistoryPanel: React.FC = () => {
-  const historyList = [
-    "History 1",
-    "History 2",
-    "History 3",
-    "History 4",
-    "History 1",
-    "History 2",
-    "History 3",
-    "History 4",
-  ];
+const HistoryPanel: React.FC = ({handleHistory}) => {
+  const [historyList,setHistoryList]=useState<List[]>();
+  const [isOpen, setIsOpen] = useState(false);
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      const chatHistory = await getChatHistory();
+      setHistoryList(chatHistory);
+      // console.log(chatHistory[0]);
+    };
+
+    fetchChatHistory();
+  }, []);
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
     <Box
       sx={{
@@ -122,9 +130,19 @@ const HistoryPanel: React.FC = () => {
           justifyContent: "center",
           alignItems: "center",
           overflowY: "scroll",
-        }}
+                }}
       >
-        {historyList.map((history, idx) => {
+         <Box sx={{ 
+        height:40,
+        width:"100%",
+        backgroundColor:"pink",
+       }}>
+      <IconButton onClick={handleToggle}>
+        <ViewSidebarIcon />
+      </IconButton>
+      </Box>
+
+        {isOpen && historyList?.map((history, idx) => {
           return (
             <Box
               key={idx}
@@ -133,12 +151,12 @@ const HistoryPanel: React.FC = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 width: "100%",
-                height: "20%",
+                height:"100%",
                 bgcolor: "#FFFFFF",
                 boxShadow: 3,
               }}
             >
-              <ChatCard history={history}></ChatCard>
+              <ChatCard history={history} showHistory={handleHistory}></ChatCard>
               <Divider
                 sx={{
                   borderBottomWidth: 1,
@@ -234,6 +252,7 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
 };
 
 const ChatBotPage: React.FC = () => {
+  const [chatID,setChatID]=useState<string>("none")
   const { user } = useAuth0();
   const chatHistory: IChatData[] = mockData;
   const [chatData, setChatData] = React.useState<IChatData[]>(chatHistory);
@@ -241,8 +260,16 @@ const ChatBotPage: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [suggestion, setSuggestion] = React.useState<string[]>(initialTag);
   const [trackServer, setTrackServer] = React.useState([]);
-
-  const handleChat = (value?: string) => {
+  const handleHistory=(value:any)=>{
+    const messageTags=value.history.map((history,idx)=>{
+    return {sender:history.role,message: history.content};
+    })
+    chatHistory.length=0
+    chatHistory.push(messageTags)
+    setChatID(value.chat_id)
+    setChatData(messageTags);
+  }
+  const handleChat = (value?: string,chat_id?:string) => {
     // setMessage(value);
     chatHistory.push({ sender: "user", message: value ?? message });
     setChatData([...chatHistory]);
@@ -301,7 +328,7 @@ const ChatBotPage: React.FC = () => {
               alignItems: "flex-start",
             }}
           >
-            <HistoryPanel />
+            <HistoryPanel  handleHistory={handleHistory}/>
             <Box
               sx={{
                 width: "80%",
@@ -347,7 +374,7 @@ const ChatBotPage: React.FC = () => {
                 id="chat-box"
               >
                 {chatData.map((data: IChatData, idx: number) => {
-                  return data.sender === "bot" ? (
+                  return data.sender === "bot"||data.sender === "assistant" ? (
                     <BotText key={`chat-${idx}`} message={data.message} />
                   ) : (
                     <UserText key={`chat-${idx}`} message={data.message} />

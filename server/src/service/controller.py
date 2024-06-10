@@ -32,15 +32,15 @@ from fastapi.encoders import jsonable_encoder
 
 @router.post("/chat/{email}")
 async def chat(email: str, data: ChatInput):
-    if data.chat_id is None:
+    if data.chat_id=="":
         data.chat_id = str(uuid.uuid4())
     messages = repository.get_chat_history(email, data.chat_id)
-    history = repository.dict_2_messages(messages)
+    history = repository.dict_2_messages(data.history)
 
     result = repository.get_chat_result(data.text, history)
     data_to_save = jsonable_encoder(result["response"]["history"])
     repository.save_chat_history(email, data_to_save, data.chat_id)
-
+    
     return result
 
 
