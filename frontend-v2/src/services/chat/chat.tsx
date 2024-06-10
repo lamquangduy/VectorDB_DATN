@@ -5,17 +5,25 @@ const axiosInstance = axios.create({
 });
 // export default axiosInstance;
 
-const getChatResponse = async (text: string, history: any[]) => {
+const getChatResponse = async (text: string, history: any[],chatId:string) => {
   const response = await axiosInstance({
     method: "post",
     url: "/chat/huutai1515225@gmail.com",
     data: {
-      chat_id:"",
+      chat_id:chatId,
       text: text,
       history: history,
     },
   });
   return response.data;
+};
+
+export const deleteChat = async (chatId:string) => {
+  const response = await axiosInstance({
+    method: "delete",
+    url:  `/chat/huutai1515225@gmail.com/${chatId}`,
+  });
+  return response.status;
 };
 
 export const getChatHistory = async () => {

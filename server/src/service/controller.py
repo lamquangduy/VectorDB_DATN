@@ -40,7 +40,7 @@ async def chat(email: str, data: ChatInput):
     result = repository.get_chat_result(data.text, history)
     data_to_save = jsonable_encoder(result["response"]["history"])
     repository.save_chat_history(email, data_to_save, data.chat_id)
-    
+    result['chatID']=data.chat_id
     return result
 
 

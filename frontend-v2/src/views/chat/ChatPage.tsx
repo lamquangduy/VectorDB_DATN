@@ -7,7 +7,7 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import React, { useEffect, useState } from "react";
 import ViewSidebarIcon from '@mui/icons-material/ViewSidebar';
-import getChatResponse from "../../services/chat/chat";
+import getChatResponse, { deleteChat } from "../../services/chat/chat";
 import {getChatHistory} from "../../services/chat/chat";
 import Linkify from "react-linkify";
 import { createTheme, Divider, Drawer, IconButton, ThemeProvider } from "@mui/material";
@@ -94,7 +94,7 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
   );
 };
 
-const HistoryPanel: React.FC = ({handleHistory}) => {
+const HistoryPanel: React.FC = ({handleHistory,handleNewChat,handleDelete}) => {
   const [historyList,setHistoryList]=useState<List[]>();
   const [isOpen, setIsOpen] = useState(false);
   useEffect(() => {
@@ -127,7 +127,6 @@ const HistoryPanel: React.FC = ({handleHistory}) => {
         sx={{
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
           alignItems: "center",
           overflowY: "scroll",
                 }}
@@ -154,9 +153,10 @@ const HistoryPanel: React.FC = ({handleHistory}) => {
                 height:"100%",
                 bgcolor: "#FFFFFF",
                 boxShadow: 3,
+                flexGrow:1,
               }}
             >
-              <ChatCard history={history} showHistory={handleHistory}></ChatCard>
+              <ChatCard history={history} showHistory={handleHistory} handleDelete={handleDelete}></ChatCard>
               <Divider
                 sx={{
                   borderBottomWidth: 1,
@@ -177,6 +177,7 @@ const HistoryPanel: React.FC = ({handleHistory}) => {
               backgroundColor: "#222222",
             },
           }}
+          onClick={handleNewChat}
         >
           <OpenInNew sx={{}}></OpenInNew>
           New Chat
@@ -252,9 +253,9 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
 };
 
 const ChatBotPage: React.FC = () => {
-  const [chatID,setChatID]=useState<string>("none")
+  const [chatID,setChatID]=useState<string>("")
   const { user } = useAuth0();
-  const chatHistory: IChatData[] = mockData;
+  let chatHistory: IChatData[] = mockData;
   const [chatData, setChatData] = React.useState<IChatData[]>(chatHistory);
   const [message, setMessage] = React.useState<string>("");
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -264,12 +265,23 @@ const ChatBotPage: React.FC = () => {
     const messageTags=value.history.map((history,idx)=>{
     return {sender:history.role,message: history.content};
     })
-    chatHistory.length=0
-    chatHistory.push(messageTags)
     setChatID(value.chat_id)
+    console.log(messageTags);
     setChatData(messageTags);
   }
-  const handleChat = (value?: string,chat_id?:string) => {
+  useEffect(() => {
+    if (chatData) {
+
+      chatHistory=chatData
+    }
+  }, [chatData]);
+
+  const handleDelete=(value:any)=>{
+    console.log(value)
+    deleteChat(value.chat_id)
+  };
+
+  const handleChat = (value?: string) => {
     // setMessage(value);
     chatHistory.push({ sender: "user", message: value ?? message });
     setChatData([...chatHistory]);
@@ -277,7 +289,7 @@ const ChatBotPage: React.FC = () => {
     scrollToBottom();
     if (!Boolean(value)) setMessage("");
 
-    getChatResponse(value ?? message, trackServer)
+    getChatResponse(value ?? message, trackServer,chatID)
       .then((res) => {
         console.log(res);
         chatHistory.push({
@@ -287,6 +299,7 @@ const ChatBotPage: React.FC = () => {
         setChatData([...chatHistory]);
         setTrackServer(res.response.history);
         setSuggestion(res.response.tag);
+        setChatID(res.chatID);
         setIsLoading(false);
         scrollToBottom();
       })
@@ -300,6 +313,11 @@ const ChatBotPage: React.FC = () => {
         scrollToBottom();
       });
   };
+  const handleNewChat=()=>{
+    chatHistory.length=0;
+    setChatID("");
+    setChatData(mockData)
+  }
 
   React.useEffect(() => {
     console.log("====================================");
@@ -328,7 +346,7 @@ const ChatBotPage: React.FC = () => {
               alignItems: "flex-start",
             }}
           >
-            <HistoryPanel  handleHistory={handleHistory}/>
+            <HistoryPanel  handleHistory={handleHistory} handleNewChat={handleNewChat} handleDelete={handleDelete}/>
             <Box
               sx={{
                 width: "80%",
