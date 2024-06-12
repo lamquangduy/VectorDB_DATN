@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardActionArea, CardContent, Box, Avatar, Typography, Menu, MenuItem, IconButton, CardActions } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-const ChatCard = ({ history, showHistory, handleDelete }) => {
+const ChatCard = ({ history, showHistory, handleDelete}) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -25,7 +25,9 @@ const ChatCard = ({ history, showHistory, handleDelete }) => {
         <Typography sx={{ fontSize: 15 }}>{history.history[0].content.slice(0,10)}</Typography>
       </Box>
       </CardActionArea>
-      <IconButton onClick={handleClick}>
+      <IconButton onClick={handleClick} sx={{
+        zIndex:1
+      }}>
         <MoreVertIcon />
       </IconButton>
       <Menu

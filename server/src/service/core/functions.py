@@ -29,16 +29,22 @@ from haystack_integrations.components.retrievers.qdrant import QdrantEmbeddingRe
 from haystack.utils import Secret
 from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 import time
+from haystack_integrations.components.rankers.cohere import CohereRanker
+from haystack_integrations.components.embedders.cohere import CohereDocumentEmbedder, CohereTextEmbedder
 
-file_path = ".\courses.csv"
+
+
+file_path = "src/service/core/courses.csv"
 url_cloud = (
     "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333"
 )
 api_key = "U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA"
-index_name = "ThongTinKhoaHoc"
-model_name = "sentence-transformers/all-mpnet-base-v2"
-embedding_dim = 768
-
+# index_name = "ThongTinKhoaHoc"
+# model_name = "sentence-transformers/all-mpnet-base-v2"
+# embedding_dim = 768
+index_name = "ThongTinKhoaHoc_Cohere"
+model_name = "embed-multilingual-v3.0"
+embedding_dim = 	1024
 
 # Create a new column which have content is name + description + skill
 def add_content_current_course(filepath: str = file_path):
@@ -153,8 +159,7 @@ def embedding_csv(index_name: str = index_name, filepath: str = ".\courses.csv")
             )
         )
     # init embedder
-    doc_embedder = SentenceTransformersDocumentEmbedder(model=model_name)
-    doc_embedder.warm_up()
+    doc_embedder = CohereDocumentEmbedder(api_key=Secret.from_token("2w9Q9kcExBmG89RNfGnPCqKtDEAb6GEkNpsyCNnI"),model=model_name)
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docs)
     doc_store.write_documents(
@@ -181,17 +186,22 @@ def rag_pipe(index_name: str = index_name):
     """
     docstore = load_store()
     rag_pipe = Pipeline()
+    # rag_pipe.add_component(
+    #     "embedder", SentenceTransformersTextEmbedder(model=model_name)
+    # )
+    ranker = CohereRanker(api_key=Secret.from_token("2w9Q9kcExBmG89RNfGnPCqKtDEAb6GEkNpsyCNnI"))
     rag_pipe.add_component(
-        "embedder", SentenceTransformersTextEmbedder(model=model_name)
+        "embedder", CohereTextEmbedder(api_key=Secret.from_token("2w9Q9kcExBmG89RNfGnPCqKtDEAb6GEkNpsyCNnI"),model=model_name)
     )
     rag_pipe.add_component(
-        "retriever", QdrantEmbeddingRetriever(document_store=docstore)
+        "retriever", QdrantEmbeddingRetriever(document_store=docstore, top_k=20)
     )
+    rag_pipe.add_component(instance=ranker, name="ranker")
     rag_pipe.add_component("prompt_builder", PromptBuilder(template=template))
     rag_pipe.add_component("llm", OpenAIGenerator(model="gpt-3.5-turbo"))
-
     rag_pipe.connect("embedder.embedding", "retriever.query_embedding")
-    rag_pipe.connect("retriever", "prompt_builder.documents")
+    rag_pipe.connect("retriever.documents", "ranker.documents")
+    rag_pipe.connect("ranker.documents", "prompt_builder.documents")
     rag_pipe.connect("prompt_builder", "llm")
 
     return rag_pipe
@@ -200,13 +210,13 @@ def rag_pipe(index_name: str = index_name):
 # Run RAG Q-A system with query input
 def rag_pipeline_func(query: str):
     result = rag_pipe().run(
-        {"embedder": {"text": query}, "prompt_builder": {"question": query}}
+        {"embedder": {"text": query},"ranker": {"query": query, "top_k": 10}, "prompt_builder": {"question": query}}
     )
     return {"reply": result["llm"]["replies"][0]}
 
 
 # Get info (name + description + skill) through course name
-def get_content_course(course_name: str, query="", filepath: str = "./courses.csv"):
+def get_content_course(course_name: str, query="", filepath= file_path):
     course_info = add_content_current_course(filepath)
     if course_name.upper() in course_info:
         content = course_info[course_name.upper()][2]

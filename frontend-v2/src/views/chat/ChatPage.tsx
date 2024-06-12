@@ -5,7 +5,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ViewSidebarIcon from '@mui/icons-material/ViewSidebar';
 import getChatResponse, { deleteChat } from "../../services/chat/chat";
 import {getChatHistory} from "../../services/chat/chat";
@@ -28,6 +28,10 @@ interface IChatData {
   sender?: string;
   message: string;
 }
+interface ChatTag{
+  props:IChatData;
+  isChat:boolean;
+}
 interface SuggestedTagProps {
   value: string;
   handleClick: (value: string) => void;
@@ -48,6 +52,9 @@ const scrollToBottom = () => {
 const mockData: IChatData[] = [
   { sender: "bot", message: "Hello, How can I assist you?" },
 ];
+const loadingMessage:IChatData = 
+  { sender: "bot", message: "Loading..." }
+;
 
 const SuggestedTag: React.FC<SuggestedTagProps> = ({
   value,
@@ -94,9 +101,10 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
   );
 };
 
-const HistoryPanel: React.FC = ({handleHistory,handleNewChat,handleDelete}) => {
+const HistoryPanel: React.FC = ({handleHistory,handleNewChat,handleDelete,historyLength}) => {
   const [historyList,setHistoryList]=useState<List[]>();
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedIndex,setSelectedIndex]=React.useState<number | null>(null);
   useEffect(() => {
     const fetchChatHistory = async () => {
       const chatHistory = await getChatHistory();
@@ -105,7 +113,11 @@ const HistoryPanel: React.FC = ({handleHistory,handleNewChat,handleDelete}) => {
     };
 
     fetchChatHistory();
-  }, []);
+    setSelectedIndex(null);
+  }, [historyLength]);
+  const handleItemClick=(index:number)=>{
+    setSelectedIndex(index);
+  }
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
@@ -141,7 +153,7 @@ const HistoryPanel: React.FC = ({handleHistory,handleNewChat,handleDelete}) => {
       </IconButton>
       </Box>
 
-        {isOpen && historyList?.map((history, idx) => {
+        {isOpen && historyList?.slice().reverse().map((history, idx) => {
           return (
             <Box
               key={idx}
@@ -151,10 +163,11 @@ const HistoryPanel: React.FC = ({handleHistory,handleNewChat,handleDelete}) => {
                 alignItems: "center",
                 width: "100%",
                 height:"100%",
-                bgcolor: "#FFFFFF",
+                bgcolor: selectedIndex===idx?"#E0E0E0" :"#FFFFFF",
                 boxShadow: 3,
                 flexGrow:1,
               }}
+              onClick={()=>{handleItemClick(idx)}}
             >
               <ChatCard history={history} showHistory={handleHistory} handleDelete={handleDelete}></ChatCard>
               <Divider
@@ -187,7 +200,7 @@ const HistoryPanel: React.FC = ({handleHistory,handleNewChat,handleDelete}) => {
   );
 };
 
-const BotText: React.FC<IChatData> = (props: IChatData) => {
+const BotText: React.FC<ChatTag> = ({props,isChat}) => {
   return (
     <Box
       sx={{
@@ -214,7 +227,15 @@ const BotText: React.FC<IChatData> = (props: IChatData) => {
           fontSize: 15,
         }}
       >
-        <Typewriter text={props.message} delay={9} />
+        {isChat?(<Typewriter text={props.message} delay={9} />):( <Linkify
+      componentDecorator={(decoratedHref, decoratedText, key) => (
+        <a key={key} href={decoratedHref} style={{ color: "#92b9e3" }}>
+          {decoratedText}
+        </a>
+      )}
+    >
+      {props.message}
+    </Linkify>)}
       </Typography>
     </Box>
   );
@@ -255,33 +276,44 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
 const ChatBotPage: React.FC = () => {
   const [chatID,setChatID]=useState<string>("")
   const { user } = useAuth0();
-  let chatHistory: IChatData[] = mockData;
+  const [chatHistory,setChatHistory] =React.useState<IChatData[]>(mockData);
   const [chatData, setChatData] = React.useState<IChatData[]>(chatHistory);
   const [message, setMessage] = React.useState<string>("");
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [suggestion, setSuggestion] = React.useState<string[]>(initialTag);
   const [trackServer, setTrackServer] = React.useState([]);
+  const [isChat,setIsChat]=React.useState(false);
+  const [historyLength,setHistoryLength]=React.useState<number>(0);
   const handleHistory=(value:any)=>{
+    setIsChat(false);
     const messageTags=value.history.map((history,idx)=>{
     return {sender:history.role,message: history.content};
     })
+    
+    setChatHistory(messageTags)
     setChatID(value.chat_id)
     console.log(messageTags);
     setChatData(messageTags);
+    scrollToBottom();
   }
-  useEffect(() => {
-    if (chatData) {
-
-      chatHistory=chatData
-    }
-  }, [chatData]);
-
+  useEffect(()=>{
+    scrollToBottom();
+  },[chatHistory,suggestion,chatData])
+  useEffect(()=>{
+    setHistoryLength((p:number)=>{
+      return p + 1;
+    })
+  },[chatID])
   const handleDelete=(value:any)=>{
     console.log(value)
     deleteChat(value.chat_id)
+    setHistoryLength((p:number)=>{
+      return p + 1;
+    })
   };
 
   const handleChat = (value?: string) => {
+    setIsChat(true);
     // setMessage(value);
     chatHistory.push({ sender: "user", message: value ?? message });
     setChatData([...chatHistory]);
@@ -314,9 +346,17 @@ const ChatBotPage: React.FC = () => {
       });
   };
   const handleNewChat=()=>{
-    chatHistory.length=0;
+    setChatHistory([
+      { sender: "bot", message: "Hello, How can I assist you?" },
+    ])
     setChatID("");
-    setChatData(mockData)
+     console.log([
+      { sender: "bot", message: "Hello, How can I assist you?" },
+    ])
+    setChatData([
+      { sender: "bot", message: "Hello, How can I assist you?" },
+    ])
+    setTrackServer([])
   }
 
   React.useEffect(() => {
@@ -346,7 +386,7 @@ const ChatBotPage: React.FC = () => {
               alignItems: "flex-start",
             }}
           >
-            <HistoryPanel  handleHistory={handleHistory} handleNewChat={handleNewChat} handleDelete={handleDelete}/>
+            <HistoryPanel  historyLength={historyLength} handleHistory={handleHistory} handleNewChat={handleNewChat} handleDelete={handleDelete} />
             <Box
               sx={{
                 width: "80%",
@@ -389,17 +429,17 @@ const ChatBotPage: React.FC = () => {
                     display: "none",
                   },
                 }}
-                id="chat-box"
+                id={`box-${chatID}`}
               >
                 {chatData.map((data: IChatData, idx: number) => {
                   return data.sender === "bot"||data.sender === "assistant" ? (
-                    <BotText key={`chat-${idx}`} message={data.message} />
+                    <BotText  props={data} isChat={isChat && idx===chatData.length-1}/>
                   ) : (
-                    <UserText key={`chat-${idx}`} message={data.message} />
+                    data.sender==="user" && <UserText message={data.message} />
                   );
                 })}
 
-                {isLoading && <BotText message={"Loading...."} />}
+                {isLoading && <BotText props={loadingMessage} isChat={isChat}/>}
               </Box>
 
               <Box
