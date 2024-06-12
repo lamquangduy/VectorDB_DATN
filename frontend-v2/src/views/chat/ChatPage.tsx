@@ -101,9 +101,8 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
   );
 };
 
-const HistoryPanel: React.FC = ({handleHistory,handleNewChat,handleDelete,historyLength}) => {
+const HistoryPanel: React.FC = ({isOpen,setIsOpen,handleHistory,handleNewChat,handleDelete,historyLength}) => {
   const [historyList,setHistoryList]=useState<List[]>();
-  const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex,setSelectedIndex]=React.useState<number | null>(null);
   useEffect(() => {
     const fetchChatHistory = async () => {
@@ -115,6 +114,7 @@ const HistoryPanel: React.FC = ({handleHistory,handleNewChat,handleDelete,histor
     fetchChatHistory();
     setSelectedIndex(null);
   }, [historyLength]);
+
   const handleItemClick=(index:number)=>{
     setSelectedIndex(index);
   }
@@ -125,34 +125,50 @@ const HistoryPanel: React.FC = ({handleHistory,handleNewChat,handleDelete,histor
   return (
     <Box
       sx={{
-        width: "20%",
-        height: 670,
-        borderRadius: 2,
+        // borderRadius: 2,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        backgroundColor: "whitesmoke",
-        marginTop: 4,
+        // backgroundColor: "whitesmoke",
+        visibility: !isOpen? "hidden":"visible",
+        width: !isOpen? "0%": "20%",
+        height: 700,
+        
+        // marginTop: 4,
       }}
     >
       <Box
         sx={{
           display: "flex",
+          height: "100%",
           flexDirection: "column",
           alignItems: "center",
-          overflowY: "scroll",
                 }}
       >
          <Box sx={{ 
-        height:40,
+        height:"6%",
         width:"100%",
-        backgroundColor:"pink",
+        borderTop: .5,
+        borderBottom:.5,
+        borderLeft:.5,
+        color: "#E9EAEC",
+        // background: "#28a820",
+        background: "#f7f7f7",
        }}>
-      <IconButton onClick={handleToggle}>
+      {isOpen&& <IconButton onClick={handleToggle}>
         <ViewSidebarIcon />
-      </IconButton>
+      </IconButton>}
       </Box>
-
+      <Box
+            sx={
+              {
+                height: "88%",
+                width : "100%", 
+                overflowY : "scroll",
+                scrollbarWidth: "thin",
+              }
+            }
+            >
         {isOpen && historyList?.slice().reverse().map((history, idx) => {
           return (
             <Box
@@ -162,10 +178,18 @@ const HistoryPanel: React.FC = ({handleHistory,handleNewChat,handleDelete,histor
                 justifyContent: "center",
                 alignItems: "center",
                 width: "100%",
-                height:"100%",
-                bgcolor: selectedIndex===idx?"#E0E0E0" :"#FFFFFF",
-                boxShadow: 3,
-                flexGrow:1,
+                height:56,
+                bgcolor: selectedIndex === idx ? "#d5edd3" : "#FFFFFF",
+                borderBottom: 1,
+                color: "#f1f2f2",
+                ":hover":{
+                  backgroundColor: selectedIndex === idx ?"#d5edd3":"#f7f7f7",
+                boxShadow: selectedIndex === idx ? 3:1,
+                color:selectedIndex === idx  ? "white":"black",
+                }
+                // boxShadow: 3,
+                
+                // flexGrow:1,
               }}
               onClick={()=>{handleItemClick(idx)}}
             >
@@ -177,15 +201,17 @@ const HistoryPanel: React.FC = ({handleHistory,handleNewChat,handleDelete,histor
               ></Divider>
             </Box>
           );
-        })}
+        })} </Box>
       </Box>
-      <Box sx={{}}>
+      <Box sx={{
+        height: "8%",
+        width: "100%",}}>
         <Button
           sx={{
-            backgroundColor: "#222222",
+            backgroundColor: "#222222", 
             color: "white",
             width: "100%",
-            height: 50,
+            height: "100%",
             ":hover": {
               backgroundColor: "#222222",
             },
@@ -215,8 +241,10 @@ const BotText: React.FC<ChatTag> = ({props,isChat}) => {
       <Typography
         variant="body1"
         sx={{
-          bgcolor: "#4E5652",
-          color: "#FFFFFF",
+          // bgcolor: "#4E5652",
+          // color: "#FFFFFF",
+          color: "black",
+          bgcolor:"#f7f7f7",
           borderTopLeftRadius: "10px",
           borderTopRightRadius: "10px",
           borderBottomRightRadius: "10px",
@@ -224,7 +252,7 @@ const BotText: React.FC<ChatTag> = ({props,isChat}) => {
           m: 1,
           padding: 1,
           boxShadow: 3,
-          fontSize: 15,
+          fontSize: 18,
         }}
       >
         {isChat?(<Typewriter text={props.message} delay={9} />):( <Linkify
@@ -254,7 +282,8 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
       <Typography
         variant="body1"
         sx={{
-          bgcolor: "#25A18E",
+          // bgcolor: "#25A18E",
+          bgcolor: "#2cac24",
           color: "#FFFFFF",
           borderTopLeftRadius: "10px",
           borderTopRightRadius: "10px",
@@ -263,7 +292,9 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
           m: 1,
           padding: 1,
           boxShadow: 3,
-          fontSize: 15,
+          fontSize: 18,
+          maxWidth: "65%"
+
         }}
       >
         {props.message}
@@ -284,6 +315,10 @@ const ChatBotPage: React.FC = () => {
   const [trackServer, setTrackServer] = React.useState([]);
   const [isChat,setIsChat]=React.useState(false);
   const [historyLength,setHistoryLength]=React.useState<number>(0);
+  const [isOpen, setIsOpen] = useState(false);
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+  };
   const handleHistory=(value:any)=>{
     setIsChat(false);
     const messageTags=value.history.map((history,idx)=>{
@@ -386,50 +421,94 @@ const ChatBotPage: React.FC = () => {
               alignItems: "flex-start",
             }}
           >
-            <HistoryPanel  historyLength={historyLength} handleHistory={handleHistory} handleNewChat={handleNewChat} handleDelete={handleDelete} />
+            <HistoryPanel isOpen = {isOpen} setIsOpen= {setIsOpen} historyLength={historyLength} handleHistory={handleHistory} handleNewChat={handleNewChat} handleDelete={handleDelete} />
             <Box
               sx={{
-                width: "80%",
+                width: isOpen? "80%":"100%",
                 height: "100%",
-                boxShadow: 3,
-                borderRadius: 2,
-                overflow: "auto",
-                scrollbarWidth: "thin",
+
+                // boxShadow: 3,
+                // borderRadius: 2,
+                
+                // overflow: "auto",
+                // scrollbarWidth: "thin",
                 WebkitOverflowScrolling: {
                   display: "none",
                 },
               }}
             >
-              <Box>
+              <Box
+                sx={{
+                  width: "100%",
+                  height: "6%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "flex-start",
+                  border: .5,
+                  color: "#E9EAEC",
+                  // background:
+                  //       "linear-gradient(315deg, #378b29 0%, #18a428 74%)",
+                  // background: "#28a820"
+                  background: "#f7f7f7",
+                }}>
+                <Box sx={{ 
+                    height:"100%",
+                    width:"5%",
+                    // background: "#28a820"
+                    background: "#f7f7f7",
+                  }}>
+                  {!isOpen && <IconButton onClick={handleToggle}>
+                    <ViewSidebarIcon />
+                  </IconButton>}
+                  </Box>
                 <Typography
                   sx={{
+                    width:"95%",
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
                     textAlign: "center",
-                    background:
-                      "linear-gradient(315deg, #378b29 0%, #18a428 74%)",
-                    fontSize: "20px",
-                    borderRadius: "4px",
+                    // background:
+                    //   "linear-gradient(315deg, #378b29 0%, #18a428 74%)",
+                    // background: "#28a820",
+                    background: "#f7f7f7",
+                    fontSize: "35px",
+                    height: "100%",
+                    // borderRadius: "4px",
                     fontWeight: "bold",
-                    color: "#e3e0e0",
-                    boxShadow: 3,
+                    // color: "#e3e0e0",
+                    color: "#005f06"
+                    // boxShadow: 3,
                   }}
                 >
                   Learning Assistant
-                </Typography>
+                </Typography> 
               </Box>
               <Box
                 sx={{
-                  height: 570,
+                  display:"flex",
+                  height: "80%",
+                  width: "100%",
                   padding: 1,
+                  justifyContent: "space-around",
+                  alignItems: "center",
                   overflowY: "scroll",
                   scrollbarWidth: "thin",
-                  WebkitOverflowScrolling: {
-                    display: "none",
-                  },
+                  // WebkitOverflowScrolling: {
+                  //   display: "none",
+                  // },
                 }}
                 id={`box-${chatID}`}
+              >
+                <Box
+                sx={{
+                  height: "100%",
+                  padding: 1,
+                  width:1150,
+                  // WebkitOverflowScrolling: {
+                  //   display: "none",
+                  //},
+                }}
               >
                 {chatData.map((data: IChatData, idx: number) => {
                   return data.sender === "bot"||data.sender === "assistant" ? (
@@ -441,16 +520,17 @@ const ChatBotPage: React.FC = () => {
 
                 {isLoading && <BotText props={loadingMessage} isChat={isChat}/>}
               </Box>
+              </Box>
 
               <Box
                 sx={{
                   display: "flex",
-                  flexWrap: "wrap",
+                  flexWrap: "wrap-reverse",
                   gap: 0.5,
                   p: 0.5,
                   alignItems: "center",
                   justifyContent: "center",
-                  height: 20,
+                  height: "5%",
                 }}
               >
                 {suggestion.length !== 0 &&
@@ -469,8 +549,18 @@ const ChatBotPage: React.FC = () => {
               </Box>
               <Box
                 sx={{
-                  height: 80,
+                  height: "9%",
                   width: "100%",
+                  display: "flex",
+                  flexWrap: "nowrap",
+                  justifyContent: "space-around",
+                  alignItems: "center",
+                }}
+              >
+                <Box
+                sx={{
+                  height: "100%",
+                  width: 1200,
                   display: "flex",
                   flexWrap: "nowrap",
                   justifyContent: "space-around",
@@ -502,14 +592,17 @@ const ChatBotPage: React.FC = () => {
                 </Button>
                 <OutlinedInput
                   sx={{
-                    borderBlockStart: "1px",
+                      // borderBlockStart: "1px",
+                    // borderBlockEndColor: "#005f06",
+                    borderColor: "#005f06",
                     outline: 0,
-                    width: "88%",
+                    width: 1000,
                     px: 1,
                     height: 50,
                     textAlign: "center",
-                    borderRadius: "10px",
-                    boxShadow: "3",
+                    borderRadius: "20px",
+                    
+                    // boxShadow: "3",
                     background: "#fff",
                     "::placeholder": "bold",
                   }}
@@ -532,7 +625,7 @@ const ChatBotPage: React.FC = () => {
                 >
                   <SendIcon />
                 </Button>
-              </Box>
+              </Box></Box>
             </Box>
           </Box>
         </Box>
