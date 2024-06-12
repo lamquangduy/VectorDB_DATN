@@ -230,7 +230,7 @@ def get_content_course(course_name: str, query="", filepath= file_path):
 def get_suggestions(content):
     llm = OpenAIGenerator(model="gpt-3.5-turbo")
     response = llm.run(
-        "You are an user. Your purpose is to find a course, or career path fits your desire, you can use open question if content isn't help. Give a list of 4 question to ask based on this content: {content}"
+        "You are an user. Your purpose is to create your questions relative with a course or similarity courses which are mentioned in query, to ask anothers, and if query mention your's goal career which is mentioned in query, your purpose is to create your questions relative with course that fits your desire. You can use open questions if the content isn't helpful. Provide 4 questions, each question is less than 7 words, only text. Do not format with bullets or numbers. Base your questions on this content: {content}"
     )
     list_of_lines = response["replies"][0].splitlines()
     return list_of_lines

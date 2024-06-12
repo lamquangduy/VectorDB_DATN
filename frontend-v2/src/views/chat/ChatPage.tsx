@@ -6,11 +6,17 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import React, { useCallback, useEffect, useState } from "react";
-import ViewSidebarIcon from '@mui/icons-material/ViewSidebar';
+import ViewSidebarIcon from "@mui/icons-material/ViewSidebar";
 import getChatResponse, { deleteChat } from "../../services/chat/chat";
-import {getChatHistory} from "../../services/chat/chat";
+import { getChatHistory } from "../../services/chat/chat";
 import Linkify from "react-linkify";
-import { createTheme, Divider, Drawer, IconButton, ThemeProvider } from "@mui/material";
+import {
+  createTheme,
+  Divider,
+  Drawer,
+  IconButton,
+  ThemeProvider,
+} from "@mui/material";
 import ChatCard from "./components/ChatCard";
 import { ConstructionOutlined, OpenInNew } from "@mui/icons-material";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -28,9 +34,9 @@ interface IChatData {
   sender?: string;
   message: string;
 }
-interface ChatTag{
-  props:IChatData;
-  isChat:boolean;
+interface ChatTag {
+  props: IChatData;
+  isChat: boolean;
 }
 interface SuggestedTagProps {
   value: string;
@@ -52,10 +58,7 @@ const scrollToBottom = () => {
 const mockData: IChatData[] = [
   { sender: "bot", message: "Hello, How can I assist you?" },
 ];
-const loadingMessage:IChatData = 
-  { sender: "bot", message: "Loading..." }
-;
-
+const loadingMessage: IChatData = { sender: "bot", message: "Loading..." };
 const SuggestedTag: React.FC<SuggestedTagProps> = ({
   value,
   handleClick,
@@ -101,23 +104,47 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
   );
 };
 
-const HistoryPanel: React.FC = ({isOpen,setIsOpen,handleHistory,handleNewChat,handleDelete,historyLength}) => {
-  const [historyList,setHistoryList]=useState<List[]>();
-  const [selectedIndex,setSelectedIndex]=React.useState<number | null>(null);
+const HistoryPanel: React.FC = ({
+  isOpen,
+  setIsOpen,
+  handleHistory,
+  handleNewChat,
+  handleDelete,
+  action,
+}) => {
+  const [historyList, setHistoryList] = useState<List[]>();
+  const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
+
   useEffect(() => {
     const fetchChatHistory = async () => {
       const chatHistory = await getChatHistory();
       setHistoryList(chatHistory);
+      // console.log(selectedIndex)
       // console.log(chatHistory[0]);
     };
 
     fetchChatHistory();
-    setSelectedIndex(null);
-  }, [historyLength]);
+    // setSelectedIndex(null);
+    switch (action) {
+      case "create":
+        setSelectedIndex(null);
+        break;
+      case "delete":
+        console.log("delete")
+        break;
+      case "swap":
+        console.log("delete")
+        break;
+      case "newID":
+        setSelectedIndex(0);
+        break;
+    }
+  }, [action]);
 
-  const handleItemClick=(index:number)=>{
-    setSelectedIndex(index);
-  }
+  const handleItemClick = (index: number) => {
+    setSelectedIndex(() => index);
+    console.log(selectedIndex);
+  };
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
@@ -130,10 +157,10 @@ const HistoryPanel: React.FC = ({isOpen,setIsOpen,handleHistory,handleNewChat,ha
         flexDirection: "column",
         justifyContent: "space-between",
         // backgroundColor: "whitesmoke",
-        visibility: !isOpen? "hidden":"visible",
-        width: !isOpen? "0%": "20%",
+        visibility: !isOpen ? "hidden" : "visible",
+        width: !isOpen ? "0%" : "20%",
         height: 700,
-        
+
         // marginTop: 4,
       }}
     >
@@ -143,72 +170,89 @@ const HistoryPanel: React.FC = ({isOpen,setIsOpen,handleHistory,handleNewChat,ha
           height: "100%",
           flexDirection: "column",
           alignItems: "center",
-                }}
+        }}
       >
-         <Box sx={{ 
-        height:"6%",
-        width:"100%",
-        borderTop: .5,
-        borderBottom:.5,
-        borderLeft:.5,
-        color: "#E9EAEC",
-        // background: "#28a820",
-        background: "#f7f7f7",
-       }}>
-      {isOpen&& <IconButton onClick={handleToggle}>
-        <ViewSidebarIcon />
-      </IconButton>}
+        <Box
+          sx={{
+            height: "6%",
+            width: "100%",
+            borderTop: 0.5,
+            borderBottom: 0.5,
+            borderLeft: 0.5,
+            color: "#E9EAEC",
+            // background: "#28a820",
+            background: "#f7f7f7",
+          }}
+        >
+          {isOpen && (
+            <IconButton onClick={handleToggle}>
+              <ViewSidebarIcon />
+            </IconButton>
+          )}
+        </Box>
+        <Box
+          sx={{
+            height: "88%",
+            width: "100%",
+            overflowY: "scroll",
+            scrollbarWidth: "thin",
+          }}
+        >
+          {isOpen &&
+            historyList
+              ?.slice()
+              .reverse()
+              .map((history, idx) => {
+                return (
+                  <Box
+                    key={idx}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: "100%",
+                      height: 56,
+                      bgcolor: selectedIndex === idx ? "#d5edd3" : "#FFFFFF",
+                      borderBottom: 1,
+                      color: "#f1f2f2",
+                      ":hover": {
+                        backgroundColor:
+                          selectedIndex === idx ? "#d5edd3" : "#f7f7f7",
+                        boxShadow: selectedIndex === idx ? 3 : 1,
+                        color: selectedIndex === idx ? "white" : "black",
+                      },
+                      // boxShadow: 3,
+
+                      // flexGrow:1,
+                    }}
+                    onClick={() => {
+                      handleItemClick(idx);
+                    }}
+                  >
+                    <ChatCard
+                      history={history}
+                      showHistory={handleHistory}
+                      handleDelete={handleDelete}
+                    ></ChatCard>
+                    <Divider
+                      sx={{
+                        borderBottomWidth: 1,
+                      }}
+                    ></Divider>
+                  </Box>
+                );
+              })}{" "}
+        </Box>
       </Box>
       <Box
-            sx={
-              {
-                height: "88%",
-                width : "100%", 
-                overflowY : "scroll",
-                scrollbarWidth: "thin",
-              }
-            }
-            >
-        {isOpen && historyList?.slice().reverse().map((history, idx) => {
-          return (
-            <Box
-              key={idx}
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                width: "100%",
-                height:56,
-                bgcolor: selectedIndex === idx ? "#d5edd3" : "#FFFFFF",
-                borderBottom: 1,
-                color: "#f1f2f2",
-                ":hover":{
-                  backgroundColor: selectedIndex === idx ?"#d5edd3":"#f7f7f7",
-                boxShadow: selectedIndex === idx ? 3:1,
-                color:selectedIndex === idx  ? "white":"black",
-                }
-                // boxShadow: 3,
-                
-                // flexGrow:1,
-              }}
-              onClick={()=>{handleItemClick(idx)}}
-            >
-              <ChatCard history={history} showHistory={handleHistory} handleDelete={handleDelete}></ChatCard>
-              <Divider
-                sx={{
-                  borderBottomWidth: 1,
-                }}
-              ></Divider>
-            </Box>
-          );
-        })} </Box>
-      </Box>
-      <Box sx={{
-        height: "8%",
-        width: "100%",}}>
+        sx={{
+          height: "8%",
+          width: "100%",
+        }}
+      >
         <Button
           sx={{
-            backgroundColor: "#222222", 
+            backgroundColor: "#222222",
             color: "white",
             width: "100%",
             height: "100%",
@@ -226,7 +270,7 @@ const HistoryPanel: React.FC = ({isOpen,setIsOpen,handleHistory,handleNewChat,ha
   );
 };
 
-const BotText: React.FC<ChatTag> = ({props,isChat}) => {
+const BotText: React.FC<ChatTag> = ({ props, isChat }) => {
   return (
     <Box
       sx={{
@@ -244,7 +288,7 @@ const BotText: React.FC<ChatTag> = ({props,isChat}) => {
           // bgcolor: "#4E5652",
           // color: "#FFFFFF",
           color: "black",
-          bgcolor:"#f7f7f7",
+          bgcolor: "#f7f7f7",
           borderTopLeftRadius: "10px",
           borderTopRightRadius: "10px",
           borderBottomRightRadius: "10px",
@@ -255,15 +299,19 @@ const BotText: React.FC<ChatTag> = ({props,isChat}) => {
           fontSize: 18,
         }}
       >
-        {isChat?(<Typewriter text={props.message} delay={9} />):( <Linkify
-      componentDecorator={(decoratedHref, decoratedText, key) => (
-        <a key={key} href={decoratedHref} style={{ color: "#92b9e3" }}>
-          {decoratedText}
-        </a>
-      )}
-    >
-      {props.message}
-    </Linkify>)}
+        {isChat ? (
+          <Typewriter text={props.message} delay={9} />
+        ) : (
+          <Linkify
+            componentDecorator={(decoratedHref, decoratedText, key) => (
+              <a key={key} href={decoratedHref} style={{ color: "#92b9e3" }}>
+                {decoratedText}
+              </a>
+            )}
+          >
+            {props.message}
+          </Linkify>
+        )}
       </Typography>
     </Box>
   );
@@ -293,8 +341,7 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
           padding: 1,
           boxShadow: 3,
           fontSize: 18,
-          maxWidth: "65%"
-
+          maxWidth: "65%",
         }}
       >
         {props.message}
@@ -305,46 +352,42 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
 };
 
 const ChatBotPage: React.FC = () => {
-  const [chatID,setChatID]=useState<string>("")
+  const [chatID, setChatID] = useState<string>("");
   const { user } = useAuth0();
-  const [chatHistory,setChatHistory] =React.useState<IChatData[]>(mockData);
+  const [chatHistory, setChatHistory] = React.useState<IChatData[]>(mockData);
   const [chatData, setChatData] = React.useState<IChatData[]>(chatHistory);
   const [message, setMessage] = React.useState<string>("");
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [suggestion, setSuggestion] = React.useState<string[]>(initialTag);
   const [trackServer, setTrackServer] = React.useState([]);
-  const [isChat,setIsChat]=React.useState(false);
-  const [historyLength,setHistoryLength]=React.useState<number>(0);
+  const [isChat, setIsChat] = React.useState(false);
+  const [action, setAction] = React.useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
-  const handleHistory=(value:any)=>{
+  const handleHistory = (value: any) => {
     setIsChat(false);
-    const messageTags=value.history.map((history,idx)=>{
-    return {sender:history.role,message: history.content};
-    })
-    
-    setChatHistory(messageTags)
-    setChatID(value.chat_id)
+    const messageTags = value.history.map((history, idx) => {
+      return { sender: history.role, message: history.content };
+    });
+
+    setChatHistory(messageTags);
+    setChatID(value.chat_id);
     console.log(messageTags);
     setChatData(messageTags);
     scrollToBottom();
-  }
-  useEffect(()=>{
+  };
+  useEffect(() => {
     scrollToBottom();
-  },[chatHistory,suggestion,chatData])
-  useEffect(()=>{
-    setHistoryLength((p:number)=>{
-      return p + 1;
-    })
-  },[chatID])
-  const handleDelete=(value:any)=>{
-    console.log(value)
-    deleteChat(value.chat_id)
-    setHistoryLength((p:number)=>{
-      return p + 1;
-    })
+  }, [chatHistory, suggestion, chatData]);
+  useEffect(() => {
+    setAction("swap");
+  }, [chatID]);
+  const handleDelete = (value: any) => {
+    console.log(value);
+    deleteChat(value.chat_id);
+    setAction("delete");
   };
 
   const handleChat = (value?: string) => {
@@ -356,7 +399,7 @@ const ChatBotPage: React.FC = () => {
     scrollToBottom();
     if (!Boolean(value)) setMessage("");
 
-    getChatResponse(value ?? message, trackServer,chatID)
+    getChatResponse(value ?? message, trackServer, chatID)
       .then((res) => {
         console.log(res);
         chatHistory.push({
@@ -366,6 +409,9 @@ const ChatBotPage: React.FC = () => {
         setChatData([...chatHistory]);
         setTrackServer(res.response.history);
         setSuggestion(res.response.tag);
+        if (chatID === "") {
+          setAction("newID");
+        }
         setChatID(res.chatID);
         setIsLoading(false);
         scrollToBottom();
@@ -380,19 +426,16 @@ const ChatBotPage: React.FC = () => {
         scrollToBottom();
       });
   };
-  const handleNewChat=()=>{
+  const handleNewChat = () => {
     setChatHistory([
       { sender: "bot", message: "Hello, How can I assist you?" },
-    ])
+    ]);
     setChatID("");
-     console.log([
-      { sender: "bot", message: "Hello, How can I assist you?" },
-    ])
-    setChatData([
-      { sender: "bot", message: "Hello, How can I assist you?" },
-    ])
-    setTrackServer([])
-  }
+    console.log([{ sender: "bot", message: "Hello, How can I assist you?" }]);
+    setChatData([{ sender: "bot", message: "Hello, How can I assist you?" }]);
+    setTrackServer([]);
+    setAction("create");
+  };
 
   React.useEffect(() => {
     console.log("====================================");
@@ -421,15 +464,22 @@ const ChatBotPage: React.FC = () => {
               alignItems: "flex-start",
             }}
           >
-            <HistoryPanel isOpen = {isOpen} setIsOpen= {setIsOpen} historyLength={historyLength} handleHistory={handleHistory} handleNewChat={handleNewChat} handleDelete={handleDelete} />
+            <HistoryPanel
+              isOpen={isOpen}
+              setIsOpen={setIsOpen}
+              action={action}
+              handleHistory={handleHistory}
+              handleNewChat={handleNewChat}
+              handleDelete={handleDelete}
+            />
             <Box
               sx={{
-                width: isOpen? "80%":"100%",
+                width: isOpen ? "80%" : "100%",
                 height: "100%",
 
                 // boxShadow: 3,
                 // borderRadius: 2,
-                
+
                 // overflow: "auto",
                 // scrollbarWidth: "thin",
                 WebkitOverflowScrolling: {
@@ -444,26 +494,31 @@ const ChatBotPage: React.FC = () => {
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "flex-start",
-                  border: .5,
+                  border: 0.5,
                   color: "#E9EAEC",
                   // background:
                   //       "linear-gradient(315deg, #378b29 0%, #18a428 74%)",
                   // background: "#28a820"
                   background: "#f7f7f7",
-                }}>
-                <Box sx={{ 
-                    height:"100%",
-                    width:"5%",
+                }}
+              >
+                <Box
+                  sx={{
+                    height: "100%",
+                    width: "5%",
                     // background: "#28a820"
                     background: "#f7f7f7",
-                  }}>
-                  {!isOpen && <IconButton onClick={handleToggle}>
-                    <ViewSidebarIcon />
-                  </IconButton>}
-                  </Box>
+                  }}
+                >
+                  {!isOpen && (
+                    <IconButton onClick={handleToggle}>
+                      <ViewSidebarIcon />
+                    </IconButton>
+                  )}
+                </Box>
                 <Typography
                   sx={{
-                    width:"95%",
+                    width: "95%",
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
@@ -477,16 +532,16 @@ const ChatBotPage: React.FC = () => {
                     // borderRadius: "4px",
                     fontWeight: "bold",
                     // color: "#e3e0e0",
-                    color: "#005f06"
+                    color: "#005f06",
                     // boxShadow: 3,
                   }}
                 >
                   Learning Assistant
-                </Typography> 
+                </Typography>
               </Box>
               <Box
                 sx={{
-                  display:"flex",
+                  display: "flex",
                   height: "80%",
                   width: "100%",
                   padding: 1,
@@ -501,25 +556,33 @@ const ChatBotPage: React.FC = () => {
                 id={`box-${chatID}`}
               >
                 <Box
-                sx={{
-                  height: "100%",
-                  padding: 1,
-                  width:1150,
-                  // WebkitOverflowScrolling: {
-                  //   display: "none",
-                  //},
-                }}
-              >
-                {chatData.map((data: IChatData, idx: number) => {
-                  return data.sender === "bot"||data.sender === "assistant" ? (
-                    <BotText  props={data} isChat={isChat && idx===chatData.length-1}/>
-                  ) : (
-                    data.sender==="user" && <UserText message={data.message} />
-                  );
-                })}
+                  sx={{
+                    height: "100%",
+                    padding: 1,
+                    width: 1150,
+                    // WebkitOverflowScrolling: {
+                    //   display: "none",
+                    //},
+                  }}
+                >
+                  {chatData.map((data: IChatData, idx: number) => {
+                    return data.sender === "bot" ||
+                      data.sender === "assistant" ? (
+                      <BotText
+                        props={data}
+                        isChat={isChat && idx === chatData.length - 1}
+                      />
+                    ) : (
+                      data.sender === "user" && (
+                        <UserText message={data.message} />
+                      )
+                    );
+                  })}
 
-                {isLoading && <BotText props={loadingMessage} isChat={isChat}/>}
-              </Box>
+                  {isLoading && (
+                    <BotText props={loadingMessage} isChat={isChat} />
+                  )}
+                </Box>
               </Box>
 
               <Box
@@ -558,74 +621,75 @@ const ChatBotPage: React.FC = () => {
                 }}
               >
                 <Box
-                sx={{
-                  height: "100%",
-                  width: 1200,
-                  display: "flex",
-                  flexWrap: "nowrap",
-                  justifyContent: "space-around",
-                  alignItems: "center",
-                }}
-              >
-                <Button
-                  onClick={() => {
-                    chatHistory.splice(0, chatHistory.length);
-                    chatHistory.push({
-                      sender: "bot",
-                      message: "Hello, How can I help you?",
-                    });
-                    setChatData([]);
-                    setTimeout(() => {
-                      setChatData(() => {
-                        return [
-                          {
-                            sender: "bot",
-                            message: "Hello, How can I help you?",
-                          },
-                        ];
-                      });
-                    }, 500);
-                  }}
-                  disabled={isLoading}
-                >
-                  <DeleteIcon />
-                </Button>
-                <OutlinedInput
                   sx={{
-                      // borderBlockStart: "1px",
-                    // borderBlockEndColor: "#005f06",
-                    borderColor: "#005f06",
-                    outline: 0,
-                    width: 1000,
-                    px: 1,
-                    height: 50,
-                    textAlign: "center",
-                    borderRadius: "20px",
-                    
-                    // boxShadow: "3",
-                    background: "#fff",
-                    "::placeholder": "bold",
-                  }}
-                  onKeyDown={(e) => {
-                    if (message !== "" && e.key === "Enter") {
-                      handleChat();
-                    }
-                  }}
-                  placeholder="Type a new message here"
-                  value={message}
-                  onChange={(e) => {
-                    setMessage(e.target.value);
-                  }}
-                ></OutlinedInput>
-                <Button
-                  onClick={() => {
-                    // handleChat();
-                    handleChat();
+                    height: "100%",
+                    width: 1200,
+                    display: "flex",
+                    flexWrap: "nowrap",
+                    justifyContent: "space-around",
+                    alignItems: "center",
                   }}
                 >
-                  <SendIcon />
-                </Button>
-              </Box></Box>
+                  <Button
+                    onClick={() => {
+                      chatHistory.splice(0, chatHistory.length);
+                      chatHistory.push({
+                        sender: "bot",
+                        message: "Hello, How can I help you?",
+                      });
+                      setChatData([]);
+                      setTimeout(() => {
+                        setChatData(() => {
+                          return [
+                            {
+                              sender: "bot",
+                              message: "Hello, How can I help you?",
+                            },
+                          ];
+                        });
+                      }, 500);
+                    }}
+                    disabled={isLoading}
+                  >
+                    <DeleteIcon />
+                  </Button>
+                  <OutlinedInput
+                    sx={{
+                      // borderBlockStart: "1px",
+                      // borderBlockEndColor: "#005f06",
+                      borderColor: "#005f06",
+                      outline: 0,
+                      width: 1000,
+                      px: 1,
+                      height: 50,
+                      textAlign: "center",
+                      borderRadius: "20px",
+
+                      // boxShadow: "3",
+                      background: "#fff",
+                      "::placeholder": "bold",
+                    }}
+                    onKeyDown={(e) => {
+                      if (message !== "" && e.key === "Enter") {
+                        handleChat();
+                      }
+                    }}
+                    placeholder="Type a new message here"
+                    value={message}
+                    onChange={(e) => {
+                      setMessage(e.target.value);
+                    }}
+                  ></OutlinedInput>
+                  <Button
+                    onClick={() => {
+                      // handleChat();
+                      handleChat();
+                    }}
+                  >
+                    <SendIcon />
+                  </Button>
+                </Box>
+              </Box>
             </Box>
           </Box>
         </Box>
