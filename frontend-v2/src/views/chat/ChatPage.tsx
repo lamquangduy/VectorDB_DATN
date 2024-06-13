@@ -129,8 +129,8 @@ const HistoryPanel: React.FC = ({
       case "create":
         setSelectedIndex(null);
         break;
-      case "delete":
-        console.log("delete")
+      case "deleteCur":
+        setSelectedIndex(null)
         break;
       case "swap":
         console.log("delete")
@@ -363,31 +363,51 @@ const ChatBotPage: React.FC = () => {
   const [isChat, setIsChat] = React.useState(false);
   const [action, setAction] = React.useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
+  const [isRefresh,setIsRefresh]=React.useState<boolean>(false);
+  
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
   const handleHistory = (value: any) => {
+    setTimeout(() => {
+      setIsRefresh(p=>!p);
+    }, 3);
     setIsChat(false);
     const messageTags = value.history.map((history, idx) => {
       return { sender: history.role, message: history.content };
     });
-
+    console.log("Handle History")
+    setSuggestion(initialTag)
     setChatHistory(messageTags);
     setChatID(value.chat_id);
     console.log(messageTags);
     setChatData(messageTags);
     scrollToBottom();
+    setIsRefresh(p=>!p)
   };
-  useEffect(() => {
-    scrollToBottom();
-  }, [chatHistory, suggestion, chatData]);
   useEffect(() => {
     setAction("swap");
   }, [chatID]);
   const handleDelete = (value: any) => {
-    console.log(value);
+   
+    setTimeout(() => {
+      setIsRefresh((p)=>!p)
+    }, 5);
     deleteChat(value.chat_id);
-    setAction("delete");
+    if(chatID===value.chat_id){
+      setChatHistory([
+        { sender: "bot", message: "Hello, How can I assist you?" },
+      ]);
+      setChatID("");
+      setChatData([{ sender: "bot", message: "Hello, How can I assist you?" }]);
+      setTrackServer([]);
+      setSuggestion(initialTag);
+      setAction("create");
+    }
+    else{
+    setAction("delete")
+    }
+    setIsRefresh((p)=>!p)
   };
 
   const handleChat = (value?: string) => {
@@ -404,7 +424,7 @@ const ChatBotPage: React.FC = () => {
         console.log(res);
         chatHistory.push({
           sender: "bot",
-          message: res.response.answer,
+          message: res.response.answer.replaceAll('*',''),
         });
         setChatData([...chatHistory]);
         setTrackServer(res.response.history);
@@ -427,16 +447,20 @@ const ChatBotPage: React.FC = () => {
       });
   };
   const handleNewChat = () => {
+    setTimeout(() => {
+      setIsRefresh((p)=>!p)
+    }, 5);
     setChatHistory([
       { sender: "bot", message: "Hello, How can I assist you?" },
     ]);
     setChatID("");
-    console.log([{ sender: "bot", message: "Hello, How can I assist you?" }]);
     setChatData([{ sender: "bot", message: "Hello, How can I assist you?" }]);
     setTrackServer([]);
+    setSuggestion(initialTag);
     setAction("create");
+    setIsRefresh((p)=>!p)
   };
-
+ 
   React.useEffect(() => {
     console.log("====================================");
     console.log("user");
@@ -446,7 +470,7 @@ const ChatBotPage: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{}}>
+     <Box sx={{}}>
         <Box
           sx={{
             width: "100%",
@@ -539,6 +563,39 @@ const ChatBotPage: React.FC = () => {
                   Learning Assistant
                 </Typography>
               </Box>
+              {isRefresh &&
+              <>
+              <Box
+                sx={{
+                  display: "flex",
+                  height: "80%",
+                  width: "100%",
+                  padding: 1,
+                  justifyContent: "space-around",
+                  alignItems: "center",
+                  overflowY: "scroll",
+                  scrollbarWidth: "thin",
+                  // WebkitOverflowScrolling: {
+                  //   display: "none",
+                  // },
+                }}
+                id={`box-${chatID}`}
+              >
+                <Box
+                  sx={{
+                    height: "100%",
+                    padding: 1,
+                    width: 1150,
+                    // WebkitOverflowScrolling: {
+                    //   display: "none",
+                    //},
+                  }}
+                >
+                  </Box>
+                  </Box>
+                  </>}
+              {!isRefresh &&
+              <>
               <Box
                 sx={{
                   display: "flex",
@@ -688,9 +745,12 @@ const ChatBotPage: React.FC = () => {
                   >
                     <SendIcon />
                   </Button>
+                  
                 </Box>
               </Box>
+              </>}
             </Box>
+            
           </Box>
         </Box>
       </Box>
