@@ -5,10 +5,10 @@ const axiosInstance = axios.create({
 });
 // export default axiosInstance;
 
-const getChatResponse = async (text: string, history: any[],chatId:string) => {
+const getChatResponse = async (user: any, text: string, history: any[], chatId:string) => {
   const response = await axiosInstance({
     method: "post",
-    url: "/chat/huutai1515225@gmail.com",
+    url: `/chat/${user}`,
     data: {
       chat_id:chatId,
       text: text,
@@ -18,18 +18,18 @@ const getChatResponse = async (text: string, history: any[],chatId:string) => {
   return response.data;
 };
 
-export const deleteChat = async (chatId:string) => {
+export const deleteChat = async (user: any,chatId:string) => {
   const response = await axiosInstance({
     method: "delete",
-    url:  `/chat/huutai1515225@gmail.com/${chatId}`,
+    url:  `/chat/${user}/${chatId}`,
   });
   return response.status;
 };
 
-export const getChatHistory = async () => {
+export const getChatHistory = async (user: any) => {
   const response = await axiosInstance({
     method: "get",
-    url: "/chat/huutai1515225@gmail.com",
+    url: `/chat/${user}`,
   });
 
   return response.data;

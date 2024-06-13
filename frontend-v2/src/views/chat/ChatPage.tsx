@@ -105,6 +105,7 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
 };
 
 const HistoryPanel: React.FC = ({
+  user,
   isOpen,
   setIsOpen,
   handleHistory,
@@ -117,7 +118,7 @@ const HistoryPanel: React.FC = ({
 
   useEffect(() => {
     const fetchChatHistory = async () => {
-      const chatHistory = await getChatHistory();
+      const chatHistory = await getChatHistory(user);
       setHistoryList(chatHistory);
       // console.log(selectedIndex)
       // console.log(chatHistory[0]);
@@ -397,7 +398,7 @@ const ChatBotPage: React.FC = () => {
     setTimeout(() => {
       setIsRefresh((p)=>!p)
     }, 5);
-    deleteChat(value.chat_id);
+    deleteChat(user?.email, value.chat_id);
     if(chatID===value.chat_id){
       setChatHistory([
         { sender: "bot", message: "Hello, How can I assist you?" },
@@ -423,7 +424,7 @@ const ChatBotPage: React.FC = () => {
     scrollToBottom();
     if (!Boolean(value)) setMessage("");
 
-    getChatResponse(value ?? message, trackServer, chatID)
+    getChatResponse(user?.email,value ??  message, trackServer, chatID)
       .then((res) => {
         console.log(res);
         chatHistory.push({
@@ -495,6 +496,7 @@ const ChatBotPage: React.FC = () => {
             }}
           >
             <HistoryPanel
+              user = {user?.email}
               isOpen={isOpen}
               setIsOpen={setIsOpen}
               action={action}
