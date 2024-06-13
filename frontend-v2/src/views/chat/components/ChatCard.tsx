@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardActionArea, CardContent, Box, Avatar, Typography, Menu, MenuItem, IconButton, CardActions } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-const ChatCard = ({ history, showHistory, handleDelete}) => {
+const ChatCard = ({ selectedIndex, setSelectedIndex, history, idx, showHistory, handleDelete}) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -14,7 +14,14 @@ const ChatCard = ({ history, showHistory, handleDelete}) => {
     event?.stopPropagation()
     setAnchorEl(null);
   };
-
+  const handleIndexDelete = (value: any) =>
+    {
+        if(selectedIndex<idx) setSelectedIndex(selectedIndex) 
+        else if (selectedIndex==idx) setSelectedIndex(null)
+        else if (selectedIndex>idx) setSelectedIndex(selectedIndex-1) 
+        
+        handleDelete(value)
+    }
   return (
     <CardActions  sx={{ display: 'flex', justifyContent:"center", alignItems: 'center', width: '100%', 
   ":hover":{
@@ -37,7 +44,7 @@ const ChatCard = ({ history, showHistory, handleDelete}) => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem onClick={()=>handleDelete(history)}>Delete</MenuItem>
+        <MenuItem onClick={()=>handleIndexDelete(history)}>Delete</MenuItem>
         <MenuItem onClick={handleClose}>Close</MenuItem>
       </Menu>
     </CardActions>

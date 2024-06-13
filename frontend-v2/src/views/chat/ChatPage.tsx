@@ -229,8 +229,8 @@ const HistoryPanel: React.FC = ({
                       handleItemClick(idx);
                     }}
                   >
-                    <ChatCard
-                      history={history}
+                    <ChatCard selectedIndex = {selectedIndex} setSelectedIndex = {setSelectedIndex}
+                      history={history} idx = {idx}
                       showHistory={handleHistory}
                       handleDelete={handleDelete}
                     ></ChatCard>
