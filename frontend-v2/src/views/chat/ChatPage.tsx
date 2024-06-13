@@ -176,12 +176,13 @@ const HistoryPanel: React.FC = ({
           sx={{
             height: "6%",
             width: "100%",
-            borderTop: 0.5,
+            borderRight: .5,
+            borderRightColor: "#2E8B57",
             borderBottom: 0.5,
-            borderLeft: 0.5,
-            color: "#E9EAEC",
+            // border: 0.5,
+            color: "#234D20",
             // background: "#28a820",
-            background: "#f7f7f7",
+            background: "#36802d",
           }}
         >
           {isOpen && (
@@ -192,7 +193,7 @@ const HistoryPanel: React.FC = ({
         </Box>
         <Box
           sx={{
-            height: "88%",
+            height: "86%",
             width: "100%",
             overflowY: "scroll",
             scrollbarWidth: "thin",
@@ -333,7 +334,8 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
         variant="body1"
         sx={{
           // bgcolor: "#25A18E",
-          bgcolor: "#2cac24",
+          // bgcolor: "#2cac24",
+          bgcolor:"#097969",
           color: "#FFFFFF",
           borderTopLeftRadius: "10px",
           borderTopRightRadius: "10px",
@@ -488,6 +490,8 @@ const ChatBotPage: React.FC = () => {
               display: "flex",
               justifyContent: "center",
               alignItems: "flex-start",
+              border:0.5,
+              color: "#36802d",
             }}
           >
             <HistoryPanel
@@ -520,8 +524,8 @@ const ChatBotPage: React.FC = () => {
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "flex-start",
-                  border: 0.5,
-                  color: "#E9EAEC",
+                  borderBottom: 0.5,
+                  color: "#234D20",
                   // background:
                   //       "linear-gradient(315deg, #378b29 0%, #18a428 74%)",
                   // background: "#28a820"
@@ -533,7 +537,7 @@ const ChatBotPage: React.FC = () => {
                     height: "100%",
                     width: "5%",
                     // background: "#28a820"
-                    background: "#f7f7f7",
+                    background: "#36802d",
                   }}
                 >
                   {!isOpen && (
@@ -552,13 +556,14 @@ const ChatBotPage: React.FC = () => {
                     // background:
                     //   "linear-gradient(315deg, #378b29 0%, #18a428 74%)",
                     // background: "#28a820",
-                    background: "#f7f7f7",
+                    background: "#36802d",
+                    // background: "#2cac24",
                     fontSize: "35px",
                     height: "100%",
                     // borderRadius: "4px",
                     fontWeight: "bold",
-                    // color: "#e3e0e0",
-                    color: "#005f06",
+                    color: "#e3e0e0",
+                    // color: "#005f06",
                     // boxShadow: 3,
                   }}
                 >
