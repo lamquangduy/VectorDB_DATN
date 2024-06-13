@@ -47,7 +47,7 @@ const ChatCard = ({ selectedIndex, setSelectedIndex, history, idx, showHistory, 
       >
         <MenuItem onClick={(event: React.MouseEvent<HTMLElement>)=>{
           event?.stopPropagation()
-          handleDelete(history)}}>Delete</MenuItem>
+          handleIndexDelete(history)}}>Delete</MenuItem>
         <MenuItem onClick={handleClose}>Close</MenuItem>
       </Menu>
     </CardActions>
