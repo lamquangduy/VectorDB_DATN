@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardActionArea, CardContent, Box, Avatar, Typography, Menu, MenuItem, IconButton, CardActions } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { Event } from '@mui/icons-material';
 
 const ChatCard = ({ history, showHistory, handleDelete}) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -37,7 +38,9 @@ const ChatCard = ({ history, showHistory, handleDelete}) => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem onClick={()=>handleDelete(history)}>Delete</MenuItem>
+        <MenuItem onClick={(event: React.MouseEvent<HTMLElement>)=>{
+          event?.stopPropagation()
+          handleDelete(history)}}>Delete</MenuItem>
         <MenuItem onClick={handleClose}>Close</MenuItem>
       </Menu>
     </CardActions>
