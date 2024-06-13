@@ -404,7 +404,9 @@ const ChatBotPage: React.FC = () => {
       setSuggestion(initialTag);
       setAction("create");
     }
+    else{
     setAction("delete")
+    }
     setIsRefresh((p)=>!p)
   };
 

@@ -151,12 +151,12 @@ const Import: React.FC = () => {
       return;
     }
     try {
-      const endpoint = import.meta.env.VITE_APP_CHAT_SERVER_URL+"/uploadurl/";
+      const endpoint = import.meta.env.VITE_APP_CHAT_SERVER_URL+"/upload-url/";
+      setIsValidInput(()=>"inProgress");
       const res = await fetch(endpoint, {
         method: "POST",
         body: JSON.stringify({ url: url }),
       });
-      setIsValidInput(()=>"inProgress");
       if (res.ok) {
         console.log("Successful!");
         setIsValidInput("validUrl");
@@ -182,7 +182,7 @@ const Import: React.FC = () => {
     formData.append("file_upload", file);
     setIsValidInput("inProgress");
     try {
-      const endpoint = import.meta.env.VITE_APP_CHAT_SERVER_URL+'/uploadfile/';
+      const endpoint = import.meta.env.VITE_APP_CHAT_SERVER_URL+'/upload-file/';
       const res = await fetch(endpoint, {
         method: "POST",
         body: formData,
@@ -242,7 +242,7 @@ const Import: React.FC = () => {
       marginTop:5,
       fontWeight:"bold"
     }}>
-      File is being embedded...
+      Embedding is inprogress...
     </Typography>
     </Box>
     </Box>
@@ -470,7 +470,7 @@ const Import: React.FC = () => {
       marginTop:5,
       fontWeight:"bold"
     }}>
-      URL is being embedded...
+      Embedding is inprogress...
     </Typography>
     </Box>
     </Box>
