@@ -237,7 +237,8 @@ def get_suggestions(content):
 
 
 def chatbot_with_fc(message, messages=[]):
-    print(messages)
+    if(message == []):
+        messages.append(ChatMessage.from_system("Do not format bold text in answer."))
     chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
     tools = [
         {

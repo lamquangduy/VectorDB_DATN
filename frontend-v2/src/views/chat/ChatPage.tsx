@@ -243,7 +243,7 @@ const HistoryPanel: React.FC = ({
                 );
               })}{" "}
         </Box>
-      </Box>
+      
       <Box
         sx={{
           height: "8%",
@@ -264,7 +264,7 @@ const HistoryPanel: React.FC = ({
         >
           <OpenInNew sx={{}}></OpenInNew>
           New Chat
-        </Button>
+        </Button> </Box>
       </Box>
     </Box>
   );
