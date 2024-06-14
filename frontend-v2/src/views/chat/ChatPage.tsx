@@ -120,6 +120,7 @@ const HistoryPanel: React.FC = ({
     const fetchChatHistory = async () => {
       const chatHistory = await getChatHistory(user);
       setHistoryList(chatHistory);
+      console.log(chatHistory)
       // console.log(selectedIndex)
       // console.log(chatHistory[0]);
     };
