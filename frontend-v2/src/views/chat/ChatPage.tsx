@@ -145,7 +145,7 @@ const HistoryPanel: React.FC = ({
 
   const handleItemClick = (index: number) => {
     setSelectedIndex(() => index);
-    console.log(selectedIndex);
+    // console.log(selectedIndex);
   };
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -395,6 +395,8 @@ const ChatBotPage: React.FC = () => {
   useEffect(() => {
     setAction("swap");
   }, [chatID]);
+
+
   const handleDelete = (value: any) => {
    
     setTimeout(() => {
@@ -412,7 +414,7 @@ const ChatBotPage: React.FC = () => {
       setAction("create");
     }
     else{
-    setAction("delete")
+      setAction((p)=>p+1)
     }
     setIsRefresh((p)=>!p)
   };

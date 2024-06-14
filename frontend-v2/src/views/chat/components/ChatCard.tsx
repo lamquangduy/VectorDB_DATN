@@ -20,7 +20,6 @@ const ChatCard = ({ selectedIndex, setSelectedIndex, history, idx, showHistory, 
         if(selectedIndex<idx) setSelectedIndex(selectedIndex) 
         else if (selectedIndex==idx) setSelectedIndex(null)
         else if (selectedIndex>idx) setSelectedIndex(selectedIndex-1) 
-        
         handleDelete(value)
     }
   return (
@@ -59,7 +58,8 @@ const ChatCard = ({ selectedIndex, setSelectedIndex, history, idx, showHistory, 
       >
         <MenuItem onClick={(event: React.MouseEvent<HTMLElement>)=>{
           event?.stopPropagation()
-          handleIndexDelete(history)}}>Delete</MenuItem>
+          handleIndexDelete(history)
+          handleClose}}>Delete</MenuItem>
         <MenuItem onClick={handleClose}>Close</MenuItem>
       </Menu>
     </CardActions>
