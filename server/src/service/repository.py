@@ -72,14 +72,21 @@ def get_chat_history(email: str, chat_id: str = None):
     return result
 
 
-def save_chat_history(email: str, history: list, chat_id: str = None):
+def save_chat_history(email: str, history: list, chat_name: str, chat_id: str = None):
     db = mongo_client["chatbot"]
     collection = db["chat_history"]
-    collection.find_one_and_update(
-        {"email": email, "chat_id": chat_id},
-        {"$set": {"history": history}},
-        upsert=True,
-    )
+    if(chat_name==""):
+        collection.find_one_and_update(
+            {"email": email, "chat_id": chat_id},
+            {"$set": {"history": history}},
+            upsert=True,
+        )
+    else: 
+        collection.find_one_and_update(
+            {"email": email, "chat_id": chat_id,"chat_name": chat_name},
+            {"$set": {"history": history}},
+            upsert=True,
+        )        
     return "saved"
 
 

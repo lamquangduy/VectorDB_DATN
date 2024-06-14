@@ -225,18 +225,46 @@ def get_content_course(course_name: str, query="", filepath= file_path):
     # fallback data
     else:
         return rag_pipeline_func(query)
+    
+def get_career_skills(goal_career: str, current_career: str, current_skills: str, goal_skills: str, query: str, filepath= file_path):
+    list_of_current_skills = current_skills.split(", ")
+    list_of_goal_skills = goal_skills.split(", ")
+    if(goal_career!= None or goal_career != ""):
+
+        # call recommendation career path function with above inputs
+
+        print(goal_career)
+        print(goal_skills)
+        print(current_skills)
+        print(list_of_current_skills)
+        print(list_of_goal_skills)
+        print(current_career)
+
+
+        return {"reply": "Data from fucntions"}
+    # fallback data
+    else:
+        return rag_pipeline_func(query)
 
 
 def get_suggestions(content:str):
     llm = OpenAIGenerator(model="gpt-3.5-turbo")
     response = llm.run(
-        "You are an user. Your purpose is to create your questions relative with a course or similarity courses which are mentioned in query, to ask anothers, and if query mention your's goal career which is mentioned in query, your purpose is to create your questions relative with course that fits your desire. You can use open questions (these should relate to online programming course) if the content isn't helpful. Provide 4 questions, each question is less than 7 words, only text. Do not format with bullets or numbers. Base your questions on this content: {content}"
+        f"You are an user. Your purpose is to create your questions relative with a course or similarity courses which are mentioned in query, to ask anothers, and if query mention your's goal career which is mentioned in query, your purpose is to create your questions relative with course that fits your desire. You can use open questions (these should relate to online programming course) if the content isn't helpful. Provide 4 questions, each question is less than 7 words, only text. Do not format with bullets or numbers. Base your questions on this content: {content}"
     )
     list_of_lines = response["replies"][0].splitlines()
     return list_of_lines
 
+def get_summarize_chat(query: str):
+    llm = OpenAIGenerator(model="gpt-3.5-turbo")
+    response = llm.run(f"Provide one context's name less than 12 words. Query: {query}")
+    summary = response["replies"][0]
+    return summary
 
 def chatbot_with_fc(message, messages=[]):
+    name_chat = ""
+    if (messages==[]):
+        name_chat = get_summarize_chat(message)
     if(message == []):
         messages.append(ChatMessage.from_system("Do not format bold text in answer."))
     chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
@@ -279,6 +307,39 @@ def chatbot_with_fc(message, messages=[]):
                 },
             },
         },
+        {
+            "type": "function",
+            "function": {
+                "name": "get_career_skills",
+                "description": "Get user's goal and current career and get user's goal and current skills",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "goal_career": {
+                            "type": "string",
+                            "description": "Name of user's goal career, e.g. Backend Developer, Business Analyst, Data Analysts, Data Engineer, Data Scientist, Database Administrator,Devops Engineer,Frontend Developer,Game Development,Mobile Developer",
+                        },
+                        "current_career": {
+                            "type": "string",
+                            "description": "Name of user's current career, e.g. Backend Developer, Business Analyst, Data Analysts, Data Engineer, Data Scientist, Database Administrator,Devops Engineer,Frontend Developer,Game Development,Mobile Developer",
+                        },
+                        "goal_skills": {
+                            "type": "string",
+                            "description": "List name of user's goal skills, e.g. power bi, ssis,sql server,mysql ,redis ,docker ,software product management,.net core framework ,github, object-oriented programming (oop) ,relational database management systems (rdbms),data visualization,data warehouse,graphql,java,javascript ,machine learning,data analysis,business intelligence ,r,python , sql,golang...",
+                        },
+                        "current_skills": {
+                            "type": "string",
+                            "description": "List name of user's current skills, e.g. power bi, ssis,sql server,mysql ,redis ,docker ,software product management,.net core framework ,github, object-oriented programming (oop) ,relational database management systems (rdbms),data visualization,data warehouse,graphql,java,javascript ,machine learning,data analysis,business intelligence ,r,python , sql,golang...",
+                        },
+                        "query": {
+                            "type": "string",
+                            "description": "The query to use in the search. Infer this from the user's message. It should be a question or a statement",
+                        },
+                    },
+                    "required": ["goal_career","current_career", "goal_skills",  "current_skills", "query"],
+                },
+            },
+        },
     ]
 
     messages.append(ChatMessage.from_user(message))
@@ -296,6 +357,7 @@ def chatbot_with_fc(message, messages=[]):
                 available_functions = {
                     "rag_pipeline_func": rag_pipeline_func,
                     "get_content_course": get_content_course,
+                    "get_career_skills" : get_career_skills,
                 }
                 ## Find the corresponding function and call it with the given arguments
                 function_to_call = available_functions[function_name]
@@ -320,10 +382,12 @@ def chatbot_with_fc(message, messages=[]):
     suggestions = get_suggestions(
         message + ". Answer: " + response["replies"][0].content
     )
+
     return {
         "history": messages,
         "answer": response["replies"][0].content,
         "tag": suggestions,
+        "name_chat": name_chat
     }
 
 

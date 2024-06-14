@@ -34,12 +34,13 @@ from fastapi.encoders import jsonable_encoder
 async def chat(email: str, data: ChatInput):
     if data.chat_id=="":
         data.chat_id = str(uuid.uuid4())
+
     messages = repository.get_chat_history(email, data.chat_id)
     history = repository.dict_2_messages(data.history)
-
     result = repository.get_chat_result(data.text, history)
     data_to_save = jsonable_encoder(result["response"]["history"])
-    repository.save_chat_history(email, data_to_save, data.chat_id)
+    namechat_to_save = jsonable_encoder(result["response"]["name_chat"])
+    repository.save_chat_history(email, data_to_save, namechat_to_save, data.chat_id)
     result['chatID']=data.chat_id
     return result
 
