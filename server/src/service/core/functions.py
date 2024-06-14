@@ -15,6 +15,7 @@ from haystack.components.embedders import (
     SentenceTransformersTextEmbedder,
     SentenceTransformersDocumentEmbedder,
 )
+from haystack.components.classifiers import DocumentLanguageClassifier
 from haystack.components.builders import PromptBuilder
 from haystack.components.generators import OpenAIGenerator
 from haystack.dataclasses import ChatMessage
@@ -225,32 +226,32 @@ def get_content_course(course_name: str, query="", filepath= file_path):
     # fallback data
     else:
         return rag_pipeline_func(query)
-    
-def get_career_skills(goal_career: str, current_career: str, current_skills: str, goal_skills: str, query: str, filepath= file_path):
-    list_of_current_skills = current_skills.split(", ")
-    list_of_goal_skills = goal_skills.split(", ")
-    if(goal_career!= None or goal_career != ""):
 
-        # call recommendation career path function with above inputs
-
-        print(goal_career)
-        print(goal_skills)
-        print(current_skills)
-        print(list_of_current_skills)
-        print(list_of_goal_skills)
-        print(current_career)
-
-
-        return {"reply": "Data from fucntions"}
-    # fallback data
-    else:
-        return rag_pipeline_func(query)
-
-
-def get_suggestions(content:str):
-    llm = OpenAIGenerator(model="gpt-3.5-turbo")
-    response = llm.run(
+def get_suggestions(content: str):
+    language_classifier = OpenAIGenerator(model="gpt-3.5-turbo")
+    language = language_classifier.run(f"Detect this content's language just return vi or en. Content: {content}")  
+    llm = OpenAIGenerator(model="gpt-3.5-turbo"
+                          )
+    # Function to detect the language of content
+    if language['replies'][0] == 'vi':  # Vietnamese
+        print("Hỏi bằng tiếng Việt")
+        response = llm.run(
+        f"Bạn là một người dùng. Mục đích của bạn là tạo các câu hỏi liên quan đến một khóa học hoặc các khóa học tương tự được đề cập trong câu truy vấn (bằng tiếng Việt), để hỏi người khác. Nếu câu truy vấn đề cập đến mục tiêu nghề nghiệp của bạn, mục đích của bạn là tạo các câu hỏi liên quan đến các khóa học phù hợp với mong muốn của bạn. Bạn có thể sử dụng câu hỏi mở (nên liên quan đến khóa học lập trình trực tuyến) nếu nội dung không có ích. Cung cấp 4 câu hỏi, mỗi câu hỏi ít hơn 7 từ, chỉ văn bản. Không định dạng với dấu đạn hay số. Dựa trên nội dung này: {content}"
+    )
+    else:  # Assuming English if not Vietnamese
+       print("Hỏi bằng tiếng Anh")
+       response = llm.run(
         f"You are an user. Your purpose is to create your questions relative with a course or similarity courses which are mentioned in query, to ask anothers, and if query mention your's goal career which is mentioned in query, your purpose is to create your questions relative with course that fits your desire. You can use open questions (these should relate to online programming course) if the content isn't helpful. Provide 4 questions, each question is less than 7 words, only text. Do not format with bullets or numbers. Base your questions on this content: {content}"
+    )
+    list_of_lines = response["replies"][0].splitlines()
+    return list_of_lines
+
+
+def get_suggestions1(content:str):
+    llm = OpenAIGenerator(model="gpt-3.5-turbo",
+                          system_prompt="Answer with the same languague with content")
+    response = llm.run(
+        "You are an user. Your purpose is to create your questions relative with a course or similarity courses which are mentioned in query, to ask anothers, and if query mention your's goal career which is mentioned in query, your purpose is to create your questions relative with course that fits your desire. You can use open questions (these should relate to online programming course) if the content isn't helpful. Provide 4 questions, each question is less than 7 words, only text. Do not format with bullets or numbers. Base your questions on this content (ask the same language with content VietNamese or English): {content}"
     )
     list_of_lines = response["replies"][0].splitlines()
     return list_of_lines
