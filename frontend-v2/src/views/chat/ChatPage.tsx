@@ -140,7 +140,7 @@ const HistoryPanel: React.FC = ({
         setSelectedIndex(0);
         break;
     }
-  }, [action]);
+  }, [action,selectedIndex]);
 
   const handleItemClick = (index: number) => {
     setSelectedIndex(() => index);
@@ -388,7 +388,8 @@ const ChatBotPage: React.FC = () => {
     console.log(messageTags);
     setChatData(messageTags);
     scrollToBottom();
-    setIsRefresh(p=>!p)
+    setIsRefresh(p=>!p);
+    setTrackServer(value.history);
   };
   useEffect(() => {
     setAction("swap");
@@ -431,6 +432,7 @@ const ChatBotPage: React.FC = () => {
           sender: "bot",
           message: res.response.answer.replaceAll('*',''),
         });
+        
         setChatData([...chatHistory]);
         setTrackServer(res.response.history);
         setSuggestion(res.response.tag);
