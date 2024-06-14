@@ -261,7 +261,7 @@ def get_summarize_chat(query: str):
     response = llm.run(f"Provide one context's name less than 12 words. Query: {query}")
     summary = response["replies"][0]
     return summary
-def get_career_skills(goal_career: str, current_career: str, current_skills: str, goal_skills: str, query: str, filepath= file_path):
+def get_career_skills(goal_career: str, current_career: str, current_skills: str, goal_skills: str, query: str):
     list_of_current_skills = current_skills.split(", ")
     list_of_goal_skills = goal_skills.split(", ")
     if(goal_career!= None or goal_career != ""):
