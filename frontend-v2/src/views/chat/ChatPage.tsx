@@ -5,7 +5,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ViewSidebarIcon from "@mui/icons-material/ViewSidebar";
 import getChatResponse, { deleteChat } from "../../services/chat/chat";
 import { getChatHistory } from "../../services/chat/chat";
@@ -13,16 +13,14 @@ import Linkify from "react-linkify";
 import {
   createTheme,
   Divider,
-  Drawer,
   IconButton,
   ThemeProvider,
 } from "@mui/material";
 import ChatCard from "./components/ChatCard";
-import { ConstructionOutlined, OpenInNew } from "@mui/icons-material";
+import { OpenInNew } from "@mui/icons-material";
 import { useAuth0 } from "@auth0/auth0-react";
 import { List } from "echarts";
-import DrawerNavigation from "./components/Drawer";
-import { Console } from "console";
+
 
 const theme = createTheme({
   typography: {
@@ -104,7 +102,17 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
   );
 };
 
-const HistoryPanel: React.FC = ({
+interface HistoryPanel{
+  user: string|undefined,
+  isOpen: boolean,
+  setIsOpen: (value:boolean)=>void,
+  handleHistory:(value:MouseEvent)=>void,
+  handleNewChat:(value:any)=>void,
+  handleDelete:(value:MouseEvent)=>void,
+  action:string,
+}
+
+const HistoryPanel: React.FC<HistoryPanel> = ({
   user,
   isOpen,
   setIsOpen,
@@ -379,7 +387,7 @@ const ChatBotPage: React.FC = () => {
       setIsRefresh(p=>!p);
     }, 3);
     setIsChat(false);
-    const messageTags = value.history.map((history, idx) => {
+    const messageTags = value.history.map((history: { role: any; content: any; }) => {
       return { sender: history.role, message: history.content };
     });
     console.log("Handle History")

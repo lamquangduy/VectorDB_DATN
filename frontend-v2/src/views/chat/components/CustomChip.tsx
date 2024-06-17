@@ -1,4 +1,3 @@
-import React from 'react';
 import { Chip, Stack } from '@mui/material';
 
 const CustomChip = () => {

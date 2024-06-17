@@ -1,14 +1,17 @@
-import * as React from 'react';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LinkIcon from '@mui/icons-material/Link';
-import { Divider } from '@mui/material';
 
 
-export default function NavBar({isFile,setIsFile}) {
+interface NavBar{
+  isFile:boolean,
+  setIsFile: (value:boolean)=>void,
+}
+
+const NavBar:React.FC<NavBar>=({isFile,setIsFile})=> {
   const handleFile = () => {
    setIsFile(true)
   };
@@ -72,3 +75,5 @@ export default function NavBar({isFile,setIsFile}) {
     </List>
   );
 }
+
+export default NavBar;

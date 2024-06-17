@@ -8,59 +8,8 @@ import { SuccessStatus,ErrorStatus } from "./AlertStatus";
 import { Language } from "@mui/icons-material";
 import { Divider, Input, InputAdornment, InputLabel } from "@mui/material";
 import InProgress from "./InProgress";
-interface IUploadBox {
-  title: string;
-  icon: string;
-}
 
-interface IUploadBoxProps extends IUploadBox {
-  selected: boolean;
-  onClick: () => void;
-}
 
-const UploadBox: React.FC<IUploadBoxProps> = (props: IUploadBoxProps) => {
-  const { title, icon } = props;
-  return (
-    <Box
-      sx={{
-        height: 80,
-        width: "80%",
-        minWidth: 160,
-        borderRadius: 4,
-        display: "flex",
-        justifyContent: "space-around",
-        alignItems: "center",
-        backgroundColor: props.selected ? "primary.main" : "white",
-        color: props.selected ? "white" : "black",
-        cursor: "pointer",
-        boxShadow: 3,
-        ":hover": {
-          backgroundColor: props.selected ? "primary.main" : "#dce7f4",
-        },
-      }}
-      onClick={props.onClick}
-    >
-      <Box
-        component="img"
-        sx={{
-          width: "38px",
-          height: "40px",
-        }}
-        src={icon}
-      ></Box>
-      <Typography
-        sx={{
-          marginRight: 3,
-          fontSize: "20px",
-          fontWeight: "bold",
-          fontFamily: "inherit",
-        }}
-      >
-        {title}
-      </Typography>
-    </Box>
-  );
-};
 
 const validUrl = (str: string) => {
   const pattern = new RegExp(
@@ -91,7 +40,7 @@ const getFileIcon = (fileName: string) => {
 
 
 const Import: React.FC = () => {
-  const [selectedMenu, setSelectedMenu] = useState<string>("Upload PDF");
+  
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState<string>("");
   const [isOver, setIsOver] = useState<boolean>(false);
