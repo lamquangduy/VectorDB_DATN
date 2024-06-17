@@ -20,6 +20,7 @@ import ChatCard from "./components/ChatCard";
 import { OpenInNew } from "@mui/icons-material";
 import { useAuth0 } from "@auth0/auth0-react";
 import { List } from "echarts";
+import { useNavigate } from "react-router-dom";
 
 
 const theme = createTheme({
@@ -128,7 +129,6 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
     const fetchChatHistory = async () => {
       const chatHistory = await getChatHistory(user);
       setHistoryList(chatHistory);
-      console.log(chatHistory)
       // console.log(selectedIndex)
       // console.log(chatHistory[0]);
     };
@@ -153,7 +153,7 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
 
   const handleItemClick = (index: number) => {
     setSelectedIndex(() => index);
-    // console.log(selectedIndex);
+    console.log(selectedIndex);
   };
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -378,7 +378,13 @@ const ChatBotPage: React.FC = () => {
   const [action, setAction] = React.useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
   const [isRefresh,setIsRefresh]=React.useState<boolean>(false);
-  
+  const navigate=useNavigate()
+  useEffect(()=>{
+    console.log(user)
+    if(user===null||user===undefined){
+      navigate("/login");
+    }
+  },[navigate, user])
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
@@ -403,8 +409,6 @@ const ChatBotPage: React.FC = () => {
   useEffect(() => {
     setAction("swap");
   }, [chatID]);
-
-
   const handleDelete = (value: any) => {
    
     setTimeout(() => {
@@ -422,7 +426,7 @@ const ChatBotPage: React.FC = () => {
       setAction("create");
     }
     else{
-      setAction((p)=>p+1)
+    setAction("delete")
     }
     setIsRefresh((p)=>!p)
   };
