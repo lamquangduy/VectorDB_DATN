@@ -1,9 +1,9 @@
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import Import from "./components/Import";
 // import Footer from "./components/Footer";
 import { Box, createTheme, ThemeProvider, Typography } from "@mui/material";
-import { useEffect } from "react";
-import { useAuth0 } from "@auth0/auth0-react";
+// import { useEffect } from "react";
+// import { useAuth0 } from "@auth0/auth0-react";
 
 const theme = createTheme({
   typography: {
@@ -12,14 +12,14 @@ const theme = createTheme({
 });
 
 const ChatAdminPage = () => {
-  const {user}=useAuth0()
-  const navigate=useNavigate()
-  useEffect(()=>{
-    console.log(user)
-    if(user===null||user===undefined){
-      navigate("/login");
-    }
-  },[navigate, user])
+  // const { user } = useAuth0();
+  // const navigate = useNavigate();
+  // useEffect(() => {
+  //   console.log(user);
+  //   if (user === null || user === undefined) {
+  //     navigate("/login");
+  //   }
+  // }, [navigate, user]);
   return (
     <ThemeProvider theme={theme}>
       {/* <Header></Header> */}
