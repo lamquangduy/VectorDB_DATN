@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Card, CardActionArea, CardContent, Box, Avatar, Typography, Menu, MenuItem, IconButton, CardActions } from '@mui/material';
+import {  Box, Avatar, Typography, Menu, MenuItem, IconButton, CardActions } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Event } from '@mui/icons-material';
+// import { Event } from '@mui/icons-material';
 
 const ChatCard = ({ selectedIndex, setSelectedIndex, history, idx, showHistory, handleDelete}) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

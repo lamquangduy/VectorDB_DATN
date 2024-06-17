@@ -5,7 +5,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ViewSidebarIcon from "@mui/icons-material/ViewSidebar";
 import getChatResponse, { deleteChat } from "../../services/chat/chat";
 import { getChatHistory } from "../../services/chat/chat";
@@ -13,16 +13,16 @@ import Linkify from "react-linkify";
 import {
   createTheme,
   Divider,
-  Drawer,
+  // Drawer,
   IconButton,
   ThemeProvider,
 } from "@mui/material";
 import ChatCard from "./components/ChatCard";
-import { ConstructionOutlined, OpenInNew } from "@mui/icons-material";
+import {  OpenInNew } from "@mui/icons-material";
 import { useAuth0 } from "@auth0/auth0-react";
 import { List } from "echarts";
-import DrawerNavigation from "./components/Drawer";
-import { Console } from "console";
+// import DrawerNavigation from "./components/Drawer";
+// import { Console } from "console";
 
 const theme = createTheme({
   typography: {
@@ -120,7 +120,6 @@ const HistoryPanel: React.FC = ({
     const fetchChatHistory = async () => {
       const chatHistory = await getChatHistory(user);
       setHistoryList(chatHistory);
-      console.log(chatHistory)
       // console.log(selectedIndex)
       // console.log(chatHistory[0]);
     };
@@ -145,7 +144,7 @@ const HistoryPanel: React.FC = ({
 
   const handleItemClick = (index: number) => {
     setSelectedIndex(() => index);
-    // console.log(selectedIndex);
+    console.log(selectedIndex);
   };
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -395,8 +394,6 @@ const ChatBotPage: React.FC = () => {
   useEffect(() => {
     setAction("swap");
   }, [chatID]);
-
-
   const handleDelete = (value: any) => {
    
     setTimeout(() => {
@@ -414,7 +411,7 @@ const ChatBotPage: React.FC = () => {
       setAction("create");
     }
     else{
-      setAction((p)=>p+1)
+    setAction("delete")
     }
     setIsRefresh((p)=>!p)
   };

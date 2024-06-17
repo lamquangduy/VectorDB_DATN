@@ -91,7 +91,7 @@ const getFileIcon = (fileName: string) => {
 
 
 const Import: React.FC = () => {
-  const [selectedMenu, setSelectedMenu] = useState<string>("Upload PDF");
+  // const [selectedMenu, setSelectedMenu] = useState<string>("Upload PDF");
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState<string>("");
   const [isOver, setIsOver] = useState<boolean>(false);
