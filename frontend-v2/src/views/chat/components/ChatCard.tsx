@@ -25,13 +25,14 @@ const ChatCard:React.FC<ChatCard> = ({ selectedIndex, setSelectedIndex, history,
   };
   const handleIndexDelete = (value: any) =>
     {
+      handleDelete(value)
       if (selectedIndex===null){
         return;
       }
         if(selectedIndex<idx) setSelectedIndex(selectedIndex) 
-        else if (selectedIndex==idx) setSelectedIndex(null)
+        else if (selectedIndex===idx) setSelectedIndex(null)
         else if (selectedIndex>idx) setSelectedIndex(selectedIndex-1) 
-        handleDelete(value)
+        
     }
   return (
     <CardActions  sx={{ display: 'flex', justifyContent:"center", alignItems: 'center', width: '100%', 
