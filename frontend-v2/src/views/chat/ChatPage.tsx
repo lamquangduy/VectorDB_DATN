@@ -66,17 +66,17 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
   return (
     <Box sx={sx}>
       <Button
-        variant="outlined"
         sx={{
           height: 25,
-          //   border: 0,
+          border: .5,
           //   outline: 0,
-          textAlign: "center",
+          marginY:1,
+          display:"flex",
+          justifyContent:"flex-start",
           width: "100%",
           "&:hover": {
             boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
           },
-          bgcolor: "#f2f2f2",
         }}
         onClick={() => {
           handleClick(value);
@@ -154,9 +154,6 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
   const handleItemClick = (index: number) => {
     setSelectedIndex(() => index);
     console.log(selectedIndex);
-  };
-  const handleToggle = () => {
-    setIsOpen(!isOpen);
   };
 
   return (
@@ -423,6 +420,9 @@ const ChatBotPage: React.FC = () => {
     }
     setIsRefresh((p)=>!p)
   };
+  useEffect(()=>{
+    scrollToBottom()
+  },[isLoading])
 
   const handleChat = (value?: string) => {
     if(value===undefined&& message.length===0){
@@ -500,17 +500,19 @@ const ChatBotPage: React.FC = () => {
             display: "flex",
             flexDirection:"column",
             justifyContent: "center",
+            alignItems:"center",
+            paddingX:10
           }}
         >
           <Box sx={{
             height:"6%",
-            width:"100%",
+            width:isOpen?"100%":"80%",
             background: "#36802d",
             display:"flex",
-            justifyContent:"center"
+            justifyContent:"center",
           }}>
           <Box sx={{
-            width:isOpen?"90%":"60%",
+            width:"100%"
           }}>
            <IconButton onClick={handleToggle}>
               <ViewSidebarIcon />
@@ -518,7 +520,7 @@ const ChatBotPage: React.FC = () => {
             </Box>   
             <Typography
                   sx={{
-                    width: "100%",
+                    width:"100%",
                     fontSize: "20px",
                     fontWeight: "bold",
                     color: "#e3e0e0",
@@ -539,6 +541,7 @@ const ChatBotPage: React.FC = () => {
               alignItems: "flex-start",
               // border:0.5,
               color: "#36802d",
+              // overflowY:"scroll"
             }}
           >
              <HistoryPanel
@@ -553,7 +556,7 @@ const ChatBotPage: React.FC = () => {
             />
             <Box
               sx={{
-                width: isOpen ? "80%" : "100%",
+                width:"80%",
                 height: "100%",
                 padding:0,
                 margin:0,
@@ -568,13 +571,8 @@ const ChatBotPage: React.FC = () => {
                   width: "100%",
                   justifyContent: "space-around",
                   alignItems: "center",
-                  overflowY: "scroll",
-                  scrollbarWidth: "thin",
-                  // WebkitOverflowScrolling: {
-                  //   display: "none",
-                  // },
                 }}
-                id="chat-box"
+               
               >
                 <Box
                   sx={{
@@ -620,11 +618,9 @@ const ChatBotPage: React.FC = () => {
                     width: "100%",
                     overflowY:"scroll",
                     paddingX:14,
-                   
                   }}
                   id="chat-box"
                 >
-                  
                   {chatData.map((data: IChatData, idx: number) => {
                     return data.sender === "bot" ||
                       data.sender === "assistant" ? (
@@ -642,32 +638,25 @@ const ChatBotPage: React.FC = () => {
                   {isLoading && (
                     <BotText props={loadingMessage} isChat={isChat} />
                   )}
-                </Box>
-                <Box
-                sx={{
-                  display: "flex",
-                  flexWrap: "wrap-reverse",
-                  gap: 0.5,
-                  p: 0.5,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: "5%",
-                }}
-              >
+                
                 {suggestion.length !== 0 &&
                   !isLoading &&
                   suggestion.map((tag: string, idx: number) => {
                     if (tag.length !== 0)
                       return (
+                  
                         <SuggestedTag
                           value={tag}
                           handleClick={handleChat}
                           sx="5"
                           key={idx}
                         ></SuggestedTag>
+                       
                       );
                   })}
-              </Box>
+
+                </Box>
+                
               <Box
                 sx={{
                   height: "9%",
