@@ -169,7 +169,7 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
         // backgroundColor: "whitesmoke",
         visibility: !isOpen ? "hidden" : "visible",
         width: !isOpen ? "0%" : "20%",
-        height: 700,
+        height: "100%",
 
         // marginTop: 4,
       }}
@@ -184,26 +184,19 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
       >
         <Box
           sx={{
-            height: "6%",
             width: "100%",
             borderRight: .5,
             borderRightColor: "#2E8B57",
-            borderBottom: 0.5,
             // border: 0.5,
             color: "#234D20",
             // background: "#28a820",
             background: "#36802d",
           }}
         >
-          {isOpen && (
-            <IconButton onClick={handleToggle}>
-              <ViewSidebarIcon />
-            </IconButton>
-          )}
         </Box>
         <Box
           sx={{
-            height: "86%",
+            height: "100%",
             width: "100%",
             overflowY: "scroll",
             scrollbarWidth: "thin",
@@ -441,7 +434,7 @@ const ChatBotPage: React.FC = () => {
     setIsChat(true);
     // setMessage(value);
     chatHistory.push({ sender: "user", message: value ?? message });
-    setChatData([...chatHistory]);
+    setChatData([...chatHistory]);  
     setIsLoading(true);
     scrollToBottom();
     if (!Boolean(value)) setMessage("");
@@ -498,27 +491,57 @@ const ChatBotPage: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
-     <Box sx={{}}>
+     <Box sx={{
+     }}>
         <Box
           sx={{
             width: "100%",
-            height: 700,
+            height: "80vh",
             display: "flex",
+            flexDirection:"column",
             justifyContent: "center",
           }}
         >
+          <Box sx={{
+            height:"6%",
+            width:"100%",
+            background: "#36802d",
+            display:"flex",
+            justifyContent:"center"
+          }}>
+          <Box sx={{
+            width:isOpen?"90%":"60%",
+          }}>
+           <IconButton onClick={handleToggle}>
+              <ViewSidebarIcon />
+            </IconButton>
+            </Box>   
+            <Typography
+                  sx={{
+                    width: "100%",
+                    fontSize: "20px",
+                    fontWeight: "bold",
+                    color: "#e3e0e0",
+                    padding:0,
+                    margin:0,
+                    height:"100%"
+                  }}
+                >
+                  Learning Assistant
+                </Typography>
+                </Box>
           <Box
             sx={{
               width: "100%",
-              height: 700,
+              height: "100%",
               display: "flex",
               justifyContent: "center",
               alignItems: "flex-start",
-              border:0.5,
+              // border:0.5,
               color: "#36802d",
             }}
           >
-            <HistoryPanel
+             <HistoryPanel
               user = {user?.email}
               isOpen={isOpen}
               setIsOpen={setIsOpen}
@@ -526,75 +549,16 @@ const ChatBotPage: React.FC = () => {
               handleHistory={handleHistory}
               handleNewChat={handleNewChat}
               handleDelete={handleDelete}
+              
             />
             <Box
               sx={{
                 width: isOpen ? "80%" : "100%",
                 height: "100%",
-
-                // boxShadow: 3,
-                // borderRadius: 2,
-
-                // overflow: "auto",
-                // scrollbarWidth: "thin",
-                WebkitOverflowScrolling: {
-                  display: "none",
-                },
+                padding:0,
+                margin:0,
               }}
-            >
-              <Box
-                sx={{
-                  width: "100%",
-                  height: "6%",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "flex-start",
-                  borderBottom: 0.5,
-                  color: "#234D20",
-                  // background:
-                  //       "linear-gradient(315deg, #378b29 0%, #18a428 74%)",
-                  // background: "#28a820"
-                  background: "#f7f7f7",
-                }}
-              >
-                <Box
-                  sx={{
-                    height: "100%",
-                    width: "5%",
-                    // background: "#28a820"
-                    background: "#36802d",
-                  }}
-                >
-                  {!isOpen && (
-                    <IconButton onClick={handleToggle}>
-                      <ViewSidebarIcon />
-                    </IconButton>
-                  )}
-                </Box>
-                <Typography
-                  sx={{
-                    width: "95%",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    textAlign: "center",
-                    // background:
-                    //   "linear-gradient(315deg, #378b29 0%, #18a428 74%)",
-                    // background: "#28a820",
-                    background: "#36802d",
-                    // background: "#2cac24",
-                    fontSize: "35px",
-                    height: "100%",
-                    // borderRadius: "4px",
-                    fontWeight: "bold",
-                    color: "#e3e0e0",
-                    // color: "#005f06",
-                    // boxShadow: 3,
-                  }}
-                >
-                  Learning Assistant
-                </Typography>
-              </Box>
+            >   
               {isRefresh &&
               <>
               <Box
@@ -602,7 +566,6 @@ const ChatBotPage: React.FC = () => {
                   display: "flex",
                   height: "80%",
                   width: "100%",
-                  padding: 1,
                   justifyContent: "space-around",
                   alignItems: "center",
                   overflowY: "scroll",
@@ -617,7 +580,7 @@ const ChatBotPage: React.FC = () => {
                   sx={{
                     height: "100%",
                     padding: 1,
-                    width: 1150,
+                    width: "100%",
                     // WebkitOverflowScrolling: {
                     //   display: "none",
                     //},
@@ -630,30 +593,38 @@ const ChatBotPage: React.FC = () => {
               <>
               <Box
                 sx={{
-                  display: "flex",
-                  height: "80%",
+                  height: "100%",
                   width: "100%",
-                  padding: 1,
-                  justifyContent: "space-around",
-                  alignItems: "center",
-                  overflowY: "scroll",
-                  scrollbarWidth: "thin",
-                  // WebkitOverflowScrolling: {
-                  //   display: "none",
-                  // },
+                  display:"flex",
+                  flexDirection:"column",
                 }}
-                id="chat-box"
+               
               >
-                <Box
+                  {/* <Typography
                   sx={{
-                    height: "100%",
-                    padding: 1,
-                    width: 1150,
-                    // WebkitOverflowScrolling: {
-                    //   display: "none",
-                    //},
+                    width: "100%",
+                    background: "#36802d",
+                    fontSize: "20px",
+                    fontWeight: "bold",
+                    color: "#e3e0e0",
+                    padding:0,
+                    margin:0,
+                    height:"10%"
                   }}
                 >
+                  Learning Assistant
+                </Typography> */}
+                <Box
+                  sx={{
+                    height: "90%",
+                    width: "100%",
+                    overflowY:"scroll",
+                    paddingX:14,
+                   
+                  }}
+                  id="chat-box"
+                >
+                  
                   {chatData.map((data: IChatData, idx: number) => {
                     return data.sender === "bot" ||
                       data.sender === "assistant" ? (
@@ -672,9 +643,7 @@ const ChatBotPage: React.FC = () => {
                     <BotText props={loadingMessage} isChat={isChat} />
                   )}
                 </Box>
-              </Box>
-
-              <Box
+                <Box
                 sx={{
                   display: "flex",
                   flexWrap: "wrap-reverse",
@@ -712,7 +681,7 @@ const ChatBotPage: React.FC = () => {
                 <Box
                   sx={{
                     height: "100%",
-                    width: 1200,
+                    width: "100%",
                     display: "flex",
                     flexWrap: "nowrap",
                     justifyContent: "space-around",
@@ -750,7 +719,7 @@ const ChatBotPage: React.FC = () => {
                       outline: 0,
                       width: 1000,
                       px: 1,
-                      height: 50,
+                      height: 30,
                       textAlign: "center",
                       borderRadius: "20px",
 
@@ -781,12 +750,12 @@ const ChatBotPage: React.FC = () => {
                   
                 </Box>
               </Box>
+              </Box>
               </>}
             </Box>
-            
+            </Box>
           </Box>
         </Box>
-      </Box>
     </ThemeProvider>
   );
 };
