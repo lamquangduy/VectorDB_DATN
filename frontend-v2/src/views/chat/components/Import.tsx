@@ -4,12 +4,10 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import CustomChip from "./CustomChip";
 import NavBar from "./NavBar";
-import { SuccessStatus,ErrorStatus } from "./AlertStatus";
+import { SuccessStatus, ErrorStatus } from "./AlertStatus";
 import { Language } from "@mui/icons-material";
 import { Divider, Input, InputAdornment, InputLabel } from "@mui/material";
 import InProgress from "./InProgress";
-
-
 
 const validUrl = (str: string) => {
   const pattern = new RegExp(
@@ -23,7 +21,7 @@ const validUrl = (str: string) => {
   ); // fragment locator
   return !!pattern.test(str);
 };
-const supportedFile = ["pdf", "xls", "xlsx", "doc", "docx", "txt" ,"csv"];
+const supportedFile = ["pdf", "xls", "xlsx", "doc", "docx", "txt", "csv"];
 const getFileType = (fileName: string) => {
   const lastDot = fileName.lastIndexOf(".");
   if (lastDot === -1) {
@@ -38,14 +36,12 @@ const getFileIcon = (fileName: string) => {
   return fileIcon;
 };
 
-
 const Import: React.FC = () => {
-  
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState<string>("");
   const [isOver, setIsOver] = useState<boolean>(false);
   const [isFile, setIsFile] = useState<boolean>(true);
-  const [isValidInput,setIsValidInput]= useState<string>("");
+  const [isValidInput, setIsValidInput] = useState<string>("");
   useEffect(() => {
     if (file) {
       const fileType = getFileType(file.name);
@@ -53,7 +49,7 @@ const Import: React.FC = () => {
         setFile(null);
         setIsValidInput("invalidFile");
         setTimeout(() => {
-            setIsValidInput("")
+          setIsValidInput("");
         }, 3000);
       }
     }
@@ -93,15 +89,15 @@ const Import: React.FC = () => {
   const handleSubmitUrl = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!validUrl(url)) {
-      setIsValidInput("invalidUrl")
+      setIsValidInput("invalidUrl");
       setTimeout(() => {
-        setIsValidInput("")
+        setIsValidInput("");
       }, 3000);
       return;
     }
     try {
-      const endpoint = import.meta.env.VITE_APP_CHAT_SERVER_URL+"/upload-url/";
-      setIsValidInput(()=>"inProgress");
+      const endpoint = import.meta.env.VITE_APP_CHAT_SERVER_URL + "/upload-url";
+      setIsValidInput(() => "inProgress");
       const res = await fetch(endpoint, {
         method: "POST",
         body: JSON.stringify({ url: url }),
@@ -109,9 +105,9 @@ const Import: React.FC = () => {
       if (res.ok) {
         console.log("Successful!");
         setIsValidInput("validUrl");
-        setFile(null)
+        setFile(null);
         setTimeout(() => {
-            setIsValidInput("");
+          setIsValidInput("");
         }, 3000);
       } else {
         console.error("Fail!");
@@ -131,7 +127,8 @@ const Import: React.FC = () => {
     formData.append("file_upload", file);
     setIsValidInput("inProgress");
     try {
-      const endpoint = import.meta.env.VITE_APP_CHAT_SERVER_URL+'/upload-file/';
+      const endpoint =
+        import.meta.env.VITE_APP_CHAT_SERVER_URL + "/upload-file";
       const res = await fetch(endpoint, {
         method: "POST",
         body: formData,
@@ -139,9 +136,9 @@ const Import: React.FC = () => {
       if (res.ok) {
         console.log("Successful!");
         setIsValidInput("validFile");
-        setFile(null)
+        setFile(null);
         setTimeout(() => {
-            setIsValidInput("")
+          setIsValidInput("");
         }, 3000);
       } else {
         console.error("Fail!");
@@ -154,192 +151,76 @@ const Import: React.FC = () => {
 
   return (
     <>
-    {isValidInput==='inProgress' && 
-    <Box
-    sx={{
-      display: "flex",
-      width: "100%",
-      boxShadow: 3,
-      height: "90%",
-      justifyContent: "center",
-      alignItems: "center",
-      p: 2,
-      gap: 1,
-      background: "#F3F7FD",
-    }}
-  >
-    <Box
-        sx={{
-          width: "80%",
-          height: "60%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          boxShadow: 3,
-          maxWidth: "800px",
-          minHeight: "350px",
-          minWidth: "300px",
-          backgroundColor: "white",
-          borderRadius: 5,
-        }}
-        >
-    <InProgress></InProgress>
-    <Typography
-    sx={{
-      fontSize:20,
-      marginTop:5,
-      fontWeight:"bold"
-    }}>
-      Embedding is inprogress...
-    </Typography>
-    </Box>
-    </Box>
-    }
-    { isValidInput !=='inProgress' && (
-    file ? (
-    <Box
-      sx={{
-        display: "flex",
-        width: "100%",
-        boxShadow: 3,
-        height: "90%",
-        justifyContent: "center",
-        alignItems: "center",
-        p: 2,
-        gap: 1,
-        background: "#F3F7FD",
-      }}
-    >
-      <Box
-        sx={{
-          width: "80%",
-          height: "60%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          boxShadow: 3,
-          maxWidth: "800px",
-          minHeight: "350px",
-          minWidth: "300px",
-          backgroundColor: isOver ? "#d0cbcb" : "white",
-          borderRadius: 5,
-        }}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-      >
-        <Box
-          component="img"
-          sx={{
-            width: "150px",
-            height: "150px",
-          }}
-          src={getFileIcon(file.name)}
-        ></Box>
-        <Typography
-          sx={{
-            fontSize: 25,
-            fontWeight: 600,
-            marginY: 1,
-          }}
-        >
-          {file.name}
-        </Typography>
-        <Button
-          sx={{
-            height: "50px",
-            width: "300px",
-            backgroundImage: "linear-gradient(135deg, #008aff, #86d472)",
-            color: "white",
-            fontWeight: 700,
-            marginY: 1,
-            ":hover": {
-              backgroundImage: "linear-gradient(135deg, #488ecac5, #9cd18d)",
-            },
-          }}
-          onClick={handleSubmit}
-        >
-          Upload file
-        </Button>
-        <Button
-          sx={{
-            marginY: 1,
-            fontWeight: "medium",
-            fontSize: 17,
-            ":hover": {
-              backgroundColor: "white",
-              color: "#f14343",
-            },
-          }}
-          onClick={() => {
-            setFile(null);
-          }}
-        >
-          Cancel
-        </Button>
-      </Box>
-    </Box>
-  ) : (
-    <Box
-      sx={{
-        display: "flex",
-        width: "100%",
-        boxShadow: 3,
-        height: "90%",
-        justifyContent: "center",
-        alignItems: "center",
-        p: 2,
-        gap: 1,
-        background: "#F3F7FD",
-        
-      }}
-    >
-      <Box
-        sx={{
-          width: "90%",
-          height: "70%",
-          display: "flex",
-          flexDirection: "column",
-          // justifyContent: "center",
-          // alignItems: "center",
-          backgroundColor: "white",
-          boxShadow: 3,
-          minHeight: "350px",
-          minWidth: "300px",
-          borderRadius: 5,
-        }}
-      > 
+      {isValidInput === "inProgress" && (
         <Box
           sx={{
-            height: "100%",
+            display: "flex",
             width: "100%",
+            boxShadow: 3,
+            height: "90%",
+            justifyContent: "center",
+            alignItems: "center",
+            p: 2,
+            gap: 1,
+            background: "#F3F7FD",
           }}
         >
-          <Box>
-          <NavBar isFile={isFile} setIsFile={setIsFile}></NavBar>
-          <Divider
+          <Box
             sx={{
-              borderBottomWidth: 3,
+              width: "80%",
+              height: "60%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              boxShadow: 3,
+              maxWidth: "800px",
+              minHeight: "350px",
+              minWidth: "300px",
+              backgroundColor: "white",
+              borderRadius: 5,
             }}
-          ></Divider>
+          >
+            <InProgress></InProgress>
+            <Typography
+              sx={{
+                fontSize: 20,
+                marginTop: 5,
+                fontWeight: "bold",
+              }}
+            >
+              Embedding is inprogress...
+            </Typography>
           </Box>
-          { isValidInput==="invalidFile" &&<ErrorStatus title="File is not supported"></ErrorStatus>}
-        {isValidInput==="invalidUrl" && <ErrorStatus title="Invalid URL"></ErrorStatus>}
-        {isValidInput==="validFile"&&<SuccessStatus title="Upload file successfuly"></SuccessStatus>}
-        {isValidInput==="validUrl"&&<SuccessStatus title="Upload URL successfuly"></SuccessStatus>}
-          {isFile ? (
+        </Box>
+      )}
+      {isValidInput !== "inProgress" &&
+        (file ? (
+          <Box
+            sx={{
+              display: "flex",
+              width: "100%",
+              boxShadow: 3,
+              height: "90%",
+              justifyContent: "center",
+              alignItems: "center",
+              p: 2,
+              gap: 1,
+              background: "#F3F7FD",
+            }}
+          >
             <Box
               sx={{
-                width: "100%",
-                height: 300,
-                margin: "auto",
+                width: "80%",
+                height: "60%",
                 display: "flex",
+                flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                flexDirection: "column",
+                boxShadow: 3,
+                maxWidth: "800px",
+                minHeight: "350px",
+                minWidth: "300px",
                 backgroundColor: isOver ? "#d0cbcb" : "white",
                 borderRadius: 5,
               }}
@@ -348,143 +229,273 @@ const Import: React.FC = () => {
               onDragEnter={handleDragEnter}
               onDragLeave={handleDragLeave}
             >
-
-              <input
-                type="file"
-                id="file-input"
-                style={{ display: "none" }}
-                onChange={handleInputFile}
-              />
-              <Typography>
-                Drop your document here or
-                <Button
-                  sx={{
-                    textTransform: "none",
-                    fontSize: 17,
-                    "&:hover": {
-                      backgroundColor: "white",
-                      color: "#f14343",
-                    },
-                  }}
-                  onClick={() => document.getElementById("file-input")?.click()}
-                >
-                  browser file
-                </Button>
-              </Typography>
+              <Box
+                component="img"
+                sx={{
+                  width: "150px",
+                  height: "150px",
+                }}
+                src={getFileIcon(file.name)}
+              ></Box>
               <Typography
                 sx={{
-                  color: "#878484",
+                  fontSize: 25,
+                  fontWeight: 600,
+                  marginY: 1,
                 }}
               >
-                Supported
-              </Typography>{" "}
-              <CustomChip></CustomChip>
+                {file.name}
+              </Typography>
+              <Button
+                sx={{
+                  height: "50px",
+                  width: "300px",
+                  backgroundImage: "linear-gradient(135deg, #008aff, #86d472)",
+                  color: "white",
+                  fontWeight: 700,
+                  marginY: 1,
+                  ":hover": {
+                    backgroundImage:
+                      "linear-gradient(135deg, #488ecac5, #9cd18d)",
+                  },
+                }}
+                onClick={handleSubmit}
+              >
+                Upload file
+              </Button>
+              <Button
+                sx={{
+                  marginY: 1,
+                  fontWeight: "medium",
+                  fontSize: 17,
+                  ":hover": {
+                    backgroundColor: "white",
+                    color: "#f14343",
+                  },
+                }}
+                onClick={() => {
+                  setFile(null);
+                }}
+              >
+                Cancel
+              </Button>
             </Box>
-          ) : (
-            <>
-            {isValidInput==='inProgress' && 
-    <Box
-    sx={{
-      display: "flex",
-      width: "100%",
-      boxShadow: 3,
-      height: "90%",
-      justifyContent: "center",
-      alignItems: "center",
-      p: 2,
-      gap: 1,
-      background: "#F3F7FD",
-    }}
-  >
-    <Box
-        sx={{
-          width: "80%",
-          height: "60%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          boxShadow: 3,
-          maxWidth: "800px",
-          minHeight: "350px",
-          minWidth: "300px",
-          backgroundColor: "white",
-          borderRadius: 5,
-        }}
-        >
-    <InProgress></InProgress>
-    <Typography
-    sx={{
-      fontSize:20,
-      marginTop:5,
-      fontWeight:"bold"
-    }}>
-      Embedding is inprogress...
-    </Typography>
-    </Box>
-    </Box>
-    }
-            { isValidInput!=='inProgress'&&
-             <Box
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              display: "flex",
+              width: "100%",
+              boxShadow: 3,
+              height: "90%",
+              justifyContent: "center",
+              alignItems: "center",
+              p: 2,
+              gap: 1,
+              background: "#F3F7FD",
+            }}
+          >
+            <Box
               sx={{
                 width: "90%",
-                height:300,
-                margin: "auto",
+                height: "70%",
                 display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
                 flexDirection: "column",
-                backgroundColor: isOver ? "#d0cbcb" : "white",
+                // justifyContent: "center",
+                // alignItems: "center",
+                backgroundColor: "white",
+                boxShadow: 3,
+                minHeight: "350px",
+                minWidth: "300px",
                 borderRadius: 5,
               }}
             >
-              <InputLabel htmlFor="input-with-icon-adornment"
-              sx={{
-                color:"black"
-              }}>
-                Type your URL here
-              </InputLabel>
-              <Input
-                id="input-with-icon-adornment"
-                placeholder="Example: https://www.google.com/"
-                startAdornment={
-                  <InputAdornment position="start">
-                    <Language/>
-                  </InputAdornment>
-                }
+              <Box
                 sx={{
-                    width:"70%",
-                    marginY:2
+                  height: "100%",
+                  width: "100%",
                 }}
-                onChange={handleInputUrl}
-              />
-              <Button
-          sx={{
-            height: "50px",
-            width: "300px",
-            backgroundImage: "linear-gradient(135deg, #008aff, #86d472)",
-            color: "white",
-            fontWeight: 700,
-            marginY: 1,
-            ":hover": {
-              backgroundImage: "linear-gradient(135deg, #488ecac5, #9cd18d)",
-            },
-          }}
-          onClick={handleSubmitUrl}
-        >
-          Submit
-        </Button>
-            </Box>}
-          </>
-        )}
-        </Box>
-      </Box>
-    </Box>
-    
-  ))
-  }
-  </>
-  )      
+              >
+                <Box>
+                  <NavBar isFile={isFile} setIsFile={setIsFile}></NavBar>
+                  <Divider
+                    sx={{
+                      borderBottomWidth: 3,
+                    }}
+                  ></Divider>
+                </Box>
+                {isValidInput === "invalidFile" && (
+                  <ErrorStatus title="File is not supported"></ErrorStatus>
+                )}
+                {isValidInput === "invalidUrl" && (
+                  <ErrorStatus title="Invalid URL"></ErrorStatus>
+                )}
+                {isValidInput === "validFile" && (
+                  <SuccessStatus title="Upload file successfuly"></SuccessStatus>
+                )}
+                {isValidInput === "validUrl" && (
+                  <SuccessStatus title="Upload URL successfuly"></SuccessStatus>
+                )}
+                {isFile ? (
+                  <Box
+                    sx={{
+                      width: "100%",
+                      height: 300,
+                      margin: "auto",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      flexDirection: "column",
+                      backgroundColor: isOver ? "#d0cbcb" : "white",
+                      borderRadius: 5,
+                    }}
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    onDragEnter={handleDragEnter}
+                    onDragLeave={handleDragLeave}
+                  >
+                    <input
+                      type="file"
+                      id="file-input"
+                      style={{ display: "none" }}
+                      onChange={handleInputFile}
+                    />
+                    <Typography>
+                      Drop your document here or
+                      <Button
+                        sx={{
+                          textTransform: "none",
+                          fontSize: 17,
+                          "&:hover": {
+                            backgroundColor: "white",
+                            color: "#f14343",
+                          },
+                        }}
+                        onClick={() =>
+                          document.getElementById("file-input")?.click()
+                        }
+                      >
+                        browser file
+                      </Button>
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: "#878484",
+                      }}
+                    >
+                      Supported
+                    </Typography>{" "}
+                    <CustomChip></CustomChip>
+                  </Box>
+                ) : (
+                  <>
+                    {isValidInput === "inProgress" && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          width: "100%",
+                          boxShadow: 3,
+                          height: "90%",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          p: 2,
+                          gap: 1,
+                          background: "#F3F7FD",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: "80%",
+                            height: "60%",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            boxShadow: 3,
+                            maxWidth: "800px",
+                            minHeight: "350px",
+                            minWidth: "300px",
+                            backgroundColor: "white",
+                            borderRadius: 5,
+                          }}
+                        >
+                          <InProgress></InProgress>
+                          <Typography
+                            sx={{
+                              fontSize: 20,
+                              marginTop: 5,
+                              fontWeight: "bold",
+                            }}
+                          >
+                            Embedding is inprogress...
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
+                    {isValidInput !== "inProgress" && (
+                      <Box
+                        sx={{
+                          width: "90%",
+                          height: 300,
+                          margin: "auto",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          flexDirection: "column",
+                          backgroundColor: isOver ? "#d0cbcb" : "white",
+                          borderRadius: 5,
+                        }}
+                      >
+                        <InputLabel
+                          htmlFor="input-with-icon-adornment"
+                          sx={{
+                            color: "black",
+                          }}
+                        >
+                          Type your URL here
+                        </InputLabel>
+                        <Input
+                          id="input-with-icon-adornment"
+                          placeholder="Example: https://www.google.com/"
+                          startAdornment={
+                            <InputAdornment position="start">
+                              <Language />
+                            </InputAdornment>
+                          }
+                          sx={{
+                            width: "70%",
+                            marginY: 2,
+                          }}
+                          onChange={handleInputUrl}
+                        />
+                        <Button
+                          sx={{
+                            height: "50px",
+                            width: "300px",
+                            backgroundImage:
+                              "linear-gradient(135deg, #008aff, #86d472)",
+                            color: "white",
+                            fontWeight: 700,
+                            marginY: 1,
+                            ":hover": {
+                              backgroundImage:
+                                "linear-gradient(135deg, #488ecac5, #9cd18d)",
+                            },
+                          }}
+                          onClick={handleSubmitUrl}
+                        >
+                          Submit
+                        </Button>
+                      </Box>
+                    )}
+                  </>
+                )}
+              </Box>
+            </Box>
+          </Box>
+        ))}
+    </>
+  );
 };
 
 export default Import;
