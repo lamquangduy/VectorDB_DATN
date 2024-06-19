@@ -1,7 +1,7 @@
 // import { useNavigate } from "react-router-dom";
 import Import from "./components/Import";
 // import Footer from "./components/Footer";
-import { Box, createTheme, ThemeProvider, Typography } from "@mui/material";
+import { Box, createTheme, ThemeProvider} from "@mui/material";
 // import { useEffect } from "react";
 // import { useAuth0 } from "@auth0/auth0-react";
 
@@ -24,7 +24,7 @@ const ChatAdminPage = () => {
     <ThemeProvider theme={theme}>
       {/* <Header></Header> */}
       <Box>
-        <Typography>Chat Admin Page</Typography>
+        {/* <Typography>Learning Assistant</Typography> */}
       </Box>
       <Import></Import>
       {/* <Footer></Footer> */}

@@ -43,9 +43,9 @@ interface SuggestedTagProps {
   sx?: any;
 }
 const initialTag = [
-  "I want to find a course",
-  "Give me some information about specific skill",
-  "What can you do?",
+  "Khoá học lập trình cơ bản",
+  "Khoá học học liên quan tới khoa học dữ liệu",
+  "Tôi cần gợi ý về khoá học",
 ];
 
 const scrollToBottom = () => {
@@ -55,7 +55,7 @@ const scrollToBottom = () => {
   }
 };
 const mockData: IChatData[] = [
-  { sender: "bot", message: "Hello, How can I assist you?" },
+  { sender: "bot", message: "Xin chào, bạn có vấn đề gì cần hỗ trợ không?" },
 ];
 const loadingMessage: IChatData = { sender: "bot", message: "Loading..." };
 const SuggestedTag: React.FC<SuggestedTagProps> = ({
@@ -174,7 +174,8 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
         visibility: !isOpen ? "hidden" : "visible",
         width: !isOpen ? "0%" : "20%",
         height: "100%",
-
+        border:0.5,
+        color: "#36802d",
         // marginTop: 4,
       }}
     >
@@ -254,7 +255,7 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
               })}{" "}
         </Box>
       
-      <Box
+        <Box
         sx={{
           height: "8%",
           width: "100%",
@@ -277,6 +278,7 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
         </Button> </Box>
       </Box>
     </Box>
+    
   );
 };
 
@@ -508,7 +510,8 @@ const ChatBotPage: React.FC = () => {
             flexDirection:"column",
             justifyContent: "center",
             alignItems:"center",
-            paddingX:10
+            paddingX:10,
+            
           }}
         >
           <Box sx={{
@@ -518,6 +521,7 @@ const ChatBotPage: React.FC = () => {
             display:"flex",
             justifyContent:"space-between",
             alignItems:"center",
+            
           }}>
             <Box>
            <IconButton onClick={handleToggle}>
@@ -572,8 +576,7 @@ const ChatBotPage: React.FC = () => {
               display: "flex",
               justifyContent: "center",
               alignItems: "flex-start",
-              // border:0.5,
-              color: "#36802d",
+              
               // overflowY:"scroll"
             }}
           >
@@ -592,6 +595,8 @@ const ChatBotPage: React.FC = () => {
                 height: "100%",
                 padding:0,
                 margin:0,
+                border:0.5,
+              color: "#36802d",
               }}
             >   
               {isRefresh &&
