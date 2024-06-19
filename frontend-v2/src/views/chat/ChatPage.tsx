@@ -432,6 +432,12 @@ const ChatBotPage: React.FC = () => {
   };
 
   const handleChat = (value?: string) => {
+    if(value===undefined&& message.length===0){
+      return;
+    }
+    if(isLoading===true){
+      return;
+    }
     setIsChat(true);
     // setMessage(value);
     chatHistory.push({ sender: "user", message: value ?? message });
@@ -605,7 +611,7 @@ const ChatBotPage: React.FC = () => {
                   //   display: "none",
                   // },
                 }}
-                id={`box-${chatID}`}
+                id="chat-box"
               >
                 <Box
                   sx={{
@@ -636,7 +642,7 @@ const ChatBotPage: React.FC = () => {
                   //   display: "none",
                   // },
                 }}
-                id={`box-${chatID}`}
+                id="chat-box"
               >
                 <Box
                   sx={{
@@ -762,6 +768,7 @@ const ChatBotPage: React.FC = () => {
                     onChange={(e) => {
                       setMessage(e.target.value);
                     }}
+                   
                   ></OutlinedInput>
                   <Button
                     onClick={() => {
