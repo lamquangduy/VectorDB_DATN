@@ -23,6 +23,7 @@ import { List } from "echarts";
 import { useNavigate } from "react-router-dom";
 
 
+
 const theme = createTheme({
   typography: {
     fontFamily: ["Montserrat"].join(","),
@@ -44,8 +45,8 @@ interface SuggestedTagProps {
 }
 const initialTag = [
   "Khoá học lập trình cơ bản",
-  "Khoá học học liên quan tới khoa học dữ liệu",
-  "Tôi cần gợi ý về khoá học",
+  "Khoá học Python dành cho Data Science",
+  "Tôi cần thông tin về khoá học",
 ];
 
 const scrollToBottom = () => {
@@ -115,6 +116,7 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
 interface HistoryPanel{
   user: string|undefined,
   isOpen: boolean,
+  setIsOpen:(value:any)=>void,
   handleHistory:(value:MouseEvent)=>void,
   handleNewChat:(value:any)=>void,
   handleDelete:(value:MouseEvent)=>void,
@@ -124,6 +126,7 @@ interface HistoryPanel{
 const HistoryPanel: React.FC<HistoryPanel> = ({
   user,
   isOpen,
+  setIsOpen,
   handleHistory,
   handleNewChat,
   handleDelete,
@@ -162,6 +165,9 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
     setSelectedIndex(() => index);
     console.log(selectedIndex);
   };
+  const handleToggle=()=>{
+    setIsOpen(false);
+  }
 
   return (
     <Box
@@ -175,10 +181,32 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
         width: !isOpen ? "0%" : "20%",
         height: "100%",
         border:0.5,
+        borderRight:0,
         color: "#36802d",
         // marginTop: 4,
       }}
     >
+       <Box
+       sx={{
+          height:"6%",
+            width:"100%",
+            background: "#36802d",
+            display:"flex",
+       }}>
+           <IconButton onClick={handleToggle}>
+           <Tooltip title="Show/hide Chat History">
+                <Box
+                component="img"
+                sx={{
+                  width: "20px",
+                  height: "20px",
+
+                }}
+                src={"/img/sidebar.svg"}
+              ></Box>
+              </Tooltip>
+            </IconButton>
+            </Box>
       <Box
         sx={{
           display: "flex",
@@ -308,7 +336,7 @@ const BotText: React.FC<ChatTag> = ({ props, isChat }) => {
           m: 1,
           padding: 1,
           boxShadow: 3,
-          fontSize: 18,
+          fontSize: 14,
         }}
       >
         {isChat ? (
@@ -353,7 +381,7 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
           m: 1,
           padding: 1,
           boxShadow: 3,
-          fontSize: 18,
+          fontSize: 14,
           maxWidth: "65%",
         }}
       >
@@ -514,61 +542,9 @@ const ChatBotPage: React.FC = () => {
             
           }}
         >
-          <Box sx={{
-            height:"6%",
-            width:isOpen?"100%":"80%",
-            background: "#36802d",
-            display:"flex",
-            justifyContent:"space-between",
-            alignItems:"center",
-            
-          }}>
-            <Box>
-           <IconButton onClick={handleToggle}>
-           <Tooltip title="Show/hide Chat History">
-                <Box
-                component="img"
-                sx={{
-                  width: "20px",
-                  height: "20px",
-                }}
-                src={"/img/sidebar.svg"}
-              ></Box>
-              </Tooltip>
-            </IconButton>
-            </Box>
-            <Box>
-            <Typography
-                  sx={{
-                    width: "100%",
-                    fontSize: "20px",
-                    fontWeight: "bold",
-                    color: "#e3e0e0",
-                    padding:0,
-                    margin:0,
-                    height:"100%"
-                  }}
-                >
-                  Learning Assistant
-                </Typography>
-                </Box>
-                <Box>
-            <IconButton onClick={(e)=>{
-              e.preventDefault();
-              navigate("../chat-admin")}}>
-                <Tooltip title="Import Data">
-                <Box
-                component="img"
-                sx={{
-                  width: "20px",
-                  height: "20px",
-                }}
-                src={"/img/import.svg"}
-              ></Box>
-              </Tooltip>
-            </IconButton>
-            </Box>
-                </Box>
+          
+
+         
           <Box
             sx={{
               width: "100%",
@@ -580,9 +556,11 @@ const ChatBotPage: React.FC = () => {
               // overflowY:"scroll"
             }}
           >
+            
              <HistoryPanel
               user = {user?.email}
               isOpen={isOpen}
+              setIsOpen={setIsOpen}
               action={action}
               handleHistory={handleHistory}
               handleNewChat={handleNewChat}
@@ -636,20 +614,68 @@ const ChatBotPage: React.FC = () => {
                 }}
                
               >
-                  {/* <Typography
+                 <Box sx={{
+            height:"6%",
+            width:"100%",
+            background: "#36802d",
+            display:"flex",
+            justifyContent:"space-between",
+            alignItems:"center",
+            
+          }}>
+            <Box
+            sx={{
+              visibility: isOpen ? "hidden" : "visible",
+            }}>
+           <IconButton onClick={handleToggle}>
+           <Tooltip title="Show/hide Chat History">
+                <Box
+                component="img"
+                sx={{
+                  width: "20px",
+                  height: "20px",
+                }}
+                src={"/img/sidebar.svg"}
+              ></Box>
+              </Tooltip>
+            </IconButton>
+            </Box>
+            <Box>
+            <Typography
                   sx={{
                     width: "100%",
-                    background: "#36802d",
                     fontSize: "20px",
                     fontWeight: "bold",
                     color: "#e3e0e0",
                     padding:0,
                     margin:0,
-                    height:"10%"
+                    height:"100%"
                   }}
                 >
                   Learning Assistant
-                </Typography> */}
+                </Typography>
+                </Box>
+                <Box>
+            <IconButton onClick={(e)=>{
+              e.preventDefault();
+              navigate("../chat-admin")}}>
+                <Tooltip title="Import Data">
+                <Box
+                component="img"
+                sx={{
+                  width: "20px",
+                  height: "20px",
+                }}
+                src={"/img/import.svg"}
+              ></Box>
+              </Tooltip>
+              <Typography sx={{
+                marginX:1,
+                color:"black"
+              }}>Import Data</Typography>
+            </IconButton>
+            </Box>
+                </Box>
                 <Box
                   sx={{
                     height: "90%",

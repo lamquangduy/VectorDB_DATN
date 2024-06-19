@@ -24,7 +24,7 @@ const ChatAdminPage = () => {
     <ThemeProvider theme={theme}>
       {/* <Header></Header> */}
       <Box>
-        {/* <Typography>Learning Assistant</Typography> */}
+        {/* <Typography>Insert to Vector Database</Typography> */}
       </Box>
       <Import></Import>
       {/* <Footer></Footer> */}
