@@ -6,7 +6,6 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import React, { useEffect, useState } from "react";
-import ViewSidebarIcon from "@mui/icons-material/ViewSidebar";
 import getChatResponse, { deleteChat } from "../../services/chat/chat";
 import { getChatHistory } from "../../services/chat/chat";
 import Linkify from "react-linkify";
@@ -15,6 +14,7 @@ import {
   Divider,
   IconButton,
   ThemeProvider,
+  Tooltip,
 } from "@mui/material";
 import ChatCard from "./components/ChatCard";
 import { OpenInNew } from "@mui/icons-material";
@@ -72,7 +72,7 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
           //   outline: 0,
           marginY:1,
           display:"flex",
-          justifyContent:"flex-start",
+          justifyContent:"space-between",
           width: "100%",
           "&:hover": {
             boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
@@ -98,6 +98,15 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
         >
           {value}
         </Typography>
+        <Box
+                            component="img"
+                            sx={{
+                              width: "20px",
+                              height: "20px",
+                              borderBlockColor:"white"
+                            }}
+                            src={"/img/enter.svg"}
+                          ></Box>
       </Button>
     </Box>
   );
@@ -106,7 +115,6 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
 interface HistoryPanel{
   user: string|undefined,
   isOpen: boolean,
-  setIsOpen: (value:boolean)=>void,
   handleHistory:(value:MouseEvent)=>void,
   handleNewChat:(value:any)=>void,
   handleDelete:(value:MouseEvent)=>void,
@@ -116,7 +124,6 @@ interface HistoryPanel{
 const HistoryPanel: React.FC<HistoryPanel> = ({
   user,
   isOpen,
-  setIsOpen,
   handleHistory,
   handleNewChat,
   handleDelete,
@@ -509,18 +516,27 @@ const ChatBotPage: React.FC = () => {
             width:isOpen?"100%":"80%",
             background: "#36802d",
             display:"flex",
-            justifyContent:"center",
+            justifyContent:"space-between",
+            alignItems:"center",
           }}>
-          <Box sx={{
-            width:"100%"
-          }}>
+            <Box>
            <IconButton onClick={handleToggle}>
-              <ViewSidebarIcon />
+           <Tooltip title="Show/hide Chat History">
+                <Box
+                component="img"
+                sx={{
+                  width: "20px",
+                  height: "20px",
+                }}
+                src={"/img/sidebar.svg"}
+              ></Box>
+              </Tooltip>
             </IconButton>
-            </Box>   
+            </Box>
+            <Box>
             <Typography
                   sx={{
-                    width:"100%",
+                    width: "100%",
                     fontSize: "20px",
                     fontWeight: "bold",
                     color: "#e3e0e0",
@@ -531,6 +547,23 @@ const ChatBotPage: React.FC = () => {
                 >
                   Learning Assistant
                 </Typography>
+                </Box>
+                <Box>
+            <IconButton onClick={(e)=>{
+              e.preventDefault();
+              navigate("../chat-admin")}}>
+                <Tooltip title="Import Data">
+                <Box
+                component="img"
+                sx={{
+                  width: "20px",
+                  height: "20px",
+                }}
+                src={"/img/import.svg"}
+              ></Box>
+              </Tooltip>
+            </IconButton>
+            </Box>
                 </Box>
           <Box
             sx={{
@@ -547,7 +580,6 @@ const ChatBotPage: React.FC = () => {
              <HistoryPanel
               user = {user?.email}
               isOpen={isOpen}
-              setIsOpen={setIsOpen}
               action={action}
               handleHistory={handleHistory}
               handleNewChat={handleNewChat}
@@ -595,6 +627,7 @@ const ChatBotPage: React.FC = () => {
                   width: "100%",
                   display:"flex",
                   flexDirection:"column",
+                  
                 }}
                
               >
@@ -644,14 +677,14 @@ const ChatBotPage: React.FC = () => {
                   suggestion.map((tag: string, idx: number) => {
                     if (tag.length !== 0)
                       return (
-                  
                         <SuggestedTag
                           value={tag}
                           handleClick={handleChat}
                           sx="5"
                           key={idx}
-                        ></SuggestedTag>
-                       
+                        />
+                        
+                        
                       );
                   })}
 
