@@ -176,6 +176,7 @@ const Import: React.FC = () => {
                 // justifyContent: "center",
                 // alignItems: "center",
                 backgroundColor: "white",
+                margin:"auto",
                 boxShadow: 3,
                 borderRadius: 1,
               }}
@@ -277,8 +278,8 @@ const Import: React.FC = () => {
               ></Box>
               <Typography
                 sx={{
-                  fontSize: 25,
-                  fontWeight: 600,
+                  fontSize: 20,
+                  fontWeight:10,
                   marginY: 1,
                 }}
               >

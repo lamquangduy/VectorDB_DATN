@@ -71,7 +71,7 @@ def embedding_content_fromURL(url: str):
     #load qdrant cloud
     document_store = load_store()
     # init embedder
-    doc_embedder = CohereDocumentEmbedder(api_key=Secret.from_token("2w9Q9kcExBmG89RNfGnPCqKtDEAb6GEkNpsyCNnI"),model=model_name)
+    doc_embedder = CohereDocumentEmbedder(api_key=Secret.from_token('KZAyhNSv3c8Z0WHgoTqnIC3GxSvLW05lmxfNIQUu'),model=model_name)
 
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docu)
@@ -94,7 +94,7 @@ def embedding_txt(filepath: str = "test.txt"):
     res = pipeline.run({"converter": {"sources": [filepath]}})
     docu = res['splitter']['documents']
         # init embedder
-    doc_embedder = CohereDocumentEmbedder(api_key=Secret.from_token("2w9Q9kcExBmG89RNfGnPCqKtDEAb6GEkNpsyCNnI"),model=model_name)
+    doc_embedder = CohereDocumentEmbedder(api_key=Secret.from_token('KZAyhNSv3c8Z0WHgoTqnIC3GxSvLW05lmxfNIQUu'),model=model_name)
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docu)
     document_store.write_documents(docs_with_embeddings["documents"], policy=DuplicatePolicy.SKIP)
@@ -128,7 +128,7 @@ def embedding_pdf(filepath: str = "test.txt"):
     pipeline.add_component("converter",  PyPDFToDocument())
     pipeline.add_component("cleaner", DocumentCleaner())
     pipeline.add_component("splitter", DocumentSplitter(split_by=split_by, split_length=split_length, split_overlap = split_overlap))
-    pipeline.add_component("embedder", CohereDocumentEmbedder(api_key=Secret.from_token("2w9Q9kcExBmG89RNfGnPCqKtDEAb6GEkNpsyCNnI"),model=model_name))
+    pipeline.add_component("embedder", CohereDocumentEmbedder(api_key=Secret.from_token('KZAyhNSv3c8Z0WHgoTqnIC3GxSvLW05lmxfNIQUu'),model=model_name))
     pipeline.add_component("writer", DocumentWriter(document_store=document_store, policy=DuplicatePolicy.SKIP))
     pipeline.connect("converter", "cleaner")
     pipeline.connect("cleaner", "splitter")
@@ -155,7 +155,7 @@ def embedding_csv(filepath: str = ".\courses.csv"):
     # init qdrant cloud instance
     document_store = load_store()
     ## Use embedder Embedding file document for Fetch và Indexing
-    embedder = CohereDocumentEmbedder(api_key=Secret.from_token("2w9Q9kcExBmG89RNfGnPCqKtDEAb6GEkNpsyCNnI"),model=model_name)
+    embedder = CohereDocumentEmbedder(api_key=Secret.from_token('KZAyhNSv3c8Z0WHgoTqnIC3GxSvLW05lmxfNIQUu'),model=model_name)
    
     docs_with_embeddings =  embedder.run(docu)
     document_store.write_documents(docs_with_embeddings["documents"], policy=DuplicatePolicy.SKIP)

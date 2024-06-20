@@ -160,7 +160,7 @@ def embedding_csv(index_name: str = index_name, filepath: str = ".\courses.csv")
             )
         )
     # init embedder
-    doc_embedder = CohereDocumentEmbedder(api_key=Secret.from_token("2w9Q9kcExBmG89RNfGnPCqKtDEAb6GEkNpsyCNnI"),model=model_name)
+    doc_embedder = CohereDocumentEmbedder(api_key=Secret.from_token('KZAyhNSv3c8Z0WHgoTqnIC3GxSvLW05lmxfNIQUu'),model=model_name)
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docs)
     doc_store.write_documents(
@@ -176,7 +176,7 @@ def embedding_csv(index_name: str = index_name, filepath: str = ".\courses.csv")
 def rag_pipe(index_name: str = index_name):
 
     template = """
-    Answer the questions based on the given context.
+    Answer the questions based on the given context. You are LearnWay Assistant bot, your purpose is to provide course information related to user's question. The course information should have name, how to access, skill. Answer with VietNamese language
 
     Context:
     {% for document in documents %}
@@ -190,9 +190,9 @@ def rag_pipe(index_name: str = index_name):
     # rag_pipe.add_component(
     #     "embedder", SentenceTransformersTextEmbedder(model=model_name)
     # )
-    ranker = CohereRanker(api_key=Secret.from_token("2w9Q9kcExBmG89RNfGnPCqKtDEAb6GEkNpsyCNnI"))
+    ranker = CohereRanker(api_key=Secret.from_token('KZAyhNSv3c8Z0WHgoTqnIC3GxSvLW05lmxfNIQUu'))
     rag_pipe.add_component(
-        "embedder", CohereTextEmbedder(api_key=Secret.from_token("2w9Q9kcExBmG89RNfGnPCqKtDEAb6GEkNpsyCNnI"),model=model_name)
+        "embedder", CohereTextEmbedder(api_key=Secret.from_token('KZAyhNSv3c8Z0WHgoTqnIC3GxSvLW05lmxfNIQUu'),model=model_name)
     )
     rag_pipe.add_component(
         "retriever", QdrantEmbeddingRetriever(document_store=docstore, top_k=20)
@@ -236,12 +236,12 @@ def get_suggestions(content: str):
     if language['replies'][0] == 'vi':  # Vietnamese
         print("Hỏi bằng tiếng Việt")
         response = llm.run(
-        f"Bạn là một người dùng. Mục đích của bạn là tạo các câu hỏi liên quan đến một khóa học hoặc các khóa học tương tự được đề cập trong câu truy vấn (bằng tiếng Việt), để hỏi người khác. Nếu câu truy vấn đề cập đến mục tiêu nghề nghiệp của bạn, mục đích của bạn là tạo các câu hỏi liên quan đến các khóa học phù hợp với mong muốn của bạn. Bạn có thể sử dụng câu hỏi mở (nên liên quan đến khóa học lập trình trực tuyến) nếu nội dung không có ích. Cung cấp 4 câu hỏi, mỗi câu hỏi ít hơn 7 từ, chỉ văn bản. Không định dạng với dấu đạn hay số. Dựa trên nội dung này: {content}"
+        f"Bạn là một người dùng. Mục đích của bạn là tạo các câu hỏi liên quan đến một khóa học hoặc các khóa học tương tự được đề cập trong câu truy vấn (bằng tiếng Việt), để hỏi người khác. Nếu câu truy vấn đề cập đến mục tiêu nghề nghiệp của bạn, mục đích của bạn là tạo các câu hỏi liên quan đến các khóa học phù hợp với mong muốn của bạn. Bạn có thể sử dụng câu hỏi mở (nên liên quan đến khóa học lập trình trực tuyến) nếu nội dung không có ích. Cung cấp 4 câu hỏi, mỗi câu hỏi ít hơn 7 từ (càng ngắn càng tốt), chỉ văn bản. Không định dạng với dấu đạn hay số. Dựa trên nội dung này: {content}"
     )
     else:  # Assuming English if not Vietnamese
        print("Hỏi bằng tiếng Anh")
        response = llm.run(
-        f"You are an user. Your purpose is to create your questions relative with a course or similarity courses which are mentioned in query, to ask anothers, and if query mention your's goal career which is mentioned in query, your purpose is to create your questions relative with course that fits your desire. You can use open questions (these should relate to online programming course) if the content isn't helpful. Provide 4 questions, each question is less than 7 words, only text. Do not format with bullets or numbers. Base your questions on this content: {content}"
+        f"You are an user. Your purpose is to create your questions relative with a course or similarity courses which are mentioned in query, to ask anothers, and if query mention your's goal career which is mentioned in query, your purpose is to create your questions relative with course that fits your desire. You can use open questions (these should relate to online programming course) if the content isn't helpful. Provide 4 questions, each question is less than 7 words (as short as possible), only text. Do not format with bullets or numbers. Base your questions on this content: {content}"
     )
     list_of_lines = response["replies"][0].splitlines()
     return list_of_lines
