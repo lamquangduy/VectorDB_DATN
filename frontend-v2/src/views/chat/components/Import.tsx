@@ -54,6 +54,10 @@ const Import: React.FC = () => {
       }
     }
   }, [file]);
+  useEffect(()=>{
+    setFile(null);
+    setIsValidInput("")
+  },[isFile])
   const handleInputFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       setFile(event.target.files[0]);
@@ -114,6 +118,12 @@ const Import: React.FC = () => {
       }
     } catch (error) {
       console.error(error);
+      console.error("Fail!");
+      setIsValidInput("notResponding");
+      setFile(null);
+      setTimeout(() => {
+        setIsValidInput("");
+      }, 3000);
     }
   };
 
@@ -146,18 +156,51 @@ const Import: React.FC = () => {
       }
     } catch (error) {
       console.error(error);
+      console.error("Fail!");
+      setIsValidInput("notResponding");
+      setFile(null);
+      setTimeout(() => {
+        setIsValidInput("");
+      }, 3000);
     }
   };
 
   return (
     <>
+     <Box
+              sx={{
+                width: "90%",
+                height: "80%",
+                display: "flex",
+                flexDirection: "column",
+                // justifyContent: "center",
+                // alignItems: "center",
+                backgroundColor: "white",
+                boxShadow: 3,
+                borderRadius: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  height: "100%",
+                  width: "100%",
+                }}
+              >
+                <Box>
+                  <NavBar isFile={isFile} setIsFile={setIsFile}></NavBar>
+                  <Divider
+                    sx={{
+                      borderBottomWidth: 3,
+                    }}
+                  ></Divider>
+                </Box>
       {isValidInput === "inProgress" && (
         <Box
           sx={{
             display: "flex",
             width: "100%",
             boxShadow: 3,
-            height: "100vh",
+            height: "70vh",
             justifyContent: "center",
             alignItems: "center",
             p: 2,
@@ -174,9 +217,6 @@ const Import: React.FC = () => {
               justifyContent: "center",
               alignItems: "center",
               boxShadow: 3,
-              maxWidth: "800px",
-              minHeight: "350px",
-              minWidth: "300px",
               backgroundColor: "white",
               borderRadius: 5,
             }}
@@ -201,7 +241,7 @@ const Import: React.FC = () => {
               display: "flex",
               width: "100%",
               boxShadow: 3,
-              height: "100vh",
+              height: "70vh",
               justifyContent: "center",
               alignItems: "center",
               p: 2,
@@ -209,18 +249,16 @@ const Import: React.FC = () => {
               background: "#F3F7FD",
             }}
           >
+            
             <Box
               sx={{
                 width: "80%",
-                height: "60%",
+                height: "70%",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
                 boxShadow: 3,
-                maxWidth: "800px",
-                minHeight: "350px",
-                minWidth: "300px",
                 backgroundColor: isOver ? "#d0cbcb" : "white",
                 borderRadius: 5,
               }}
@@ -287,7 +325,7 @@ const Import: React.FC = () => {
               display: "flex",
               width: "100%",
               boxShadow: 3,
-              height: "100vh",
+              height: "70vh",
               justifyContent: "center",
               alignItems: "center",
               p: 2,
@@ -295,35 +333,8 @@ const Import: React.FC = () => {
               background: "#F3F7FD",
             }}
           >
-            <Box
-              sx={{
-                width: "90%",
-                height: "70%",
-                display: "flex",
-                flexDirection: "column",
-                // justifyContent: "center",
-                // alignItems: "center",
-                backgroundColor: "white",
-                boxShadow: 3,
-                minHeight: "350px",
-                minWidth: "300px",
-                borderRadius: 5,
-              }}
-            >
-              <Box
-                sx={{
-                  height: "100%",
-                  width: "100%",
-                }}
-              >
-                <Box>
-                  <NavBar isFile={isFile} setIsFile={setIsFile}></NavBar>
-                  <Divider
-                    sx={{
-                      borderBottomWidth: 3,
-                    }}
-                  ></Divider>
-                </Box>
+                {isValidInput==="notResponding"&&
+                <ErrorStatus title="Server is not responding. Please try later."></ErrorStatus>}
                 {isValidInput === "invalidFile" && (
                   <ErrorStatus title="File is not supported"></ErrorStatus>
                 )}
@@ -340,7 +351,7 @@ const Import: React.FC = () => {
                   <Box
                     sx={{
                       width: "100%",
-                      height: 300,
+                      height: "80%",
                       margin: "auto",
                       display: "flex",
                       justifyContent: "center",
@@ -395,26 +406,22 @@ const Import: React.FC = () => {
                           display: "flex",
                           width: "100%",
                           boxShadow: 3,
-                          height: "100vh",
+                          height: "80%",
                           justifyContent: "center",
                           alignItems: "center",
-                          p: 2,
-                          gap: 1,
+                          // p: 2,
+                          // gap: 1,
                           background: "#F3F7FD",
                         }}
                       >
                         <Box
                           sx={{
-                            width: "80%",
-                            height: "60%",
+                            width: "100%",
+                            height: "80%",
                             display: "flex",
                             flexDirection: "column",
                             justifyContent: "center",
                             alignItems: "center",
-                            boxShadow: 3,
-                            maxWidth: "800px",
-                            minHeight: "350px",
-                            minWidth: "300px",
                             backgroundColor: "white",
                             borderRadius: 5,
                           }}
@@ -435,8 +442,8 @@ const Import: React.FC = () => {
                     {isValidInput !== "inProgress" && (
                       <Box
                         sx={{
-                          width: "90%",
-                          height: 300,
+                          width: "100%",
+                          height: "80%",
                           margin: "auto",
                           display: "flex",
                           justifyContent: "center",
@@ -491,9 +498,11 @@ const Import: React.FC = () => {
                   </>
                 )}
               </Box>
-            </Box>
-          </Box>
+            
+          
         ))}
+        </Box>
+        </Box>
     </>
   );
 };

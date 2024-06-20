@@ -21,6 +21,7 @@ import { OpenInNew } from "@mui/icons-material";
 import { useAuth0 } from "@auth0/auth0-react";
 import { List } from "echarts";
 import { useNavigate } from "react-router-dom";
+import InProgress from "./components/InProgress";
 
 const theme = createTheme({
   typography: {
@@ -408,7 +409,7 @@ const ChatBotPage: React.FC = () => {
   const handleHistory = (value: any) => {
     setTimeout(() => {
       setIsRefresh((p) => !p);
-    }, 3);
+    }, 2000);
     setIsChat(false);
     const messageTags = value.history.map(
       (history: { role: any; content: any }) => {
@@ -431,7 +432,7 @@ const ChatBotPage: React.FC = () => {
   const handleDelete = (value: any) => {
     setTimeout(() => {
       setIsRefresh((p) => !p);
-    }, 5);
+    }, 3000);
     deleteChat(user?.email, value.chat_id);
     if (chatID === value.chat_id) {
       setChatHistory([
@@ -443,7 +444,7 @@ const ChatBotPage: React.FC = () => {
       setSuggestion(initialTag);
       setAction("create");
     } else {
-      setAction("delete");
+      setAction((p)=>p+1);
     }
     setIsRefresh((p) => !p);
   };
@@ -497,7 +498,7 @@ const ChatBotPage: React.FC = () => {
   const handleNewChat = () => {
     setTimeout(() => {
       setIsRefresh((p) => !p);
-    }, 5);
+    }, 2000);
     setChatHistory([
       { sender: "bot", message: "Hello, How can I assist you?" },
     ]);
@@ -560,31 +561,6 @@ const ChatBotPage: React.FC = () => {
                 color: "#36802d",
               }}
             >
-              {isRefresh && (
-                <>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      height: "80%",
-                      width: "100%",
-                      justifyContent: "space-around",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        height: "100%",
-                        padding: 1,
-                        width: "100%",
-                        // WebkitOverflowScrolling: {
-                        //   display: "none",
-                        //},
-                      }}
-                    ></Box>
-                  </Box>
-                </>
-              )}
-              {!isRefresh && (
                 <>
                   <Box
                     sx={{
@@ -671,10 +647,20 @@ const ChatBotPage: React.FC = () => {
                         width: "100%",
                         overflowY: "scroll",
                         paddingX: 14,
+                        display:"flex",
+                        flexDirection:"column",
+                        justifyContent:"space-between"
                       }}
                       id="chat-box"
                     >
-                      <Box>
+                      {isRefresh&&
+                      <Box sx={{
+                        margin:"auto"
+                      }}>
+                      <InProgress></InProgress>
+                      </Box>
+                      }
+                     {!isRefresh&& <Box>
                         {chatData.map((data: IChatData, idx: number) => {
                           return data.sender === "bot" ||
                             data.sender === "assistant" ? (
@@ -688,15 +674,14 @@ const ChatBotPage: React.FC = () => {
                             )
                           );
                         })}
-                      </Box>
+                         {isLoading && (
+                          <BotText props={loadingMessage} isChat={isChat} />
+                        )}
+                      </Box>}
                       <Box sx={{
                         display:"flex",
                         flexWrap:"wrap",
-                       
                       }}>
-                        {isLoading && (
-                          <BotText props={loadingMessage} isChat={isChat} />
-                        )}
                         {suggestion.length !== 0 &&
                           !isLoading &&
                           suggestion.map((tag: string, idx: number) => {
@@ -795,7 +780,7 @@ const ChatBotPage: React.FC = () => {
                     </Box>
                   </Box>
                 </>
-              )}
+              
             </Box>
           </Box>
         </Box>
