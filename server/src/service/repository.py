@@ -71,6 +71,13 @@ def get_chat_history(email: str, chat_id: str = None):
     result = json.loads(json_util.dumps(result))
     return result
 
+def get_role(email: str):
+    db = mongo_client["chatbot"]
+    collection = db["chat_role"]
+    condition = {"email": email}
+    result = collection.find(condition)
+    result = json.loads(json_util.dumps(result))
+    return result
 
 def save_chat_history(email: str, history: list, chat_name: str, chat_id: str = None):
     db = mongo_client["chatbot"]

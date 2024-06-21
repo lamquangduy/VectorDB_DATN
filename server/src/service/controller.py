@@ -23,9 +23,12 @@ class ChatInput(BaseModel):
 @router.get("/chat/{email}", response_model=list[dict])
 async def chat(email: str):
     messages = repository.get_chat_history(email)
-
     return messages
 
+@router.get("/chat-role/{email}", response_model=list[dict])
+async def chat(email: str):
+    role=repository.get_role(email)
+    return role
 
 from fastapi.encoders import jsonable_encoder
 

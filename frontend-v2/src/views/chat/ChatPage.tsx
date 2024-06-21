@@ -6,7 +6,7 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import React, { useEffect, useState } from "react";
-import getChatResponse, { deleteChat } from "../../services/chat/chat";
+import getChatResponse, { deleteChat, getChatRole } from "../../services/chat/chat";
 import { getChatHistory } from "../../services/chat/chat";
 import Linkify from "react-linkify";
 import {
@@ -55,7 +55,7 @@ const scrollToBottom = () => {
   }
 };
 const mockData: IChatData[] = [
-  { sender: "bot", message: "Xin chào, bạn có vấn đề gì cần hỗ trợ không?" },
+  { sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" },
 ];
 const loadingMessage: IChatData = { sender: "bot", message: "Loading..." };
 const SuggestedTag: React.FC<SuggestedTagProps> = ({
@@ -396,7 +396,19 @@ const ChatBotPage: React.FC = () => {
   const [action, setAction] = React.useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
   const [isRefresh, setIsRefresh] = React.useState<boolean>(false);
+  const [isAuth,setIsAuth]=React.useState<boolean>(false);
   const navigate = useNavigate();
+  useEffect(()=>{
+    getChatRole(user?.email)
+      .then((res) => {
+        if(res==="admin"){
+          setIsAuth(true)
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      });
+  },[])
   useEffect(() => {
     console.log(user);
     if (user === null || user === undefined) {
@@ -436,10 +448,10 @@ const ChatBotPage: React.FC = () => {
     deleteChat(user?.email, value.chat_id);
     if (chatID === value.chat_id) {
       setChatHistory([
-        { sender: "bot", message: "Hello, How can I assist you?" },
+        { sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" },
       ]);
       setChatID("");
-      setChatData([{ sender: "bot", message: "Hello, How can I assist you?" }]);
+      setChatData([{ sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" }]);
       setTrackServer([]);
       setSuggestion(initialTag);
       setAction("create");
@@ -500,10 +512,10 @@ const ChatBotPage: React.FC = () => {
       setIsRefresh((p) => !p);
     }, 2000);
     setChatHistory([
-      { sender: "bot", message: "Hello, How can I assist you?" },
+      { sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" },
     ]);
     setChatID("");
-    setChatData([{ sender: "bot", message: "Hello, How can I assist you?" }]);
+    setChatData([{ sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" }]);
     setTrackServer([]);
     setSuggestion(initialTag);
     setAction("create");
@@ -619,8 +631,14 @@ const ChatBotPage: React.FC = () => {
                             e.preventDefault();
                             navigate("../chat-admin");
                           }}
+                          sx={{
+                            visibility:isAuth?"visible":"hidden",
+                          }}
                         >
-                          <Tooltip title="Import Data">
+                          <Tooltip title="Import Data" sx={{
+                            color:"#e3e0e0",
+                            backgroundColor:"#e3e0e0"
+                          }}>
                             <Box
                               component="img"
                               sx={{
@@ -633,7 +651,7 @@ const ChatBotPage: React.FC = () => {
                           <Typography
                             sx={{
                               marginX: 1,
-                              color: "black",
+                              color: "#e3e0e0",
                             }}
                           >
                             Import Data
@@ -681,6 +699,7 @@ const ChatBotPage: React.FC = () => {
                       <Box sx={{
                         display:"flex",
                         flexWrap:"wrap",
+                        justifyContent:"center"
                       }}>
                         {suggestion.length !== 0 &&
                           !isLoading &&
@@ -723,7 +742,7 @@ const ChatBotPage: React.FC = () => {
                             chatHistory.splice(0, chatHistory.length);
                             chatHistory.push({
                               sender: "bot",
-                              message: "Hello, How can I help you?",
+                              message: "Xin chào, bạn cần hỗ trợ gì?",
                             });
                             setChatData([]);
                             setTimeout(() => {
@@ -731,7 +750,7 @@ const ChatBotPage: React.FC = () => {
                                 return [
                                   {
                                     sender: "bot",
-                                    message: "Hello, How can I help you?",
+                                    message: "Xin chào, bạn cần hỗ trợ gì?",
                                   },
                                 ];
                               });

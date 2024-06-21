@@ -17,6 +17,13 @@ const getChatResponse = async (user: any, text: string, history: any[], chatId:s
   });
   return response.data;
 };
+export const getChatRole = async (user: any) => {
+  const response = await axiosInstance({
+    method: "get",
+    url: `/chat-role/${user}`,
+  });
+  return response.data[0].role;
+};
 
 export const deleteChat = async (user: any,chatId:string) => {
   const response = await axiosInstance({
