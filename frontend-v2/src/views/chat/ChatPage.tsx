@@ -6,7 +6,10 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import React, { useEffect, useState } from "react";
-import getChatResponse, { deleteChat, getChatRole } from "../../services/chat/chat";
+import getChatResponse, {
+  deleteChat,
+  getChatRole,
+} from "../../services/chat/chat";
 import { getChatHistory } from "../../services/chat/chat";
 import Linkify from "react-linkify";
 import {
@@ -70,7 +73,7 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
           height: 25,
           border: 0.5,
           //   outline: 0,
-          margin:0.5,
+          margin: 0.5,
           display: "flex",
           justifyContent: "space-between",
           width: "auto",
@@ -396,25 +399,26 @@ const ChatBotPage: React.FC = () => {
   const [action, setAction] = React.useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
   const [isRefresh, setIsRefresh] = React.useState<boolean>(false);
-  const [isAuth,setIsAuth]=React.useState<boolean>(false);
+  const [isAuth, setIsAuth] = React.useState<boolean>(false);
   const navigate = useNavigate();
-  useEffect(()=>{
+
+  useEffect(() => {
     getChatRole(user?.email)
       .then((res) => {
-        if(res==="admin"){
-          setIsAuth(true)
+        if (res === "admin") {
+          setIsAuth(true);
         }
       })
       .catch((err) => {
-        console.log(err)
+        console.log(err);
       });
-  },[])
-  useEffect(() => {
-    console.log(user);
-    if (user === null || user === undefined) {
-      navigate("/login");
-    }
-  }, [navigate, user]);
+  }, []);
+  // useEffect(() => {
+  //   console.log(user);
+  //   if (user === null || user === undefined) {
+  //     navigate("/login");
+  //   }
+  // }, [navigate, user]);
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
@@ -456,7 +460,7 @@ const ChatBotPage: React.FC = () => {
       setSuggestion(initialTag);
       setAction("create");
     } else {
-      setAction((p)=>p+1);
+      setAction((p) => p + 1);
     }
     setIsRefresh((p) => !p);
   };
@@ -573,112 +577,118 @@ const ChatBotPage: React.FC = () => {
                 color: "#36802d",
               }}
             >
-                <>
+              <>
+                <Box
+                  sx={{
+                    height: "100%",
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
                   <Box
                     sx={{
-                      height: "100%",
+                      height: "6%",
                       width: "100%",
+                      background: "#36802d",
                       display: "flex",
-                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      alignItems: "center",
                     }}
                   >
                     <Box
                       sx={{
-                        height: "6%",
-                        width: "100%",
-                        background: "#36802d",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
+                        visibility: isOpen ? "hidden" : "visible",
                       }}
                     >
-                      <Box
+                      <IconButton onClick={handleToggle}>
+                        <Tooltip title="Show/hide Chat History">
+                          <Box
+                            component="img"
+                            sx={{
+                              width: "20px",
+                              height: "20px",
+                            }}
+                            src={"/img/sidebar.svg"}
+                          ></Box>
+                        </Tooltip>
+                      </IconButton>
+                    </Box>
+                    <Box>
+                      <Typography
                         sx={{
-                          visibility: isOpen ? "hidden" : "visible",
+                          width: "100%",
+                          fontSize: "20px",
+                          fontWeight: "bold",
+                          color: "#e3e0e0",
+                          padding: 0,
+                          margin: 0,
+                          height: "100%",
                         }}
                       >
-                        <IconButton onClick={handleToggle}>
-                          <Tooltip title="Show/hide Chat History">
-                            <Box
-                              component="img"
-                              sx={{
-                                width: "20px",
-                                height: "20px",
-                              }}
-                              src={"/img/sidebar.svg"}
-                            ></Box>
-                          </Tooltip>
-                        </IconButton>
-                      </Box>
-                      <Box>
+                        Learning Assistant
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <IconButton
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigate("/chat-admin");
+                        }}
+                        sx={{
+                          visibility: isAuth ? "visible" : "hidden",
+                        }}
+                      >
+                        <Tooltip
+                          title="Import Data"
+                          sx={{
+                            color: "#e3e0e0",
+                            backgroundColor: "#e3e0e0",
+                          }}
+                        >
+                          <Box
+                            component="img"
+                            sx={{
+                              width: "20px",
+                              height: "20px",
+                            }}
+                            src={"/img/import.svg"}
+                          ></Box>
+                        </Tooltip>
                         <Typography
                           sx={{
-                            width: "100%",
-                            fontSize: "20px",
-                            fontWeight: "bold",
+                            marginX: 1,
                             color: "#e3e0e0",
-                            padding: 0,
-                            margin: 0,
-                            height: "100%",
                           }}
                         >
-                          Learning Assistant
+                          Import Data
                         </Typography>
-                      </Box>
-                      <Box>
-                        <IconButton
-                          onClick={(e) => {
-                            e.preventDefault();
-                            navigate("../chat-admin");
-                          }}
-                          sx={{
-                            visibility:isAuth?"visible":"hidden",
-                          }}
-                        >
-                          <Tooltip title="Import Data" sx={{
-                            color:"#e3e0e0",
-                            backgroundColor:"#e3e0e0"
-                          }}>
-                            <Box
-                              component="img"
-                              sx={{
-                                width: "20px",
-                                height: "20px",
-                              }}
-                              src={"/img/import.svg"}
-                            ></Box>
-                          </Tooltip>
-                          <Typography
-                            sx={{
-                              marginX: 1,
-                              color: "#e3e0e0",
-                            }}
-                          >
-                            Import Data
-                          </Typography>
-                        </IconButton>
-                      </Box>
+                      </IconButton>
                     </Box>
-                    <Box
-                      sx={{
-                        height: "90%",
-                        width: "100%",
-                        overflowY: "scroll",
-                        paddingX: 14,
-                        display:"flex",
-                        flexDirection:"column",
-                        justifyContent:"space-between"
-                      }}
-                      id="chat-box"
-                    >
-                      {isRefresh&&
-                      <Box sx={{
-                        margin:"auto"
-                      }}>
-                      <InProgress></InProgress>
+                  </Box>
+                  <Box
+                    sx={{
+                      height: "90%",
+                      width: "100%",
+                      overflowY: "scroll",
+                      paddingX: 14,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                    }}
+                    id="chat-box"
+                  >
+                    {isRefresh && (
+                      <Box
+                        sx={{
+                          margin: "auto",
+                        }}
+                      >
+                        <InProgress></InProgress>
                       </Box>
-                      }
-                     {!isRefresh&& <Box>
+                    )}
+                    {!isRefresh && (
+                      <Box>
                         {chatData.map((data: IChatData, idx: number) => {
                           return data.sender === "bot" ||
                             data.sender === "assistant" ? (
@@ -692,34 +702,47 @@ const ChatBotPage: React.FC = () => {
                             )
                           );
                         })}
-                         {isLoading && (
+                        {isLoading && (
                           <BotText props={loadingMessage} isChat={isChat} />
                         )}
-                      </Box>}
-                      <Box sx={{
-                        display:"flex",
-                        flexWrap:"wrap",
-                        justifyContent:"center"
-                      }}>
-                        {suggestion.length !== 0 &&
-                          !isLoading &&
-                          suggestion.map((tag: string, idx: number) => {
-                            if (tag.length !== 0)
-                              return (
-                                <SuggestedTag
-                                  value={tag}
-                                  handleClick={handleChat}
-                                  sx="5"
-                                  key={idx}
-                                />
-                              );
-                          })}
                       </Box>
-                    </Box>
-
+                    )}
                     <Box
                       sx={{
-                        height: "9%",
+                        display: "flex",
+                        flexWrap: "wrap",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {suggestion.length !== 0 &&
+                        !isLoading &&
+                        suggestion.map((tag: string, idx: number) => {
+                          if (tag.length !== 0)
+                            return (
+                              <SuggestedTag
+                                value={tag}
+                                handleClick={handleChat}
+                                sx="5"
+                                key={idx}
+                              />
+                            );
+                        })}
+                    </Box>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      height: "9%",
+                      width: "100%",
+                      display: "flex",
+                      flexWrap: "nowrap",
+                      justifyContent: "space-around",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        height: "100%",
                         width: "100%",
                         display: "flex",
                         flexWrap: "nowrap",
@@ -727,79 +750,68 @@ const ChatBotPage: React.FC = () => {
                         alignItems: "center",
                       }}
                     >
-                      <Box
+                      <Button
+                        onClick={() => {
+                          chatHistory.splice(0, chatHistory.length);
+                          chatHistory.push({
+                            sender: "bot",
+                            message: "Xin chào, bạn cần hỗ trợ gì?",
+                          });
+                          setChatData([]);
+                          setTimeout(() => {
+                            setChatData(() => {
+                              return [
+                                {
+                                  sender: "bot",
+                                  message: "Xin chào, bạn cần hỗ trợ gì?",
+                                },
+                              ];
+                            });
+                          }, 500);
+                        }}
+                        disabled={isLoading}
+                      >
+                        <DeleteIcon />
+                      </Button>
+                      <OutlinedInput
                         sx={{
-                          height: "100%",
-                          width: "100%",
-                          display: "flex",
-                          flexWrap: "nowrap",
-                          justifyContent: "space-around",
-                          alignItems: "center",
+                          // borderBlockStart: "1px",
+                          // borderBlockEndColor: "#005f06",
+                          borderColor: "#005f06",
+                          outline: 0,
+                          width: 1000,
+                          px: 1,
+                          height: 30,
+                          textAlign: "center",
+                          borderRadius: "20px",
+
+                          // boxShadow: "3",
+                          background: "#fff",
+                          "::placeholder": "bold",
+                        }}
+                        onKeyDown={(e) => {
+                          if (message !== "" && e.key === "Enter") {
+                            handleChat();
+                          }
+                        }}
+                        placeholder="Type a new message here"
+                        value={message}
+                        onChange={(e) => {
+                          setMessage(e.target.value);
+                        }}
+                      ></OutlinedInput>
+                      <Button
+                        onClick={() => {
+                          // handleChat();
+                          handleChat();
                         }}
                       >
-                        <Button
-                          onClick={() => {
-                            chatHistory.splice(0, chatHistory.length);
-                            chatHistory.push({
-                              sender: "bot",
-                              message: "Xin chào, bạn cần hỗ trợ gì?",
-                            });
-                            setChatData([]);
-                            setTimeout(() => {
-                              setChatData(() => {
-                                return [
-                                  {
-                                    sender: "bot",
-                                    message: "Xin chào, bạn cần hỗ trợ gì?",
-                                  },
-                                ];
-                              });
-                            }, 500);
-                          }}
-                          disabled={isLoading}
-                        >
-                          <DeleteIcon />
-                        </Button>
-                        <OutlinedInput
-                          sx={{
-                            // borderBlockStart: "1px",
-                            // borderBlockEndColor: "#005f06",
-                            borderColor: "#005f06",
-                            outline: 0,
-                            width: 1000,
-                            px: 1,
-                            height: 30,
-                            textAlign: "center",
-                            borderRadius: "20px",
-
-                            // boxShadow: "3",
-                            background: "#fff",
-                            "::placeholder": "bold",
-                          }}
-                          onKeyDown={(e) => {
-                            if (message !== "" && e.key === "Enter") {
-                              handleChat();
-                            }
-                          }}
-                          placeholder="Type a new message here"
-                          value={message}
-                          onChange={(e) => {
-                            setMessage(e.target.value);
-                          }}
-                        ></OutlinedInput>
-                        <Button
-                          onClick={() => {
-                            // handleChat();
-                            handleChat();
-                          }}
-                        >
-                          <SendIcon />
-                        </Button>
-                      </Box>
+                        <SendIcon />
+                      </Button>
                     </Box>
                   </Box>
-                </>
-              
+                </Box>
+              </>
             </Box>
           </Box>
         </Box>

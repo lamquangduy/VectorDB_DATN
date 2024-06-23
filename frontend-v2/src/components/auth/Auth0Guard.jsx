@@ -18,7 +18,7 @@ const allowList = [
   "^/course",
   "^/user-guide",
   "^/programs",
-  "^/chat",
+  // "^/chat",
   "^/survey",
 ];
 
