@@ -227,6 +227,13 @@ def get_content_course(course_name: str, query="", filepath= file_path):
     else:
         return rag_pipeline_func(query)
 
+def check(string):
+    list = ['.',':','-']
+    for i in list:
+        if (string.find(i) != -1):
+            return i
+    return ''
+
 def get_suggestions(content: str):
     language_classifier = OpenAIGenerator(model="gpt-3.5-turbo")
     language = language_classifier.run(f"Detect this content's language just return vi or en. Content: {content}")  
@@ -236,15 +243,22 @@ def get_suggestions(content: str):
     if language['replies'][0] == 'vi':  # Vietnamese
         print("Hỏi bằng tiếng Việt")
         response = llm.run(
-        f"Bạn là một người dùng. Mục đích của bạn là tạo các câu hỏi liên quan đến một khóa học hoặc các khóa học tương tự được đề cập trong câu truy vấn (bằng tiếng Việt), để hỏi người khác. Nếu câu truy vấn đề cập đến mục tiêu nghề nghiệp của bạn, mục đích của bạn là tạo các câu hỏi liên quan đến các khóa học phù hợp với mong muốn của bạn. Bạn có thể sử dụng câu hỏi mở (nên liên quan đến khóa học lập trình trực tuyến) nếu nội dung không có ích. Cung cấp 4 câu hỏi, mỗi câu hỏi ít hơn 7 từ (càng ngắn càng tốt), chỉ văn bản. Không định dạng với dấu đạn hay số. Dựa trên nội dung này: {content}"
+        f"Bạn là một người dùng. Mục đích của bạn là tạo các câu hỏi liên quan đến một khóa học hoặc các khóa học tương tự được đề cập trong câu truy vấn (bằng tiếng Việt), để hỏi người khác. Nếu câu truy vấn đề cập đến mục tiêu nghề nghiệp của bạn, mục đích của bạn là tạo các câu hỏi liên quan đến các khóa học phù hợp với mong muốn của bạn. Bạn có thể sử dụng câu hỏi mở (nên liên quan đến khóa học lập trình trực tuyến) nếu nội dung không có ích. Cung cấp 4 câu hỏi, mỗi câu hỏi phải ít hơn 7 từ (càng ngắn càng tốt), chỉ văn bản. Không định dạng với dấu đạn hay số. Dựa trên nội dung này: {content}"
     )
     else:  # Assuming English if not Vietnamese
        print("Hỏi bằng tiếng Anh")
        response = llm.run(
-        f"You are an user. Your purpose is to create your questions relative with a course or similarity courses which are mentioned in query, to ask anothers, and if query mention your's goal career which is mentioned in query, your purpose is to create your questions relative with course that fits your desire. You can use open questions (these should relate to online programming course) if the content isn't helpful. Provide 4 questions, each question is less than 7 words (as short as possible), only text. Do not format with bullets or numbers. Base your questions on this content: {content}"
+        f"You are an user. Your purpose is to create your questions relative with a course or similarity courses which are mentioned in query, to ask anothers, and if query mention your's goal career which is mentioned in query, your purpose is to create your questions relative with course that fits your desire. You can use open questions (these should relate to online programming course) if the content isn't helpful. Provide 4 questions, each question must be less than 7 words (as short as possible), only text. Do not format with bullets or numbers. Base your questions on this content: {content}"
     )
     list_of_lines = response["replies"][0].splitlines()
-    return list_of_lines
+    clean_list = []
+    char = check(list_of_lines[-1])
+    if (char != ''):
+        for i in list_of_lines:
+            list = i.split(".")
+            clean_list.append(list[-1])
+        return clean_list[-4:]
+    return list_of_lines[-4:]
 
 
 def get_suggestions1(content:str):
@@ -285,7 +299,7 @@ def chatbot_with_fc(message, messages=[]):
     if (messages==[]):
         name_chat = get_summarize_chat(message)
     if(message == []):
-        messages.append(ChatMessage.from_system("Do not format bold text in answer."))
+        messages.append(ChatMessage.from_system("Nếu ngôn ngữ của user là tiếng việt thì luôn trả lời bằng tiếng Việt. Không sử dụng kí hiệu in đậm trong câu trả lời."))
     chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
     tools = [
         {
