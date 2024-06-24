@@ -255,7 +255,7 @@ def get_suggestions(content: str):
     char = check(list_of_lines[-1])
     if (char != ''):
         for i in list_of_lines:
-            list = i.split(".")
+            list = i.split(char)
             clean_list.append(list[-1])
         return clean_list[-4:]
     return list_of_lines[-4:]
