@@ -39,11 +39,14 @@ interface IChatData {
 interface ChatTag {
   props: IChatData;
   isChat: boolean;
+  isLoading: number;
+  setIsLoading: (value: number) => void;
 }
 interface SuggestedTagProps {
   value: string;
   handleClick: (value: string) => void;
   sx?: any;
+  delay: any;
 }
 const initialTag = [
   "Khoá học lập trình cơ bản",
@@ -61,23 +64,93 @@ const mockData: IChatData[] = [
   { sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" },
 ];
 const loadingMessage: IChatData = { sender: "bot", message: "Loading..." };
+// const SuggestedTag: React.FC<SuggestedTagProps> = ({
+//   value,
+//   handleClick,
+//   sx,
+// }) => {
+//   return (
+//     <Box sx={sx}>
+//       <Button
+//         sx={{
+//           height: 25,
+//           border: 0.5,
+//           //   outline: 0,
+//           margin: 0.5,
+//           display: "flex",
+//           justifyContent: "space-between",
+//           width: "auto",
+//           borderRadius: 20,
+//           "&:hover": {
+//             boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
+//           },
+//         }}
+//         onClick={() => {
+//           handleClick(value);
+//         }}
+//       >
+//         <Typography
+//           variant="body1"
+//           sx={{
+//             borderRadius: "10px",
+//             overflow: "hidden",
+//             p: 1,
+//             textTransform: "capitalize",
+//             fontSize: "0.8rem",
+//             // boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
+//             // "&:hover": {
+//             //   boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
+//             // },
+//           }}
+//         >
+//           {value}
+//         </Typography>
+//       </Button>
+//     </Box>
+//   );
+// };
+import { keyframes } from '@emotion/react';
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
 const SuggestedTag: React.FC<SuggestedTagProps> = ({
   value,
   handleClick,
   sx,
+  delay,  // Add a delay prop to control the staggered effect
 }) => {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setVisible(true);
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
   return (
     <Box sx={sx}>
       <Button
         sx={{
           height: 25,
           border: 0.5,
-          //   outline: 0,
           margin: 0.5,
           display: "flex",
           justifyContent: "space-between",
           width: "auto",
           borderRadius: 20,
+          opacity: visible ? 1 : 0,
+          animation: `${fadeIn} 0.5s ease-out forwards`,
+          animationDelay: `${delay}ms`,
           "&:hover": {
             boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
           },
@@ -94,10 +167,6 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
             p: 1,
             textTransform: "capitalize",
             fontSize: "0.8rem",
-            // boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
-            // "&:hover": {
-            //   boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
-            // },
           }}
         >
           {value}
@@ -106,7 +175,6 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
     </Box>
   );
 };
-
 interface HistoryPanel {
   user: string | undefined;
   isOpen: boolean;
@@ -204,7 +272,7 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
       <Box
         sx={{
           display: "flex",
-          height: "100%",
+          height: "86%",
           flexDirection: "column",
           alignItems: "center",
         }}
@@ -276,7 +344,7 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
                 );
               })}{" "}
         </Box>
-
+        </Box>
         <Box
           sx={{
             height: "8%",
@@ -299,12 +367,12 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
             New Chat
           </Button>{" "}
         </Box>
-      </Box>
+      
     </Box>
   );
 };
 
-const BotText: React.FC<ChatTag> = ({ props, isChat }) => {
+const BotText: React.FC<ChatTag> = ({ props, isChat, isLoading, setIsLoading }) => {
   return (
     <Box
       sx={{
@@ -334,7 +402,7 @@ const BotText: React.FC<ChatTag> = ({ props, isChat }) => {
         }}
       >
         {isChat ? (
-          <Typewriter text={props.message} delay={9} />
+          <Typewriter text={props.message} delay={9} isLoading={isLoading} setIsLoading={setIsLoading} />
         ) : (
           <Linkify
             componentDecorator={(decoratedHref, decoratedText, key) => (
@@ -392,7 +460,8 @@ const ChatBotPage: React.FC = () => {
   const [chatHistory, setChatHistory] = React.useState<IChatData[]>(mockData);
   const [chatData, setChatData] = React.useState<IChatData[]>(chatHistory);
   const [message, setMessage] = React.useState<string>("");
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  // const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [isLoading, setIsLoading] = React.useState(0);
   const [suggestion, setSuggestion] = React.useState<string[]>(initialTag);
   const [trackServer, setTrackServer] = React.useState([]);
   const [isChat, setIsChat] = React.useState(false);
@@ -472,14 +541,14 @@ const ChatBotPage: React.FC = () => {
     if (value === undefined && message.length === 0) {
       return;
     }
-    if (isLoading === true) {
+    if (isLoading === 1) {
       return;
     }
     setIsChat(true);
     // setMessage(value);
     chatHistory.push({ sender: "user", message: value ?? message });
     setChatData([...chatHistory]);
-    setIsLoading(true);
+    setIsLoading(1);
     scrollToBottom();
     if (!Boolean(value)) setMessage("");
 
@@ -498,7 +567,7 @@ const ChatBotPage: React.FC = () => {
           setAction("newID");
         }
         setChatID(res.chatID);
-        setIsLoading(false);
+        setIsLoading(2);
         scrollToBottom();
       })
       .catch((err) => {
@@ -507,7 +576,7 @@ const ChatBotPage: React.FC = () => {
           message: err.message ?? "There is somethings wrong!!",
         });
         setChatData([...chatHistory]);
-        setIsLoading(false);
+        setIsLoading(0);
         scrollToBottom();
       });
   };
@@ -668,7 +737,7 @@ const ChatBotPage: React.FC = () => {
                   </Box>
                   <Box
                     sx={{
-                      height: "90%",
+                      height: "85%",
                       width: "100%",
                       overflowY: "scroll",
                       paddingX: 14,
@@ -695,6 +764,9 @@ const ChatBotPage: React.FC = () => {
                             <BotText
                               props={data}
                               isChat={isChat && idx === chatData.length - 1}
+                              isLoading={isLoading}
+                              setIsLoading = {setIsLoading}
+                            
                             />
                           ) : (
                             data.sender === "user" && (
@@ -702,8 +774,8 @@ const ChatBotPage: React.FC = () => {
                             )
                           );
                         })}
-                        {isLoading && (
-                          <BotText props={loadingMessage} isChat={isChat} />
+                        {isLoading ===1 && (
+                          <BotText props={loadingMessage} isChat={isChat} isLoading={isLoading} setIsLoading= {setIsLoading}/>
                         )}
                       </Box>
                     )}
@@ -715,7 +787,7 @@ const ChatBotPage: React.FC = () => {
                       }}
                     >
                       {suggestion.length !== 0 &&
-                        !isLoading &&
+                        isLoading === 0 &&
                         suggestion.map((tag: string, idx: number) => {
                           if (tag.length !== 0)
                             return (
@@ -724,6 +796,7 @@ const ChatBotPage: React.FC = () => {
                                 handleClick={handleChat}
                                 sx="5"
                                 key={idx}
+                                delay={idx * 100}
                               />
                             );
                         })}
@@ -769,7 +842,7 @@ const ChatBotPage: React.FC = () => {
                             });
                           }, 500);
                         }}
-                        disabled={isLoading}
+                        disabled={isLoading === 0? false : true}
                       >
                         <DeleteIcon />
                       </Button>
@@ -823,20 +896,25 @@ const ChatBotPage: React.FC = () => {
 interface TypewriterProps {
   text: string;
   delay: number;
+  isLoading: number;
+  setIsLoading: (value: any) => void;
 }
 
-const Typewriter: React.FC<TypewriterProps> = ({ text, delay }) => {
+const Typewriter: React.FC<TypewriterProps> = ({ text, delay, isLoading, setIsLoading }) => {
   const [currentText, setCurrentText] = React.useState("");
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
   React.useEffect(() => {
     if (currentIndex < text.length) {
+      if(currentIndex==text.length -1 && isLoading==2 ) setIsLoading(0);
+      else
+      {
       const timeoutId = setTimeout(() => {
         setCurrentText((prev) => prev + text[currentIndex]);
         setCurrentIndex((prev) => prev + 1);
       }, delay);
-
-      return () => clearTimeout(timeoutId);
+      scrollToBottom();
+      return () => clearTimeout(timeoutId);}
     }
   }, [currentIndex, text, delay]);
 

@@ -228,15 +228,21 @@ def get_content_course(course_name: str, query="", filepath= file_path):
         return rag_pipeline_func(query)
 
 def check(string):
-    list = ['.',':','-']
+    list = ['. ',': ','- ']
     for i in list:
         if (string.find(i) != -1):
             return i
     return ''
 
+def check_and_strip_quotes(string):
+    # Remove leading and trailing double quotes if they exist
+    if string.startswith('"') and string.endswith('"'):
+        return 1
+    return 0
+
 def get_suggestions(content: str):
     language_classifier = OpenAIGenerator(model="gpt-3.5-turbo")
-    language = language_classifier.run(f"Detect this content's language just return vi or en. Content: {content}")  
+    language = language_classifier.run(f"Phát hiện ngôn ngữ cho đoạn nội dung sau và trả kết quả hoặc là 'vi' hoặc là 'en'. Đoạn nội dung đó là: {content}")  
     llm = OpenAIGenerator(model="gpt-3.5-turbo"
                           )
     # Function to detect the language of content
@@ -255,20 +261,18 @@ def get_suggestions(content: str):
     char = check(list_of_lines[-1])
     if (char != ''):
         for i in list_of_lines:
-            list = i.split(char)
-            clean_list.append(list[-1])
+            list = i.split(char)[-1]
+            while (check_and_strip_quotes(list)==1):
+                list = list[1:-1]
+            clean_list.append(list)
         return clean_list[-4:]
-    return list_of_lines[-4:]
+    for i in list_of_lines:
+        while (check_and_strip_quotes(i)==1):
+            i = i[1:-1]
+        clean_list.append(i)
+    return clean_list[-4:]
 
 
-def get_suggestions1(content:str):
-    llm = OpenAIGenerator(model="gpt-3.5-turbo",
-                          system_prompt="Answer with the same languague with content")
-    response = llm.run(
-        "You are an user. Your purpose is to create your questions relative with a course or similarity courses which are mentioned in query, to ask anothers, and if query mention your's goal career which is mentioned in query, your purpose is to create your questions relative with course that fits your desire. You can use open questions (these should relate to online programming course) if the content isn't helpful. Provide 4 questions, each question is less than 7 words, only text. Do not format with bullets or numbers. Base your questions on this content (ask the same language with content VietNamese or English): {content}"
-    )
-    list_of_lines = response["replies"][0].splitlines()
-    return list_of_lines
 
 def get_summarize_chat(query: str):
     llm = OpenAIGenerator(model="gpt-3.5-turbo")
