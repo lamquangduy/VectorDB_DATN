@@ -502,7 +502,7 @@ const ChatBotPage: React.FC = () => {
   const handleHistory = (value: any) => {
     setTimeout(() => {
       setIsRefresh((p) => !p);
-    }, 2000);
+    }, 1000);
     setIsChat(false);
     const messageTags = value.history.map(
       (history: { role: any; content: any }) => {
@@ -525,7 +525,7 @@ const ChatBotPage: React.FC = () => {
   const handleDelete = (value: any) => {
     setTimeout(() => {
       setIsRefresh((p) => !p);
-    }, 3000);
+    }, 1000);
     deleteChat(user?.email, value.chat_id);
     if (chatID === value.chat_id) {
       setChatHistory([
@@ -592,7 +592,7 @@ const ChatBotPage: React.FC = () => {
     setIsLoading(0);
     setTimeout(() => {
       setIsRefresh((p) => !p);
-    }, 2000);
+    }, 1000);
     setIsLoading(0)
     setChatHistory([
       { sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" },
