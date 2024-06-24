@@ -454,6 +454,7 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
   );
 };
 
+
 const ChatBotPage: React.FC = () => {
   const [chatID, setChatID] = useState<string>("");
   const { user } = useAuth0();
@@ -470,7 +471,14 @@ const ChatBotPage: React.FC = () => {
   const [isRefresh, setIsRefresh] = React.useState<boolean>(false);
   const [isAuth, setIsAuth] = React.useState<boolean>(false);
   const navigate = useNavigate();
-
+  const abortController = new AbortController();
+  const signal = abortController.signal;
+  useEffect(() => {
+    return () => {
+      // Cleanup function to abort ongoing request
+      abortController.abort();
+    };
+  }, []);
   useEffect(() => {
     getChatRole(user?.email)
       .then((res) => {
@@ -552,9 +560,8 @@ const ChatBotPage: React.FC = () => {
     scrollToBottom();
     if (!Boolean(value)) setMessage("");
 
-    getChatResponse(user?.email, value ?? message, trackServer, chatID)
+    getChatResponse(user?.email, value ?? message, trackServer, chatID,signal)
       .then((res) => {
-        console.log(res);
         chatHistory.push({
           sender: "bot",
           message: res.response.answer.replaceAll("*", ""),
@@ -581,9 +588,12 @@ const ChatBotPage: React.FC = () => {
       });
   };
   const handleNewChat = () => {
+    abortController.abort()
+    setIsLoading(0);
     setTimeout(() => {
       setIsRefresh((p) => !p);
     }, 2000);
+    setIsLoading(0)
     setChatHistory([
       { sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" },
     ]);
