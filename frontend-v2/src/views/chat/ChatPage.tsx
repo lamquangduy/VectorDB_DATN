@@ -566,6 +566,7 @@ const ChatBotPage: React.FC = () => {
 
     getChatResponse(user?.email, value ?? message, trackServer, chatID,newAbortController.signal)
       .then((res) => {
+        console.log(res.response.answer)
         chatHistory.push({
           sender: "bot",
           message: res.response.answer.replaceAll("*", ""),
@@ -933,10 +934,11 @@ const Typewriter: React.FC<TypewriterProps> = ({ text, delay, isLoading, setIsLo
     }
   }, [currentIndex, text, delay]);
 
+
   return (
-    <Linkify
+    <Linkify 
       componentDecorator={(decoratedHref, decoratedText, key) => (
-        <a key={key} href={decoratedHref} style={{ color: "#92b9e3" }}>
+        <a key={key} href={decoratedHref} style={{ color: "#92b9e3" ,fontFamily:"Montserrat",fontSize:16}}>
           {decoratedText}
         </a>
       )}

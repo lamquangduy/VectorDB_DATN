@@ -1,7 +1,10 @@
 // import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Import from "./components/Import";
 // import Footer from "./components/Footer";
 import { Box, createTheme, ThemeProvider} from "@mui/material";
+import Loading from "@components/common/loading";
+import AdminSideBar from "./components/AdminSideBar";
 // import { useEffect } from "react";
 // import { useAuth0 } from "@auth0/auth0-react";
 
@@ -26,10 +29,11 @@ const ChatAdminPage = () => {
       <Box>
         {/* <Typography>Insert to Vector Database</Typography> */}
       </Box>
-      <Import></Import>
+      {/* <Import></Import> */}
+      <AdminSideBar/>
       {/* <Footer></Footer> */}
     </ThemeProvider>
-  );
+  )
 };
 
 export default ChatAdminPage;

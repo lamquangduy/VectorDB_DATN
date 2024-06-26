@@ -6,7 +6,7 @@ import CustomChip from "./CustomChip";
 import NavBar from "./NavBar";
 import { SuccessStatus, ErrorStatus } from "./AlertStatus";
 import { Language } from "@mui/icons-material";
-import { Divider, Input, InputAdornment, InputLabel } from "@mui/material";
+import { Divider, FormControl, Input, InputAdornment, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import InProgress from "./InProgress";
 
 const validUrl = (str: string) => {
@@ -36,12 +36,19 @@ const getFileIcon = (fileName: string) => {
   return fileIcon;
 };
 
+
 const Import: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState<string>("");
   const [isOver, setIsOver] = useState<boolean>(false);
   const [isFile, setIsFile] = useState<boolean>(true);
   const [isValidInput, setIsValidInput] = useState<string>("");
+  const [age, setAge] = React.useState('');
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setAge(event.target.value);
+  };
+  
   useEffect(() => {
     if (file) {
       const fileType = getFileType(file.name);
@@ -187,14 +194,35 @@ const Import: React.FC = () => {
                   width: "100%",
                 }}
               >
-                <Box>
+                <Box sx={{
+                  display:"flex",
+                  justifyContent:"space-between"
+                }}>
                   <NavBar isFile={isFile} setIsFile={setIsFile}></NavBar>
-                  <Divider
+                  <div>
+      <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+        <InputLabel id="demo-simple-select-standard-label">Document</InputLabel>
+        <Select
+          labelId="demo-simple-select-standard-label"
+          id="demo-simple-select-standard"
+          value={age}
+          onChange={handleChange}
+          label="Age"
+        >
+          <MenuItem value="">
+            <em>None</em>
+          </MenuItem>
+          <MenuItem value={10}>Ten</MenuItem>
+          <MenuItem value={20}>Twenty</MenuItem>
+          <MenuItem value={30}>Thirty</MenuItem>
+        </Select>
+      </FormControl></div>
+                </Box>
+                <Divider
                     sx={{
                       borderBottomWidth: 3,
                     }}
                   ></Divider>
-                </Box>
       {isValidInput === "inProgress" && (
         <Box
           sx={{
