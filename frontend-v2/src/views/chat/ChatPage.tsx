@@ -110,6 +110,7 @@ const loadingMessage: IChatData = { sender: "bot", message: "Loading..." };
 //   );
 // };
 import { keyframes } from '@emotion/react';
+import { log } from "console";
 
 const fadeIn = keyframes`
   from {
@@ -471,8 +472,7 @@ const ChatBotPage: React.FC = () => {
   const [isRefresh, setIsRefresh] = React.useState<boolean>(false);
   const [isAuth, setIsAuth] = React.useState<boolean>(false);
   const navigate = useNavigate();
-  const abortController = new AbortController();
-  const signal = abortController.signal;
+  const [abortController, setAbortController] = useState(new AbortController());
   useEffect(() => {
     return () => {
       // Cleanup function to abort ongoing request
@@ -502,7 +502,7 @@ const ChatBotPage: React.FC = () => {
   const handleHistory = (value: any) => {
     setTimeout(() => {
       setIsRefresh((p) => !p);
-    }, 1000);
+    }, 200);
     setIsChat(false);
     const messageTags = value.history.map(
       (history: { role: any; content: any }) => {
@@ -519,13 +519,15 @@ const ChatBotPage: React.FC = () => {
     setIsRefresh((p) => !p);
     setTrackServer(value.history);
   };
-  useEffect(() => {
+  useEffect(() => {    
+    abortController.abort()
     setAction("swap");
+    console.log(isLoading)
   }, [chatID]);
   const handleDelete = (value: any) => {
     setTimeout(() => {
       setIsRefresh((p) => !p);
-    }, 1000);
+    }, 200);
     deleteChat(user?.email, value.chat_id);
     if (chatID === value.chat_id) {
       setChatHistory([
@@ -559,8 +561,10 @@ const ChatBotPage: React.FC = () => {
     setIsLoading(1);
     scrollToBottom();
     if (!Boolean(value)) setMessage("");
+    const newAbortController = new AbortController();
+    setAbortController(newAbortController);
 
-    getChatResponse(user?.email, value ?? message, trackServer, chatID,signal)
+    getChatResponse(user?.email, value ?? message, trackServer, chatID,newAbortController.signal)
       .then((res) => {
         chatHistory.push({
           sender: "bot",
@@ -578,6 +582,7 @@ const ChatBotPage: React.FC = () => {
         scrollToBottom();
       })
       .catch((err) => {
+       if(err.message==="canceled") return;
         chatHistory.push({
           sender: "bot",
           message: err.message ?? "There is somethings wrong!!",
@@ -589,11 +594,10 @@ const ChatBotPage: React.FC = () => {
   };
   const handleNewChat = () => {
     abortController.abort()
-    setIsLoading(0);
     setTimeout(() => {
       setIsRefresh((p) => !p);
-    }, 1000);
-    setIsLoading(0)
+    }, 200);
+    setIsLoading(0);
     setChatHistory([
       { sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" },
     ]);
@@ -789,6 +793,7 @@ const ChatBotPage: React.FC = () => {
                         )}
                       </Box>
                     )}
+                    {!isRefresh &&
                     <Box
                       sx={{
                         display: "flex",
@@ -810,7 +815,7 @@ const ChatBotPage: React.FC = () => {
                               />
                             );
                         })}
-                    </Box>
+                    </Box>}
                   </Box>
 
                   <Box
@@ -916,7 +921,7 @@ const Typewriter: React.FC<TypewriterProps> = ({ text, delay, isLoading, setIsLo
 
   React.useEffect(() => {
     if (currentIndex < text.length) {
-      if(currentIndex==text.length -1 && isLoading==2 ) setIsLoading(0);
+      if(currentIndex===text.length -1 && isLoading===2 ) setIsLoading(0);
       else
       {
       const timeoutId = setTimeout(() => {
