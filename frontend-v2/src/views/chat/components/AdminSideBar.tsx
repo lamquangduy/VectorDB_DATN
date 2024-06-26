@@ -21,7 +21,7 @@ import Collection from './Collection';
 import { Divider } from '@mui/material';
 const drawerWidth = 200;
 export default function AdminSideBar() {
-  const [sideBar,setSideBar]=useState("Collection")
+  const [sideBar,setSideBar]=useState("Collections")
   return (
     <Box sx={{ display: 'flex',  }}>
       <CssBaseline />

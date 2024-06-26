@@ -2,186 +2,75 @@ import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import CustomChip from "./CustomChip";
-import NavBar from "./NavBar";
-import { SuccessStatus, ErrorStatus } from "./AlertStatus";
-import { Language } from "@mui/icons-material";
 import SearchIcon from '@mui/icons-material/Search';
 import {
   Divider,
   FormControl,
-  Input,
-  InputAdornment,
   InputLabel,
   MenuItem,
   OutlinedInput,
   Select,
   SelectChangeEvent,
 } from "@mui/material";
+import { changeCurrentDocument, deleteDocument, getCurrentDocument, getDocuments } from "../../../services/chat/chat";
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import InProgress from "./InProgress";
 
-const validUrl = (str: string) => {
-  const pattern = new RegExp(
-    "^(https?:\\/\\/)?" + // protocol
-      "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name
-      "((\\d{1,3}\\.){3}\\d{1,3}))" + // OR ip (v4) address
-      "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // port and path
-      "(\\?[;&a-z\\d%_.~+=-]*)?" + // query string
-      "(\\#[-a-z\\d_]*)?$",
-    "i"
-  ); // fragment locator
-  return !!pattern.test(str);
-};
-const supportedFile = ["pdf", "xls", "xlsx", "doc", "docx", "txt", "csv"];
-const getFileType = (fileName: string) => {
-  const lastDot = fileName.lastIndexOf(".");
-  if (lastDot === -1) {
-    return "undefined";
-  }
-  const fileType = fileName.slice(lastDot + 1).toLowerCase();
-  return fileType;
-};
-const getFileIcon = (fileName: string) => {
-  const fileType = getFileType(fileName);
-  const fileIcon = `/img/${fileType}.svg`;
-  return fileIcon;
-};
 
 const Collection: React.FC = () => {
-  const [file, setFile] = useState<File | null>(null);
-  const [url, setUrl] = useState<string>("");
-  const [isOver, setIsOver] = useState<boolean>(false);
-  const [isFile, setIsFile] = useState<boolean>(true);
-  const [isValidInput, setIsValidInput] = useState<string>("");
-  const [age, setAge] = React.useState("");
+const [listDocument,setListCollection]=useState([]);
+const [status,setStatus]=useState("");
+const [isRefresh,setIsRefresh]=useState(false);
+const [currentDocument,setCurrentDocument]=useState("")
+const [search,setSearch]=useState("")
+  useEffect(()=>{
+    setTimeout(() => {
+      setIsRefresh(true);
+    }, 200);
+    getDocuments().then((res)=>{
+      console.log(res)
+      setListCollection(res)
+    })
+    setIsRefresh(false);
+  },[status])
+  useEffect(()=>{
+    // setTimeout(() => {
+    //   setIsRefresh(true);
+    // }, 200);
+    getCurrentDocument().then((res)=>{
+      console.log(res)
+      setCurrentDocument(res);
+    })
+    // setIsRefresh(false);
+  },[status])
+  const handleDelete =(value:string)=>{
+    if(currentDocument===value){
+      console.log("Can't delete")
+      return;
+    }
+    deleteDocument(value).then((res)=>{
+      setStatus(`Delete ${value}`);
+      console.log(status)
+    }).catch((err)=>{
+      console.log(err.message);
+    })
+    
+  }
+
+  const handleChangeDocument=(value:string)=>{
+    changeCurrentDocument(value).then((res)=>{
+      console.log(res);
+      setStatus(`Change Document: ${value}`);
+    }).catch((err)=>{
+      console.log(err.message);
+    });
+  }
+  
+  const [age, setAge] = React.useState('');
 
   const handleChange = (event: SelectChangeEvent) => {
     setAge(event.target.value);
   };
-
-  useEffect(() => {
-    if (file) {
-      const fileType = getFileType(file.name);
-      if (!supportedFile.includes(fileType)) {
-        setFile(null);
-        setIsValidInput("invalidFile");
-        setTimeout(() => {
-          setIsValidInput("");
-        }, 3000);
-      }
-    }
-  }, [file]);
-  useEffect(() => {
-    setFile(null);
-    setIsValidInput("");
-  }, [isFile]);
-  const handleInputFile = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      setFile(event.target.files[0]);
-      console.log(event.target.files[0]);
-      console.log(getFileIcon(event.target.files[0].name));
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setFile(e.dataTransfer.files[0]);
-    console.log(e.dataTransfer.files[0]);
-    setIsOver(false);
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsOver(true);
-  };
-
-  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsOver(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsOver(false);
-  };
-  const handleInputUrl = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUrl(event.target.value);
-  };
-  const handleSubmitUrl = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!validUrl(url)) {
-      setIsValidInput("invalidUrl");
-      setTimeout(() => {
-        setIsValidInput("");
-      }, 3000);
-      return;
-    }
-    try {
-      const endpoint = import.meta.env.VITE_APP_CHAT_SERVER_URL + "/upload-url";
-      setIsValidInput(() => "inProgress");
-      const res = await fetch(endpoint, {
-        method: "POST",
-        body: JSON.stringify({ url: url }),
-      });
-      if (res.ok) {
-        console.log("Successful!");
-        setIsValidInput("validUrl");
-        setFile(null);
-        setTimeout(() => {
-          setIsValidInput("");
-        }, 3000);
-      } else {
-        console.error("Fail!");
-      }
-    } catch (error) {
-      console.error(error);
-      console.error("Fail!");
-      setIsValidInput("notResponding");
-      setFile(null);
-      setTimeout(() => {
-        setIsValidInput("");
-      }, 3000);
-    }
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!file) {
-      console.error("No file selected");
-      return;
-    }
-    const formData = new FormData();
-    formData.append("file_upload", file);
-    setIsValidInput("inProgress");
-    try {
-      const endpoint =
-        import.meta.env.VITE_APP_CHAT_SERVER_URL + "/upload-file";
-      const res = await fetch(endpoint, {
-        method: "POST",
-        body: formData,
-      });
-      if (res.ok) {
-        console.log("Successful!");
-        setIsValidInput("validFile");
-        setFile(null);
-        setTimeout(() => {
-          setIsValidInput("");
-        }, 3000);
-      } else {
-        console.error("Fail!");
-        setIsValidInput("");
-      }
-    } catch (error) {
-      console.error(error);
-      console.error("Fail!");
-      setIsValidInput("notResponding");
-      setFile(null);
-      setTimeout(() => {
-        setIsValidInput("");
-      }, 3000);
-    }
-  };
-
   return (
     <>
       <Box
@@ -239,9 +128,10 @@ const Collection: React.FC = () => {
             sx={{
                 margin:2,
                 display:"flex",
-                justifyContent:"flex-start",
+                justifyContent:"space-between",
                 alignItems:"center"
             }}>
+              <Box>
             <OutlinedInput
                         sx={{
                           // borderBlockStart: "1px",
@@ -257,6 +147,13 @@ const Collection: React.FC = () => {
                           background: "#fff",
                           "::placeholder": "bold",
                         }}
+                        onChange={(e)=>{
+                          setSearch(e.target.value)
+                          setTimeout(()=>{
+                            setIsRefresh(true)
+                          },400)
+                          setIsRefresh(false)
+                          }}
                       >
                        
                       </OutlinedInput>
@@ -267,13 +164,39 @@ const Collection: React.FC = () => {
                       }}>
                       <SearchIcon/>
                       </Button>
+                      </Box>
+                      <Box>
+                      <Typography sx={{
+                        fontSize:15,
+                        fontWeight:"bold"
+
+                      }}>
+                       {`Current Document: ${currentDocument}`}
+                      </Typography>
+                      </Box>
             </Box>
-            <Box
+            {!isRefresh&&
+            <Box 
+            sx={{
+              width:"100%",
+              height:"100%",
+              display:"flex",
+              justifyContent:"center",
+              alignItems:"center"
+            }}>
+            <InProgress></InProgress>
+            </Box>}
+            {isRefresh&&<Box
             sx={{
                 display:"flex",
-
+                flexWrap:"wrap"
             }}>
-              <Box
+              {listDocument.map((item:string,idx)=>{
+                if(search.length && !item.includes(search)){
+                  return ;
+                }
+                return (
+                  <Box
               sx={{
                 backgroundColor:"green",
                 width:300,
@@ -285,41 +208,47 @@ const Collection: React.FC = () => {
                     display:"flex",
                     justifyContent:"center"
                 }}>
-                  <Typography>db_test</Typography>
+                  <Typography>{item}</Typography>
                 </Box>
                 <Divider></Divider>
                 <Box
                 sx={{
                  display:"flex",
-                 justifyContent:"flex-end"
+                 justifyContent:"space-between",
+                 paddingX:1
                 }}>
-                  <Button>DELETE</Button>
+                    <Button 
+                  sx={{
+                    color:"black"
+                }}
+                  onClick={()=>handleChangeDocument(item)}>USE THIS</Button>
+                  <Button sx={{
+                      color:"black"
+                  }}
+                  onClick={()=>handleDelete(item)}>DELETE</Button>
+
                 </Box>
               </Box>
-              <Box
+                )
+              })}
+               <Box
               sx={{
                 backgroundColor:"green",
                 width:300,
                 height:60,
-                margin:1
-              }}>
-                <Box
-                sx={{
-                    display:"flex",
-                    justifyContent:"center"
-                }}>
-                  <Typography>db_test</Typography>
-                </Box>
-                <Divider></Divider>
-                <Box
-                sx={{
-                 display:"flex",
-                 justifyContent:"flex-end"
-                }}>
-                  <Button>DELETE</Button>
-                </Box>
+                margin:1,
+                display:"flex",
+                justifyContent:"center",
+                alignItems:"center",
+                flexDirection:"column"
+              }}
+              >
+                <Button>
+                <AddCircleOutlineIcon></AddCircleOutlineIcon>
+                </Button>
+                <Typography>New Document</Typography>
               </Box>
-            </Box>
+            </Box>}
           </Box>
         </Box>
       </Box>

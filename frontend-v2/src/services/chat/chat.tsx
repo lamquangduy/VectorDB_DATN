@@ -43,5 +43,43 @@ export const getChatHistory = async (user: any) => {
   return response.data;
 };
 
+
+export const getDocuments = async () => {
+  const response = await axiosInstance({
+    method: "get",
+    url: "/list_collection/",
+  });
+
+  return response.data;
+};
+
+
+export const getCurrentDocument = async () => {
+  const response = await axiosInstance({
+    method: "get",
+    url: "/current_collection/",
+  });
+
+  return response.data;
+};
+
+
+
+export const deleteDocument = async (documentName:string) => {
+  const response = await axiosInstance({
+    method: "delete",
+    url:  `/delete_collection/?index_name=${documentName}`,
+  });
+  return response.status;
+};
+
+export const changeCurrentDocument = async (value:string) => {
+  const response = await axiosInstance({
+    method: "post",
+    url: `/change_current_collection/?index_name=${value}`,
+  });
+  return response.data;
+};
+
 export default getChatResponse;
 
