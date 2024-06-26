@@ -32,7 +32,7 @@ from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 import time
 from haystack_integrations.components.rankers.cohere import CohereRanker
 from haystack_integrations.components.embedders.cohere import CohereDocumentEmbedder, CohereTextEmbedder
-
+from qdrant_client import QdrantClient
 
 
 file_path = "src/service/core/courses.csv"
@@ -46,6 +46,15 @@ api_key = "U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA"
 index_name = "ThongTinKhoaHoc_Cohere"
 model_name = "embed-multilingual-v3.0"
 embedding_dim = 	1024
+
+
+def load_collection():
+    qdrant_client = QdrantClient(
+    url=url_cloud, 
+    api_key=api_key,
+    )
+
+    return qdrant_client
 
 # Create a new column which have content is name + description + skill
 def add_content_current_course(filepath: str = file_path):
@@ -160,7 +169,7 @@ def embedding_csv(index_name: str = index_name, filepath: str = ".\courses.csv")
             )
         )
     # init embedder
-    doc_embedder = CohereDocumentEmbedder(api_key=Secret.from_token('KZAyhNSv3c8Z0WHgoTqnIC3GxSvLW05lmxfNIQUu'),model=model_name)
+    doc_embedder = CohereDocumentEmbedder(api_key=Secret.from_token('BmhXTTduVpHLmIPZbA2r7rrUwFwpgl6fX3HWFB5t'),model=model_name)
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docs)
     doc_store.write_documents(
@@ -190,9 +199,9 @@ def rag_pipe(index_name: str = index_name):
     # rag_pipe.add_component(
     #     "embedder", SentenceTransformersTextEmbedder(model=model_name)
     # )
-    ranker = CohereRanker(api_key=Secret.from_token('KZAyhNSv3c8Z0WHgoTqnIC3GxSvLW05lmxfNIQUu'))
+    ranker = CohereRanker(api_key=Secret.from_token('BmhXTTduVpHLmIPZbA2r7rrUwFwpgl6fX3HWFB5t'))
     rag_pipe.add_component(
-        "embedder", CohereTextEmbedder(api_key=Secret.from_token('KZAyhNSv3c8Z0WHgoTqnIC3GxSvLW05lmxfNIQUu'),model=model_name)
+        "embedder", CohereTextEmbedder(api_key=Secret.from_token('BmhXTTduVpHLmIPZbA2r7rrUwFwpgl6fX3HWFB5t'),model=model_name)
     )
     rag_pipe.add_component(
         "retriever", QdrantEmbeddingRetriever(document_store=docstore, top_k=20)
@@ -303,7 +312,7 @@ def chatbot_with_fc(message, messages=[]):
     if (messages==[]):
         name_chat = get_summarize_chat(message)
     if(message == []):
-        messages.append(ChatMessage.from_system("Nếu ngôn ngữ của user là tiếng việt thì luôn trả lời bằng tiếng Việt. Không sử dụng kí hiệu in đậm trong câu trả lời."))
+        messages.append(ChatMessage.from_system("Nếu ngôn ngữ của user là tiếng việt thì luôn trả lời bằng tiếng Việt. Không sử dụng kí hiệu in đậm trong câu trả lời. Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user."))
     chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
     tools = [
         {
