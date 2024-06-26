@@ -6,7 +6,7 @@
 
 import os
 import json
-
+from src.database.mongodb.repository import mongo_client
 # import gradio as gr
 import pandas as pd
 from haystack.document_stores.types import DuplicatePolicy
@@ -180,10 +180,14 @@ def embedding_csv(index_name: str = index_name, filepath: str = ".\courses.csv")
     else:
         return "Fail"
 
+def get_current_collection():
+    db = mongo_client["chatbot"]
+    cur_collection = db["current_collection"].find()[0]['current_collection']
+    return cur_collection
 
 # RAG pipeline Q-A system
-def rag_pipe(index_name: str = index_name):
-
+def rag_pipe(index_name: str = get_current_collection()):
+    print(get_current_collection())
     template = """
     Answer the questions based on the given context. You are LearnWay Assistant bot, your purpose is to provide course information related to user's question. The course information should have name, how to access, skill. Answer with VietNamese language
 
@@ -194,7 +198,7 @@ def rag_pipe(index_name: str = index_name):
     Question: {{ question }}
     Answer:
     """
-    docstore = load_store()
+    docstore = load_store(index_name)
     rag_pipe = Pipeline()
     # rag_pipe.add_component(
     #     "embedder", SentenceTransformersTextEmbedder(model=model_name)

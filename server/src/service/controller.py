@@ -35,16 +35,16 @@ async def current_collection():
     cur_collection = repository.get_current_collection()
     return cur_collection
 
-@router.post("/change_current_collection/{index_name}")
+@router.post("/change_current_collection/")
 async def current_collection(index_name:str):
     cur_collection = repository.change_current_collection(index_name)
     return cur_collection
 
-@router.post("/create_new_collection/{index_name}")
+@router.post("/create_new_collection/")
 async def create_new_collection(index_name: str):
     return repository.create_new_collection(index_name)
 
-@router.delete("/delete_collection/{index_name}")
+@router.delete("/delete_collection/")
 async def list_collection(index_name: str):
     return repository.delete_collection(index_name)
 
@@ -89,19 +89,20 @@ async def chat(data: ChatInput):
 
 
 @router.post("/upload-file")
-async def create_upload_file(file_upload: UploadFile):
+async def create_upload_file(file_upload: UploadFile, index_name: str):
     data = await file_upload.read()
     save_to = UPLOAD_DIR / file_upload.filename
     with open(os.path.join(save_to), "wb") as f:
         f.write(data)
-    repository.embedding(repository.get_format(save_to)["split_name"][1], save_to)
+    repository.embedding(repository.get_format(save_to)["split_name"][1], save_to, index_name)
     print(repository.get_format(save_to)["split_name"][1])
     return {"filenames": file_upload.filename}
 
 
 @router.post("/upload-url")
-async def upload_url(request: Request):
+async def upload_url(request: Request,index_name: str):
     data = await request.json()
     url = data.get("url")
-    repository.embedding_URL(url)
+    repository.embedding_URL(url,index_name)
     return {"url": url}
+

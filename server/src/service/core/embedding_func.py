@@ -45,7 +45,7 @@ def get_name_format_file(filepath: str = file_path):
     file = os.path.splitext(file_name)
     return {'file_name':file_name, 'split_name': file}
 
-def embedding_content_fromURL(url: str):
+def embedding_content_fromURL( url: str, index_name:str = index_name):
     # request to url to get data which have html format
     http = urllib3.PoolManager()
     resp = http.request("Get", url)
@@ -69,7 +69,7 @@ def embedding_content_fromURL(url: str):
     docu = res['splitter']['documents']
 
     #load qdrant cloud
-    document_store = load_store()
+    document_store = load_store(index_name=index_name)
     # init embedder
     doc_embedder = CohereDocumentEmbedder(api_key=Secret.from_token('KZAyhNSv3c8Z0WHgoTqnIC3GxSvLW05lmxfNIQUu'),model=model_name)
 
@@ -81,9 +81,9 @@ def embedding_content_fromURL(url: str):
   
 
 
-def embedding_txt(filepath: str = "test.txt"):
+def embedding_txt(filepath: str = "test.txt", index_name: str = index_name):
 
-    document_store = load_store()
+    document_store = load_store(index_name=index_name)
     pipeline = Pipeline()
     pipeline.add_component("converter", TextFileToDocument())
     pipeline.add_component("cleaner", DocumentCleaner())
@@ -101,7 +101,7 @@ def embedding_txt(filepath: str = "test.txt"):
     return "Success!"
 
 
-def embedding_docx(file_path: str): 
+def embedding_docx(file_path: str, index_name: str = index_name): 
   doc = docx.Document(file_path) 
   file = get_name_format_file(file_path)['split_name']
   # print the list of paragraphs in the document 
@@ -114,7 +114,7 @@ def embedding_docx(file_path: str):
   with open(new_file, "w", encoding="utf-8") as file:
           file.write(document_text)
 
-  embedding_txt(new_file)
+  embedding_txt(new_file,index_name)
   return "Success!"
 
     
@@ -122,8 +122,8 @@ def embedding_docx(file_path: str):
 
 
 # Embed pdf
-def embedding_pdf(filepath: str = "test.txt"):
-    document_store = load_store()
+def embedding_pdf(filepath: str = "test.txt", index_name: str = index_name):
+    document_store = load_store(index_name=index_name)
     pipeline = Pipeline()
     pipeline.add_component("converter",  PyPDFToDocument())
     pipeline.add_component("cleaner", DocumentCleaner())
@@ -142,7 +142,7 @@ def embedding_pdf(filepath: str = "test.txt"):
 
 
   
-def embedding_csv(filepath: str = ".\courses.csv"):
+def embedding_csv(filepath: str = ".\courses.csv", index_name: str = index_name):
     df = pd.read_csv(filepath)
     size_col = len(df.columns)
     docu = []
@@ -153,7 +153,7 @@ def embedding_csv(filepath: str = ".\courses.csv"):
         docu.append(Document(content=data_row))
     # init embedder
     # init qdrant cloud instance
-    document_store = load_store()
+    document_store = load_store(index_name=index_name)
     ## Use embedder Embedding file document for Fetch và Indexing
     embedder = CohereDocumentEmbedder(api_key=Secret.from_token('KZAyhNSv3c8Z0WHgoTqnIC3GxSvLW05lmxfNIQUu'),model=model_name)
    
@@ -162,7 +162,7 @@ def embedding_csv(filepath: str = ".\courses.csv"):
     return "Success!"
     
 
-def embedding_excel(file_path: str): 
+def embedding_excel(file_path: str, index_name: str = index_name): 
 # Looping through each file
   # Reading multiple sheets from an Excel file
   sheets_dict = pd.read_excel(file_path, engine="openpyxl", sheet_name=None)
@@ -171,5 +171,5 @@ def embedding_excel(file_path: str):
   for sheet_name, df in sheets_dict.items():
       print(f"Sheet '{sheet_name}':\n{df}\n")
       df.to_csv(f'{sheet_name}.csv')
-      embedding_csv(f'{sheet_name}.csv')
+      embedding_csv(f'{sheet_name}.csv',index_name)
   return "Success!"
