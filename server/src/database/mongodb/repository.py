@@ -20,3 +20,11 @@ collection.find_one_and_update(
             {"$set":{"email": "huutai1515225@gmail.com", "role":"admin" }},
             upsert=True,
         )
+
+cur_collection = db["current_collection"]
+if (cur_collection.count_documents({})==0):
+  cur_collection.find_one_and_update(
+              {"current_collection": "ThongTinKhoaHoc_Cohere" },
+              {"$set":{"current_collection": "ThongTinKhoaHoc_Cohere"}},
+              upsert=True,
+          )

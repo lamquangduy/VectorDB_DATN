@@ -1,6 +1,7 @@
 from .core.functions import chatbot_with_fc
 from haystack.dataclasses import ChatMessage
 from .core import embedding_func
+from .core import functions
 from pathlib import Path
 from src.database.mongodb.repository import mongo_client
 
@@ -102,3 +103,43 @@ def delete_chat_history(email: str, chat_id: str):
     collection = db["chat_history"]
     collection.delete_one({"email": email, "chat_id": chat_id})
     return True
+
+
+def get_list_collection():
+    qdrant_client = functions.load_collection()
+    list_collection = []
+    qc = qdrant_client.get_collections().collections
+    for i in qc:
+        list_collection.append(i.name)
+    return list_collection
+
+def get_current_collection():
+    db = mongo_client["chatbot"]
+    cur_collection = db["current_collection"].find()[0]['current_collection']
+    return cur_collection
+
+def create_new_collection(index_name: str):
+    qdrant_client = functions.load_collection()
+    list = get_list_collection()
+    if(index_name in list):
+        return False
+    return qdrant_client.create_collection(collection_name=index_name,vectors_config={
+      "size": 1024,
+      "distance": "Cosine",
+      "on_disk": False
+    })
+
+def delete_collection(index_name: str):
+    qdrant_client = functions.load_collection()
+    return qdrant_client.delete_collection(collection_name=index_name)
+
+def change_current_collection(index_name: str):
+    cur_index = get_current_collection()
+    db = mongo_client["chatbot"]
+    cur_collection = db["current_collection"]
+    result = cur_collection.find_one_and_update(
+              {"current_collection": cur_index },
+              {"$set":{"current_collection": index_name}},
+              upsert=True,
+          )
+    return result != None

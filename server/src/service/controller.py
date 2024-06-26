@@ -25,6 +25,29 @@ async def chat(email: str):
     messages = repository.get_chat_history(email)
     return messages
 
+@router.get("/list_collection/")
+async def list_collection():
+    list_collection = repository.get_list_collection()
+    return list_collection
+
+@router.get("/current_collection/")
+async def current_collection():
+    cur_collection = repository.get_current_collection()
+    return cur_collection
+
+@router.post("/change_current_collection/{index_name}")
+async def current_collection(index_name:str):
+    cur_collection = repository.change_current_collection(index_name)
+    return cur_collection
+
+@router.post("/create_new_collection/{index_name}")
+async def create_new_collection(index_name: str):
+    return repository.create_new_collection(index_name)
+
+@router.delete("/delete_collection/{index_name}")
+async def list_collection(index_name: str):
+    return repository.delete_collection(index_name)
+
 @router.get("/chat-role/{email}", response_model=list[dict])
 async def chat(email: str):
     role=repository.get_role(email)
