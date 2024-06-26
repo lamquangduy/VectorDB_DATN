@@ -110,6 +110,7 @@ const loadingMessage: IChatData = { sender: "bot", message: "Loading..." };
 //   );
 // };
 import { keyframes } from '@emotion/react';
+import { log } from "console";
 
 const fadeIn = keyframes`
   from {
@@ -518,8 +519,10 @@ const ChatBotPage: React.FC = () => {
     setIsRefresh((p) => !p);
     setTrackServer(value.history);
   };
-  useEffect(() => {
+  useEffect(() => {    
+    abortController.abort()
     setAction("swap");
+    console.log(isLoading)
   }, [chatID]);
   const handleDelete = (value: any) => {
     setTimeout(() => {
@@ -591,11 +594,10 @@ const ChatBotPage: React.FC = () => {
   };
   const handleNewChat = () => {
     abortController.abort()
-    setIsLoading(0);
     setTimeout(() => {
       setIsRefresh((p) => !p);
     }, 200);
-    setIsLoading(0)
+    setIsLoading(0);
     setChatHistory([
       { sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" },
     ]);
@@ -791,6 +793,7 @@ const ChatBotPage: React.FC = () => {
                         )}
                       </Box>
                     )}
+                    {!isRefresh &&
                     <Box
                       sx={{
                         display: "flex",
@@ -812,7 +815,7 @@ const ChatBotPage: React.FC = () => {
                               />
                             );
                         })}
-                    </Box>
+                    </Box>}
                   </Box>
 
                   <Box
@@ -918,7 +921,7 @@ const Typewriter: React.FC<TypewriterProps> = ({ text, delay, isLoading, setIsLo
 
   React.useEffect(() => {
     if (currentIndex < text.length) {
-      if(currentIndex==text.length -1 && isLoading==2 ) setIsLoading(0);
+      if(currentIndex===text.length -1 && isLoading===2 ) setIsLoading(0);
       else
       {
       const timeoutId = setTimeout(() => {
