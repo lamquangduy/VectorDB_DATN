@@ -7,7 +7,7 @@ import {
   Divider,
   OutlinedInput,
 } from "@mui/material";
-import { changeCurrentDocument, deleteDocument,  getDocuments } from "../../../services/chat/chat";
+import { changeCurrentDocument, deleteDocument,  getCurrentDocument,  getDocuments } from "../../../services/chat/chat";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import InProgress from "./InProgress";
 import CreateDocument from "./CreateDocument";
@@ -18,7 +18,7 @@ const Collection: React.FC = () => {
 const [listDocument,setListCollection]=useState([]);
 const [status,setStatus]=useState("");
 const [isRefresh,setIsRefresh]=useState(true);
-const [currentDocument,setCurrentDocument]=useState("")
+const [currentDocument,setCurrentDocument]=useState("undifined")
 const [search,setSearch]=useState("")
 const [createDocument,setCreateDocument]=useState(false);
 const [isAlert,setIsAlert]=useState(false);
@@ -28,10 +28,20 @@ const [isAlert,setIsAlert]=useState(false);
       setListCollection(res)
       setIsRefresh(false)
     })
+    getCurrentDocument().then((res)=>{
+      setCurrentDocument(res)
+    }).catch((err)=>{
+      console.log(err.message)
+    })
   },[status])
   const handleDelete =(value:string)=>{
+    console.log(value)
     if(currentDocument===value){
       setStatus(`Document is in use!`)
+      setIsRefresh(false)
+      setTimeout(() => {
+        setIsAlert((p)=>!p)
+      }, 2000);
       return;
     }
     setIsRefresh(p=>!p);
@@ -99,16 +109,22 @@ const [isAlert,setIsAlert]=useState(false);
             sx={{
               display: "flex",
               justifyContent: "space-between",
-              height: 30,
+              alignItems:"center", 
+              marginLeft:"3%",
+              height: "12%",
+              textAlign:"center"
+              
             }}
           >
             <Typography
               sx={{
-                fontSize: 20,
+                fontSize: 25,
                 fontWeight: "bold",
+                
               }}
             >
-              {`Current: ${currentDocument}`}
+              Current in use: <span style={{ fontWeight: 'bold', color:"#008000",fontFamily: "Montserrat" }}>{currentDocument}</span>
+              {/* {`Current: ${currentDocument}`} */}
             </Typography>
           </Box>
           <Divider
@@ -128,21 +144,28 @@ const [isAlert,setIsAlert]=useState(false);
           >
             <Box
             sx={{
-                margin:2,
+                marginLeft:"3%",
+                marginTop:1,
+                marginBottom:2,
+                marginRight:"3%",
                 display:"flex",
                 justifyContent:"space-between",
                 alignItems:"center"
             }}>
-              <Box>
+              <Box sx={{width:"100%",display:"flex", borderRadius:2,
+                alignItems:"center", 
+                 height:55, background:"white"}}> 
             <OutlinedInput
                         sx={{
                           // borderBlockStart: "1px",
                           // borderBlockEndColor: "#005f06",
+                          marginLeft:"1%",
+                          marginRight:"1%",
                           borderColor: "#005f06",
                           outline: 0,
-                          width: 300,
+                          width: "33%",
                           px: 1,
-                          height: 40,
+                          height: "70%",
                           textAlign: "center",
                           borderRadius: "10px",
                           // boxShadow: "3",
@@ -178,7 +201,7 @@ const [isAlert,setIsAlert]=useState(false);
             sx={{
                 display:"flex",
                 flexWrap:"wrap",
-                justifyContent:"flex-start"
+                justifyContent:"center"
             }}>
               {listDocument.map((item:string)=>{
                 if(search.length && !item.includes(search)){
@@ -187,10 +210,13 @@ const [isAlert,setIsAlert]=useState(false);
                 return (
                   <Box
               sx={{
-                backgroundColor:"green",
+                backgroundColor:"white",
+                border:1,
+                borderColor: "whitesmoke",
                 width:"30%",
-                height:60,
-                margin:1,
+                height:70,
+                margin:"1%",
+                borderRadius: 2
               
               }}>
                 <Box
@@ -198,7 +224,7 @@ const [isAlert,setIsAlert]=useState(false);
                     display:"flex",
                     justifyContent:"center"
                 }}>
-                  <Typography>{item}</Typography>
+                  <Typography sx={{fontSize:18, marginTop:.5}}>{item}</Typography>
                 </Box>
                 <Divider></Divider>
                 <Box
@@ -223,14 +249,17 @@ const [isAlert,setIsAlert]=useState(false);
               })}
                {!isRefresh &&<Box
               sx={{
-                backgroundColor:"green",
+                backgroundColor:"white",
+                border:1,
+                borderColor: "whitesmoke",
                 width:"30%",
-                height:60,
-                margin:1,
+                height:70,
+                margin:"1%",
                 display:"flex",
+                borderRadius: 2,
                 justifyContent:"center",
                 alignItems:"center",
-                flexDirection:"column"
+                flexDirection:"column",
               }}
               >
                 {createDocument && <CreateDocument setIsRefresh={setIsRefresh} createDocument={createDocument} setCreateDocument={setCreateDocument} setStatus={setStatus} setIsAlert={setIsAlert}/>}
@@ -239,6 +268,26 @@ const [isAlert,setIsAlert]=useState(false);
                 </Button>
                 <Typography>New Document</Typography>
               </Box>}
+              {Array.from(new Array(3-(listDocument.length%3))).map(()=>{
+                return (
+                  <Box
+                  sx={{
+                    backgroundColor:"green",
+                    width:"30%",
+                    height:70,
+                    margin:"1%",
+                    display:"flex",
+                    borderRadius: 2,
+                    justifyContent:"center",
+                    alignItems:"center",
+                    flexDirection:"column",
+                    visibility:"hidden"
+                  }}
+                  >
+                   
+                  </Box>
+                )
+              })}
             </Box>}
           </Box>
         </Box>

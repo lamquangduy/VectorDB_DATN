@@ -33,15 +33,23 @@ def create_new_collection(index_name: str):
     list = get_list_collection()
     if(index_name in list):
         return False
-    return qdrant_client.create_collection(collection_name=index_name,vectors_config={
+    result =  qdrant_client.create_collection(collection_name=index_name,vectors_config={
       "size": 1024,
       "distance": "Cosine",
       "on_disk": False
     })
+    if (result==True):
+        return index_name
+    else:
+        return False
 
 def delete_collection(index_name: str):
     qdrant_client = functions.load_collection()
-    return qdrant_client.delete_collection(collection_name=index_name)
+    result =  qdrant_client.delete_collection(collection_name=index_name)
+    if (result==True):
+        return index_name
+    else:
+        return False
 
 def change_current_collection(index_name: str):
     cur_index = get_current_collection()
@@ -52,7 +60,10 @@ def change_current_collection(index_name: str):
               {"$set":{"current_collection": index_name}},
               upsert=True,
           )
-    return result != None
+    if result != None:
+        return index_name
+    else:
+        return False
 
 def dict_2_messages(history=[]):
     messages = []
