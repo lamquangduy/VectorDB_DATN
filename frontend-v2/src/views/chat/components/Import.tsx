@@ -6,9 +6,10 @@ import CustomChip from "./CustomChip";
 import NavBar from "./NavBar";
 import { SuccessStatus, ErrorStatus } from "./AlertStatus";
 import { Language } from "@mui/icons-material";
-import { Divider, FormControl, Input, InputAdornment, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { Divider,  Input, InputAdornment, InputLabel } from "@mui/material";
 import InProgress from "./InProgress";
-
+import { getCurrentDocument, getDocuments } from '../../../services/chat/chat';
+import ChooseDocument from "./ChooseDocument";
 const validUrl = (str: string) => {
   const pattern = new RegExp(
     "^(https?:\\/\\/)?" + // protocol
@@ -43,11 +44,25 @@ const Import: React.FC = () => {
   const [isOver, setIsOver] = useState<boolean>(false);
   const [isFile, setIsFile] = useState<boolean>(true);
   const [isValidInput, setIsValidInput] = useState<string>("");
-  const [age, setAge] = React.useState('');
+  const [currentDocument,setCurrentDocuement]=useState("")
+  const [listDocuments,setListDocuments]=useState([])
+  const [chooseDocument,setChooseDocument]=useState(false)
+  useEffect(()=>{
+    getDocuments().then((res)=>{
+      setListDocuments(res);
+    }).catch((err)=>{
+      console.log(err.message)
+    })
+  },[]);
+  useEffect(()=>{
+    getCurrentDocument().then((res)=>{
+      setCurrentDocuement(res);
+    }).catch((err)=>{
+      console.log(err.message)
+    })
+  },[])
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setAge(event.target.value);
-  };
+
   
   useEffect(() => {
     if (file) {
@@ -106,32 +121,33 @@ const Import: React.FC = () => {
       }, 3000);
       return;
     }
-    try {
-      const endpoint = import.meta.env.VITE_APP_CHAT_SERVER_URL + "/upload-url";
-      setIsValidInput(() => "inProgress");
-      const res = await fetch(endpoint, {
-        method: "POST",
-        body: JSON.stringify({ url: url }),
-      });
-      if (res.ok) {
-        console.log("Successful!");
-        setIsValidInput("validUrl");
-        setFile(null);
-        setTimeout(() => {
-          setIsValidInput("");
-        }, 3000);
-      } else {
-        console.error("Fail!");
-      }
-    } catch (error) {
-      console.error(error);
-      console.error("Fail!");
-      setIsValidInput("notResponding");
-      setFile(null);
-      setTimeout(() => {
-        setIsValidInput("");
-      }, 3000);
-    }
+    setChooseDocument(true)
+    // try {
+    //   const endpoint = import.meta.env.VITE_APP_CHAT_SERVER_URL + `/upload-url?index_name=${currentDocument}`;
+    //   setIsValidInput(() => "inProgress");
+    //   const res = await fetch(endpoint, {
+    //     method: "POST",
+    //     body: JSON.stringify({ url: url }),
+    //   });
+    //   if (res.ok) {
+    //     console.log("Successful!");
+    //     setIsValidInput("validUrl");
+    //     setFile(null);
+    //     setTimeout(() => {
+    //       setIsValidInput("");
+    //     }, 3000);
+    //   } else {
+    //     console.error("Fail!");
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    //   console.error("Fail!");
+    //   setIsValidInput("notResponding");
+    //   setFile(null);
+    //   setTimeout(() => {
+    //     setIsValidInput("");
+    //   }, 3000);
+    // }
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -140,40 +156,43 @@ const Import: React.FC = () => {
       console.error("No file selected");
       return;
     }
-    const formData = new FormData();
-    formData.append("file_upload", file);
-    setIsValidInput("inProgress");
-    try {
-      const endpoint =
-        import.meta.env.VITE_APP_CHAT_SERVER_URL + "/upload-file";
-      const res = await fetch(endpoint, {
-        method: "POST",
-        body: formData,
-      });
-      if (res.ok) {
-        console.log("Successful!");
-        setIsValidInput("validFile");
-        setFile(null);
-        setTimeout(() => {
-          setIsValidInput("");
-        }, 3000);
-      } else {
-        console.error("Fail!");
-        setIsValidInput("");
-      }
-    } catch (error) {
-      console.error(error);
-      console.error("Fail!");
-      setIsValidInput("notResponding");
-      setFile(null);
-      setTimeout(() => {
-        setIsValidInput("");
-      }, 3000);
-    }
+    setChooseDocument(true);
+    // const formData = new FormData();
+    // formData.append("file_upload", file);
+    // setIsValidInput("inProgress");
+    // try {
+    //   const endpoint =
+    //     import.meta.env.VITE_APP_CHAT_SERVER_URL + `/upload-file?index_name=${currentDocument}`;
+    //   const res = await fetch(endpoint, {
+    //     method: "POST",
+    //     body: formData,
+    //   });
+    //   if (res.ok) {
+    //     console.log("Successful!");
+    //     setIsValidInput("validFile");
+    //     setFile(null);
+    //     setTimeout(() => {
+    //       setIsValidInput("");
+    //     }, 3000);
+    //   } else {
+    //     console.error("Fail!");
+    //     setIsValidInput("");
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    //   console.error("Fail!");
+    //   setIsValidInput("notResponding");
+    //   setFile(null);
+    //   setTimeout(() => {
+    //     setIsValidInput("");
+    //   }, 3000);
+    // }
   };
 
   return (
     <>
+    {chooseDocument && <ChooseDocument chooseDocument={chooseDocument} setChooseDocument={setChooseDocument} currentDocument={currentDocument}
+    listDocument={listDocuments} file={file} url={url} setFile={setFile} setIsValidInput={setIsValidInput}/>}
      <Box
               sx={{
                 width: "90%",
@@ -196,27 +215,9 @@ const Import: React.FC = () => {
               >
                 <Box sx={{
                   display:"flex",
-                  justifyContent:"space-between"
+                  justifyContent:"flex-start"
                 }}>
                   <NavBar isFile={isFile} setIsFile={setIsFile}></NavBar>
-                  <div>
-      <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
-        <InputLabel id="demo-simple-select-standard-label">Document</InputLabel>
-        <Select
-          labelId="demo-simple-select-standard-label"
-          id="demo-simple-select-standard"
-          value={age}
-          onChange={handleChange}
-          label="Age"
-        >
-          <MenuItem value="">
-            <em>None</em>
-          </MenuItem>
-          <MenuItem value={10}>Ten</MenuItem>
-          <MenuItem value={20}>Twenty</MenuItem>
-          <MenuItem value={30}>Thirty</MenuItem>
-        </Select>
-      </FormControl></div>
                 </Box>
                 <Divider
                     sx={{

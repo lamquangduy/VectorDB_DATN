@@ -10,7 +10,7 @@ export const ErrorStatus:React.FC<AlertStatusProps> = ({title}) => {
     position:"fixed",
     height:'80px',
     right:0,
-    top:60,
+    top:80,
     minWidth:"300px"
   }}>
       <AlertTitle>Error</AlertTitle>
@@ -25,7 +25,7 @@ export const SuccessStatus:React.FC<AlertStatusProps> = ({title}) => {
       position:"fixed",
       height:'80px',
       right:0,
-      top:60,
+      top:80,
       minWidth:"300px"
     }}>
         <AlertTitle>Success</AlertTitle>

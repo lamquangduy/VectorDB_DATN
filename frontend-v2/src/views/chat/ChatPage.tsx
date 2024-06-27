@@ -110,7 +110,6 @@ const loadingMessage: IChatData = { sender: "bot", message: "Loading..." };
 //   );
 // };
 import { keyframes } from '@emotion/react';
-import { log } from "console";
 
 const fadeIn = keyframes`
   from {
@@ -887,8 +886,7 @@ const ChatBotPage: React.FC = () => {
                         value={message}
                         onChange={(e) => {
                           setMessage(e.target.value);
-                        }}
-                      ></OutlinedInput>
+                        }}></OutlinedInput>
                       <Button
                         onClick={() => {
                           // handleChat();

@@ -80,6 +80,13 @@ export const changeCurrentDocument = async (value:string) => {
   });
   return response.data;
 };
+export const addDocument = async (value:string) => {
+  const response = await axiosInstance({
+    method: "post",
+    url: `/create_new_collection/?index_name=${value}`,
+  });
+  return response.data;
+};
 
 export default getChatResponse;
 

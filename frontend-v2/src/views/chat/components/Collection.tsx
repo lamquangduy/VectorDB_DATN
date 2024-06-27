@@ -5,74 +5,76 @@ import Typography from "@mui/material/Typography";
 import SearchIcon from '@mui/icons-material/Search';
 import {
   Divider,
-  FormControl,
-  InputLabel,
-  MenuItem,
   OutlinedInput,
-  Select,
-  SelectChangeEvent,
 } from "@mui/material";
-import { changeCurrentDocument, deleteDocument, getCurrentDocument, getDocuments } from "../../../services/chat/chat";
+import { changeCurrentDocument, deleteDocument,  getDocuments } from "../../../services/chat/chat";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import InProgress from "./InProgress";
+import CreateDocument from "./CreateDocument";
+import { ErrorStatus, SuccessStatus } from "./AlertStatus";
 
 
 const Collection: React.FC = () => {
 const [listDocument,setListCollection]=useState([]);
 const [status,setStatus]=useState("");
-const [isRefresh,setIsRefresh]=useState(false);
+const [isRefresh,setIsRefresh]=useState(true);
 const [currentDocument,setCurrentDocument]=useState("")
 const [search,setSearch]=useState("")
+const [createDocument,setCreateDocument]=useState(false);
+const [isAlert,setIsAlert]=useState(false);
   useEffect(()=>{
-    setTimeout(() => {
-      setIsRefresh(true);
-    }, 200);
     getDocuments().then((res)=>{
       console.log(res)
       setListCollection(res)
+      setIsRefresh(false)
     })
-    setIsRefresh(false);
-  },[status])
-  useEffect(()=>{
-    // setTimeout(() => {
-    //   setIsRefresh(true);
-    // }, 200);
-    getCurrentDocument().then((res)=>{
-      console.log(res)
-      setCurrentDocument(res);
-    })
-    // setIsRefresh(false);
   },[status])
   const handleDelete =(value:string)=>{
     if(currentDocument===value){
-      console.log("Can't delete")
+      setStatus(`Document is in use!`)
       return;
     }
+    setIsRefresh(p=>!p);
     deleteDocument(value).then((res)=>{
       setStatus(`Delete ${value}`);
-      console.log(status)
+      console.log(res)
+      setIsRefresh(false)
+      setTimeout(() => {
+        setIsAlert((p)=>!p)
+      }, 2000);
+      setIsAlert((p)=>!p)
     }).catch((err)=>{
       console.log(err.message);
     })
-    
   }
 
   const handleChangeDocument=(value:string)=>{
+    setIsRefresh(true)
     changeCurrentDocument(value).then((res)=>{
       console.log(res);
       setStatus(`Change Document: ${value}`);
+      setIsRefresh(false)
+      setCurrentDocument(value)
+      setTimeout(() => {
+        setIsAlert((p)=>!p)
+      }, 2000);
+      setIsAlert((p)=>!p)
     }).catch((err)=>{
       console.log(err.message);
     });
   }
   
-  const [age, setAge] = React.useState('');
-
-  const handleChange = (event: SelectChangeEvent) => {
-    setAge(event.target.value);
-  };
   return (
     <>
+             {status.includes("Delete")&& isAlert&&
+               <SuccessStatus title={`${status} successfully`}></SuccessStatus>}
+                 {status.includes("Create")&& isAlert&&
+               <SuccessStatus title={`${status} successfully`}></SuccessStatus>}
+                {status.includes("Document is in use")&& isAlert&&
+               <ErrorStatus title={`${status}`}></ErrorStatus>}
+               {status.includes("Change")&& isAlert&&
+               <SuccessStatus title={`Current Document is ${currentDocument}`}></SuccessStatus>}
+               
       <Box
         sx={{
           width: "90%",
@@ -106,7 +108,7 @@ const [search,setSearch]=useState("")
                 fontWeight: "bold",
               }}
             >
-              Collections
+              {`Current: ${currentDocument}`}
             </Typography>
           </Box>
           <Divider
@@ -149,14 +151,9 @@ const [search,setSearch]=useState("")
                         }}
                         onChange={(e)=>{
                           setSearch(e.target.value)
-                          setTimeout(()=>{
-                            setIsRefresh(true)
-                          },400)
-                          setIsRefresh(false)
                           }}
-                      >
-                       
-                      </OutlinedInput>
+  
+                      />
                       <Button sx={{
                         "::placeholder":{
                             backgroundColor:"none"
@@ -165,17 +162,8 @@ const [search,setSearch]=useState("")
                       <SearchIcon/>
                       </Button>
                       </Box>
-                      <Box>
-                      <Typography sx={{
-                        fontSize:15,
-                        fontWeight:"bold"
-
-                      }}>
-                       {`Current Document: ${currentDocument}`}
-                      </Typography>
-                      </Box>
             </Box>
-            {!isRefresh&&
+            {isRefresh&&
             <Box 
             sx={{
               width:"100%",
@@ -186,12 +174,13 @@ const [search,setSearch]=useState("")
             }}>
             <InProgress></InProgress>
             </Box>}
-            {isRefresh&&<Box
+            {!isRefresh&&<Box
             sx={{
                 display:"flex",
-                flexWrap:"wrap"
+                flexWrap:"wrap",
+                justifyContent:"flex-start"
             }}>
-              {listDocument.map((item:string,idx)=>{
+              {listDocument.map((item:string)=>{
                 if(search.length && !item.includes(search)){
                   return ;
                 }
@@ -199,9 +188,10 @@ const [search,setSearch]=useState("")
                   <Box
               sx={{
                 backgroundColor:"green",
-                width:300,
+                width:"30%",
                 height:60,
-                margin:1
+                margin:1,
+              
               }}>
                 <Box
                 sx={{
@@ -231,10 +221,10 @@ const [search,setSearch]=useState("")
               </Box>
                 )
               })}
-               <Box
+               {!isRefresh &&<Box
               sx={{
                 backgroundColor:"green",
-                width:300,
+                width:"30%",
                 height:60,
                 margin:1,
                 display:"flex",
@@ -243,11 +233,12 @@ const [search,setSearch]=useState("")
                 flexDirection:"column"
               }}
               >
-                <Button>
+                {createDocument && <CreateDocument setIsRefresh={setIsRefresh} createDocument={createDocument} setCreateDocument={setCreateDocument} setStatus={setStatus} setIsAlert={setIsAlert}/>}
+                <Button onClick={()=>{setCreateDocument(true)}}>
                 <AddCircleOutlineIcon></AddCircleOutlineIcon>
                 </Button>
                 <Typography>New Document</Typography>
-              </Box>
+              </Box>}
             </Box>}
           </Box>
         </Box>
