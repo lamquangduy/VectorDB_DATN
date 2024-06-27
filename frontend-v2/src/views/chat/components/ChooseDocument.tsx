@@ -26,23 +26,27 @@ const ChooseDocument:React.FC<ChooseDocument>=({chooseDocument,setChooseDocument
     setAge(event.target.value as string);
   };
   const handleEmbedding= async ()=>{
-    if(file)
-     try {
-      const endpoint = import.meta.env.VITE_APP_CHAT_SERVER_URL + `/upload-url?index_name=${currentDocument}`;
-      setIsValidInput(() => "inProgress");
+    if(file){
+    const formData = new FormData();
+    formData.append("file_upload", file);
+    setIsValidInput("inProgress");
+    try {
+      const endpoint =
+        import.meta.env.VITE_APP_CHAT_SERVER_URL + `/upload-file?index_name=${currentDocument}`;
       const res = await fetch(endpoint, {
         method: "POST",
-        body: JSON.stringify({ url: url }),
+        body: formData,
       });
       if (res.ok) {
         console.log("Successful!");
-        setIsValidInput("validUrl");
+        setIsValidInput("validFile");
         setFile(null);
         setTimeout(() => {
           setIsValidInput("");
         }, 3000);
       } else {
         console.error("Fail!");
+        setIsValidInput("");
       }
     } catch (error) {
       console.error(error);
@@ -53,6 +57,7 @@ const ChooseDocument:React.FC<ChooseDocument>=({chooseDocument,setChooseDocument
         setIsValidInput("");
       }, 3000);
     }
+  }
     else if(url.length)
     // URL
      try {

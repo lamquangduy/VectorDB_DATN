@@ -16,7 +16,7 @@ const drawerWidth = 200;
 export default function AdminSideBar() {
   const [sideBar,setSideBar]=useState("Collections")
   return (
-    <Box sx={{ display: 'flex',  }}>
+    <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <Drawer
         variant="permanent"
@@ -25,17 +25,19 @@ export default function AdminSideBar() {
           flexShrink: 0,
           [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
           zIndex:1,
+
         }}
       >
         <Toolbar />
-        <Box sx={{ overflow: 'auto',zIndex:1 }}>
+        <Box sx={{ overflow: 'auto'}}>
           <List>
             {['Collections', 'Import'].map((text, index) => (
               <ListItem key={text} disablePadding>
                 <ListItemButton
                 onClick={()=>setSideBar(text)}>
                   <ListItemIcon sx={{
-                    color:"green"
+                    color:"green",
+                   
                   }}>
                     {index % 2 === 0 ? <LibraryBooksIcon /> : <AddToPhotosIcon />}
                   </ListItemIcon>
@@ -53,6 +55,12 @@ export default function AdminSideBar() {
             ))}
           </List>
         </Box>
+        <List style={{ marginTop: `auto` }} >
+    <Box sx={{
+      backgroundColor:"green",
+      height:"20%"
+    }}></Box>
+  </List>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1,margin: 0 }}>
         {sideBar==="Collections" && <Collection/>}

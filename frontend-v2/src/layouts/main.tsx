@@ -67,7 +67,7 @@ const MainLayout: React.FC = (): JSX.Element => {
             overflow: "visible",
             backgroundColor: "#005f06",
             height: "60px",
-            zIndex:10,
+            
           }}
         >
           <Box
