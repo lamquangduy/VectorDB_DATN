@@ -63,6 +63,36 @@ const scrollToBottom = () => {
 const mockData: IChatData[] = [
   { sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" },
 ];
+
+
+const renderTextWithBoldAndLinks = (text: string) => {
+  const parts = text.split(/(\*\*[^*]+\*\*)|(\[.*?\]\(.*?\))/);
+  return parts.map((part, index) => {
+    if (part && part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <span key={index} style={{ fontWeight: 'bold',fontFamily: "Montserrat", fontSize: 14 }}>
+          {part.slice(2, -2)}
+        </span>
+      );
+    } else if (part && part.startsWith('[') && part.endsWith(')')) {
+      const match = part.match(/\[(.*?)\]\((.*?)\)/);
+      if (match) {
+        return (
+          <a
+            key={index}
+            href={match[2]}
+            style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 14 }}
+          >
+            {match[1]}
+          </a>
+        );
+      }
+    } else {
+      return part;
+    }
+  });
+};
+
 const loadingMessage: IChatData = { sender: "bot", message: "Loading..." };
 // const SuggestedTag: React.FC<SuggestedTagProps> = ({
 //   value,
@@ -110,7 +140,7 @@ const loadingMessage: IChatData = { sender: "bot", message: "Loading..." };
 //   );
 // };
 import { keyframes } from '@emotion/react';
-import { log } from "console";
+// import { log } from "console";
 
 const fadeIn = keyframes`
   from {
@@ -410,15 +440,17 @@ const BotText: React.FC<ChatTag> = ({ props, isChat, isLoading, setIsLoading }) 
         <a
           key={key}
           href={decoratedHref}
-          style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 15 }}
+          style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 14 }}
         >
-          <span style={{ fontFamily: "Montserrat", fontSize: 15 }}>
+          <span style={{ fontFamily: "Montserrat", fontSize: 14 }}>
             {decoratedText}
           </span>
         </a>
       )}
     >
-      {props.message}
+      <span style={{ fontFamily: "Montserrat", fontSize: 14 }}>
+      {renderTextWithBoldAndLinks(props.message)}
+      </span>
     </Linkify>
         )}
       </Typography>
@@ -575,7 +607,8 @@ const ChatBotPage: React.FC = () => {
         console.log(res.response.answer)
         chatHistory.push({
           sender: "bot",
-          message: res.response.answer.replaceAll("*", ""),
+          message: res.response.answer,
+          // .replaceAll("*", ""),
         });
 
         setChatData([...chatHistory]);
@@ -947,15 +980,17 @@ const Typewriter: React.FC<TypewriterProps> = ({ text, delay, isLoading, setIsLo
         <a
           key={key}
           href={decoratedHref}
-          style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 15 }}
+          style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 14 }}
         >
-          <span style={{ fontFamily: "Montserrat", fontSize: 15 }}>
+          <span style={{ fontFamily: "Montserrat", fontSize: 14 }}>
             {decoratedText}
           </span>
         </a>
       )}
     >
-      {currentText}
+      <span style={{ fontFamily: "Montserrat", fontSize: 14 }}>
+        {renderTextWithBoldAndLinks(currentText)}
+      </span>
     </Linkify>
   );
 };

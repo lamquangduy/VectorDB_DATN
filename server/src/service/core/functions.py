@@ -40,6 +40,7 @@ url_cloud = (
     "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333"
 )
 api_key = "U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA"
+api_cohere = 'BmhXTTduVpHLmIPZbA2r7rrUwFwpgl6fX3HWFB5t'
 # index_name = "ThongTinKhoaHoc"
 # model_name = "sentence-transformers/all-mpnet-base-v2"
 # embedding_dim = 768
@@ -169,7 +170,7 @@ def embedding_csv(index_name: str = index_name, filepath: str = ".\courses.csv")
             )
         )
     # init embedder
-    doc_embedder = CohereDocumentEmbedder(api_key=Secret.from_token('BmhXTTduVpHLmIPZbA2r7rrUwFwpgl6fX3HWFB5t'),model=model_name)
+    doc_embedder = CohereDocumentEmbedder(api_key=Secret.from_token(api_cohere),model=model_name)
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docs)
     doc_store.write_documents(
@@ -204,9 +205,9 @@ def rag_pipe(index_name: str = get_current_collection()):
     # rag_pipe.add_component(
     #     "embedder", SentenceTransformersTextEmbedder(model=model_name)
     # )
-    ranker = CohereRanker(api_key=Secret.from_token('BmhXTTduVpHLmIPZbA2r7rrUwFwpgl6fX3HWFB5t'))
+    ranker = CohereRanker(api_key=Secret.from_token(api_cohere))
     rag_pipe.add_component(
-        "embedder", CohereTextEmbedder(api_key=Secret.from_token('BmhXTTduVpHLmIPZbA2r7rrUwFwpgl6fX3HWFB5t'),model=model_name)
+        "embedder", CohereTextEmbedder(api_key=Secret.from_token(api_cohere),model=model_name)
     )
     rag_pipe.add_component(
         "retriever", QdrantEmbeddingRetriever(document_store=docstore, top_k=20)
@@ -256,14 +257,14 @@ def check_and_strip_quotes(string):
 
 def get_suggestions(content: str):
     language_classifier = OpenAIGenerator(model="gpt-3.5-turbo")
-    language = language_classifier.run(f"Phát hiện ngôn ngữ cho đoạn nội dung sau và trả kết quả hoặc là 'vi' hoặc là 'en'. Đoạn nội dung đó là: {content}")  
+    language = language_classifier.run(f"Nếu không yêu cầu một ngữ cụ thể thì luôn sử dụng tiếng Việt và trả kết quả hoặc là 'vi'. Nếu có yêu cầu, cần phát hiện ngôn ngữ cho đoạn nội dung sau và trả kết quả hoặc là 'vi' hoặc là 'en'. Đoạn nội dung đó là: {content}")  
     llm = OpenAIGenerator(model="gpt-3.5-turbo"
                           )
     # Function to detect the language of content
     if language['replies'][0] == 'vi':  # Vietnamese
         print("Hỏi bằng tiếng Việt")
         response = llm.run(
-        f"Bạn là một người dùng. Mục đích của bạn là tạo các câu hỏi liên quan đến một khóa học hoặc các khóa học tương tự được đề cập trong câu truy vấn (bằng tiếng Việt), để hỏi người khác. Nếu câu truy vấn đề cập đến mục tiêu nghề nghiệp của bạn, mục đích của bạn là tạo các câu hỏi liên quan đến các khóa học phù hợp với mong muốn của bạn. Bạn có thể sử dụng câu hỏi mở (nên liên quan đến khóa học lập trình trực tuyến) nếu nội dung không có ích. Cung cấp 4 câu hỏi, mỗi câu hỏi phải ít hơn 7 từ (càng ngắn càng tốt), chỉ văn bản. Không định dạng với dấu đạn hay số. Dựa trên nội dung này: {content}"
+        f"Bạn là một người dùng. Mục đích của bạn là tạo các câu hỏi liên quan đến một khóa học hoặc các khóa học tương tự được đề cập trong câu truy vấn phải bằng tiếng Việt, để hỏi người khác. Nếu câu truy vấn đề cập đến mục tiêu nghề nghiệp của bạn, mục đích của bạn là tạo các câu hỏi liên quan đến các khóa học phù hợp với mong muốn của bạn. Bạn có thể sử dụng câu hỏi mở (nên liên quan đến khóa học lập trình trực tuyến) nếu nội dung không có ích. Cung cấp 4 câu hỏi, mỗi câu hỏi phải ít hơn 7 từ (càng ngắn càng tốt), chỉ văn bản. Không định dạng với dấu đạn hay số. Dựa trên nội dung này: {content}"
     )
     else:  # Assuming English if not Vietnamese
        print("Hỏi bằng tiếng Anh")
@@ -317,7 +318,8 @@ def chatbot_with_fc(message, messages=[]):
     if (messages==[]):
         name_chat = get_summarize_chat(message)
     if(message == []):
-        messages.append(ChatMessage.from_system("Nếu ngôn ngữ của user là tiếng việt thì luôn trả lời bằng tiếng Việt. Không sử dụng kí hiệu in đậm trong câu trả lời. Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user."))
+        messages.append(ChatMessage.from_system("Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt thì luôn trả lời bằng tiếng Việt. Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user. Và định dạng hình thức trả lời sao cho đẹp."))
+    messages.append(ChatMessage.from_system("Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt thì luôn trả lời bằng tiếng Việt. Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user. Cần định dạng hình thức câu trả lời sao cho rõ ràng và đẹp."))
     chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
     tools = [
         {
@@ -433,7 +435,7 @@ def chatbot_with_fc(message, messages=[]):
     suggestions = get_suggestions(
         message + ". Answer: " + response["replies"][0].content
     )
-
+    print(response["replies"][0].content)
     return {
         "history": messages,
         "answer": response["replies"][0].content,
