@@ -188,6 +188,7 @@ def get_current_collection():
 # RAG pipeline Q-A system
 def rag_pipe(index_name: str = get_current_collection()):
     print(get_current_collection())
+    indexname = get_current_collection()
     template = """
     Answer the questions based on the given context. You are LearnWay Assistant bot, your purpose is to provide course information related to user's question. The course information should have name, how to access, skill. Answer with VietNamese language
 
@@ -198,7 +199,7 @@ def rag_pipe(index_name: str = get_current_collection()):
     Question: {{ question }}
     Answer:
     """
-    docstore = load_store(index_name)
+    docstore = load_store(indexname)
     rag_pipe = Pipeline()
     # rag_pipe.add_component(
     #     "embedder", SentenceTransformersTextEmbedder(model=model_name)

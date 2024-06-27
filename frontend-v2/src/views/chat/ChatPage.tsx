@@ -405,15 +405,21 @@ const BotText: React.FC<ChatTag> = ({ props, isChat, isLoading, setIsLoading }) 
         {isChat ? (
           <Typewriter text={props.message} delay={9} isLoading={isLoading} setIsLoading={setIsLoading} />
         ) : (
-          <Linkify
-            componentDecorator={(decoratedHref, decoratedText, key) => (
-              <a key={key} href={decoratedHref} style={{ color: "#92b9e3" }}>
-                {decoratedText}
-              </a>
-            )}
-          >
-            {props.message}
-          </Linkify>
+        <Linkify
+      componentDecorator={(decoratedHref, decoratedText, key) => (
+        <a
+          key={key}
+          href={decoratedHref}
+          style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 15 }}
+        >
+          <span style={{ fontFamily: "Montserrat", fontSize: 15 }}>
+            {decoratedText}
+          </span>
+        </a>
+      )}
+    >
+      {props.message}
+    </Linkify>
         )}
       </Typography>
     </Box>
@@ -936,10 +942,16 @@ const Typewriter: React.FC<TypewriterProps> = ({ text, delay, isLoading, setIsLo
 
 
   return (
-    <Linkify 
+<Linkify
       componentDecorator={(decoratedHref, decoratedText, key) => (
-        <a key={key} href={decoratedHref} style={{ color: "#92b9e3" ,fontFamily:"Montserrat",fontSize:16}}>
-          {decoratedText}
+        <a
+          key={key}
+          href={decoratedHref}
+          style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 15 }}
+        >
+          <span style={{ fontFamily: "Montserrat", fontSize: 15 }}>
+            {decoratedText}
+          </span>
         </a>
       )}
     >
