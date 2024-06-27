@@ -23,8 +23,14 @@ const [search,setSearch]=useState("")
 const [createDocument,setCreateDocument]=useState(false);
 const [isAlert,setIsAlert]=useState(false);
   useEffect(()=>{
+    console.log(status)
+    if(status.includes("Create document successfully"))
+      {
+    setTimeout(() => {
+      setIsAlert((p)=>!p)
+    }, 2000);
+    setIsAlert((p)=>!p)}
     getDocuments().then((res)=>{
-      console.log(res)
       setListCollection(res)
       setIsRefresh(false)
     })
@@ -38,10 +44,12 @@ const [isAlert,setIsAlert]=useState(false);
     console.log(value)
     if(currentDocument===value){
       setStatus(`Document is in use!`)
-      setIsRefresh(false)
+      
       setTimeout(() => {
         setIsAlert((p)=>!p)
       }, 2000);
+      setIsAlert((p)=>!p)
+      setIsRefresh(false)
       return;
     }
     setIsRefresh(p=>!p);
@@ -53,6 +61,7 @@ const [isAlert,setIsAlert]=useState(false);
         setIsAlert((p)=>!p)
       }, 2000);
       setIsAlert((p)=>!p)
+      setIsRefresh(false)
     }).catch((err)=>{
       console.log(err.message);
     })

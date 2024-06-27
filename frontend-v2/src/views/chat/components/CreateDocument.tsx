@@ -38,13 +38,12 @@ const CreateDocument:React.FC<CreateDocument> =({createDocument,setCreateDocumen
             setIsRefresh(true)
             addDocument(email).then((res)=>{
                 console.log(res)
-                setIsRefresh(false)
                 setStatus(`Create document successfully ${res}`)
                 setTimeout(() => {
                   setIsAlert(true)
                 }, 2000);
                 setIsAlert(false)
-               setStatus("")
+                setIsRefresh(false)
             }).catch((err)=>{
                 console.log(err.message)
             })
