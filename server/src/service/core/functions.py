@@ -40,13 +40,14 @@ url_cloud = (
     "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333"
 )
 api_key = "U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA"
-api_cohere = 'BmhXTTduVpHLmIPZbA2r7rrUwFwpgl6fX3HWFB5t'
+api_cohere = 'qi53enMDNySvAWICNhpPEGa9CnUotHqv3650RAXx'
 # index_name = "ThongTinKhoaHoc"
 # model_name = "sentence-transformers/all-mpnet-base-v2"
 # embedding_dim = 768
 index_name = "ThongTinKhoaHoc_Cohere"
 model_name = "embed-multilingual-v3.0"
 embedding_dim = 	1024
+
 
 
 def load_collection():
@@ -87,7 +88,7 @@ def load_store(
     token: str = api_key,
     embedding_dim: int = embedding_dim,
 ) -> QdrantDocumentStore:
-    print(url_cloud, ", ,", token)
+    print(url)
 
     return QdrantDocumentStore(
         index=index_name,
@@ -191,7 +192,7 @@ def rag_pipe(index_name: str = get_current_collection()):
     print(get_current_collection())
     indexname = get_current_collection()
     template = """
-    Answer the questions based on the given context. You are LearnWay Assistant bot, your purpose is to provide course information related to user's question. The course information should have name, how to access, skill. Answer with VietNamese language
+    Answer the questions based on the given context. Don't use knowledge from outside. You are LearnWay Assistant bot, your purpose is to provide course information related to user's question. The course information should have name, how to access, skill. Answer with VietNamese language. The answer must be Comprehensive Information.
 
     Context:
     {% for document in documents %}
@@ -201,6 +202,8 @@ def rag_pipe(index_name: str = get_current_collection()):
     Answer:
     """
     docstore = load_store(indexname)
+    if(docstore.count_documents()==0):
+        return 0
     rag_pipe = Pipeline()
     # rag_pipe.add_component(
     #     "embedder", SentenceTransformersTextEmbedder(model=model_name)
@@ -225,6 +228,8 @@ def rag_pipe(index_name: str = get_current_collection()):
 
 # Run RAG Q-A system with query input
 def rag_pipeline_func(query: str):
+    if(rag_pipe()==0):
+        return {"reply": "No data"}
     result = rag_pipe().run(
         {"embedder": {"text": query},"ranker": {"query": query, "top_k": 10}, "prompt_builder": {"question": query}}
     )
@@ -255,21 +260,21 @@ def check_and_strip_quotes(string):
         return 1
     return 0
 
-def get_suggestions(content: str):
+def get_suggestions(query:str, answer: str):
     language_classifier = OpenAIGenerator(model="gpt-3.5-turbo")
-    language = language_classifier.run(f"Nếu không yêu cầu một ngữ cụ thể thì luôn sử dụng tiếng Việt và trả kết quả hoặc là 'vi'. Nếu có yêu cầu, cần phát hiện ngôn ngữ cho đoạn nội dung sau và trả kết quả hoặc là 'vi' hoặc là 'en'. Đoạn nội dung đó là: {content}")  
+    language = language_classifier.run(f"Luôn sử dụng tiếng Việt và trả kết quả là 'vi'. Nếu có yêu cầu sử dụng một ngôn ngữ khác, cần phát hiện ngôn ngữ cho đoạn nội dung sau và trả kết quả hoặc là 'vi' hoặc là 'en'. Đoạn nội dung đó là: {query}")  
     llm = OpenAIGenerator(model="gpt-3.5-turbo"
                           )
     # Function to detect the language of content
     if language['replies'][0] == 'vi':  # Vietnamese
         print("Hỏi bằng tiếng Việt")
         response = llm.run(
-        f"Bạn là một người dùng. Mục đích của bạn là tạo các câu hỏi liên quan đến một khóa học hoặc các khóa học tương tự được đề cập trong câu truy vấn phải bằng tiếng Việt, để hỏi người khác. Nếu câu truy vấn đề cập đến mục tiêu nghề nghiệp của bạn, mục đích của bạn là tạo các câu hỏi liên quan đến các khóa học phù hợp với mong muốn của bạn. Bạn có thể sử dụng câu hỏi mở (nên liên quan đến khóa học lập trình trực tuyến) nếu nội dung không có ích. Cung cấp 4 câu hỏi, mỗi câu hỏi phải ít hơn 7 từ (càng ngắn càng tốt), chỉ văn bản. Không định dạng với dấu đạn hay số. Dựa trên nội dung này: {content}"
+        f"Bạn là một người dùng. Mục đích của bạn là tạo các câu hỏi liên quan đến một khóa học hoặc các khóa học tương tự được đề cập trong câu truy vấn phải bằng tiếng Việt, để hỏi người khác. Nếu câu truy vấn đề cập đến mục tiêu nghề nghiệp của bạn, mục đích của bạn là tạo các câu hỏi liên quan đến các khóa học phù hợp với mong muốn của bạn. Bạn có thể sử dụng câu hỏi mở (nên liên quan đến khóa học lập trình trực tuyến) nếu nội dung không có ích. Cung cấp 4 câu hỏi, mỗi câu hỏi phải ít hơn 7 từ (càng ngắn càng tốt), chỉ văn bản. Không định dạng với dấu đạn hay số. Dựa trên nội dung này: Câu hỏi: {query}. Đáp án: {answer}"
     )
     else:  # Assuming English if not Vietnamese
        print("Hỏi bằng tiếng Anh")
        response = llm.run(
-        f"You are an user. Your purpose is to create your questions relative with a course or similarity courses which are mentioned in query, to ask anothers, and if query mention your's goal career which is mentioned in query, your purpose is to create your questions relative with course that fits your desire. You can use open questions (these should relate to online programming course) if the content isn't helpful. Provide 4 questions, each question must be less than 7 words (as short as possible), only text. Do not format with bullets or numbers. Base your questions on this content: {content}"
+        f"You are an user. Your purpose is to create your questions relative with a course or similarity courses which are mentioned in query, to ask anothers, and if query mention your's goal career which is mentioned in query, your purpose is to create your questions relative with course that fits your desire. You can use open questions (these should relate to online programming course) if the content isn't helpful. Provide 4 questions, each question must be less than 7 words (as short as possible), only text. Do not format with bullets or numbers. Base your questions on this content:  Query: {query}. Answer: {answer}"
     )
     list_of_lines = response["replies"][0].splitlines()
     clean_list = []
@@ -291,9 +296,18 @@ def get_suggestions(content: str):
 
 def get_summarize_chat(query: str):
     llm = OpenAIGenerator(model="gpt-3.5-turbo")
-    response = llm.run(f"Provide one context's name less than 12 words. Query: {query}")
+    response = llm.run(f"Sử dụng tiếng Việt và tóm tắt nội dung bằng một câu dưới 10 từ của nội dung sau {query}")
     summary = response["replies"][0]
+    char = check(summary)
+    if (char != ''):
+        summary = summary.split(char)[-1]
+        while (check_and_strip_quotes(summary)==1):
+            summary = summary[1:-1]
+        return summary        
+    while (check_and_strip_quotes(summary)==1):
+        summary = summary[1:-1]
     return summary
+
 def get_career_skills(goal_career: str, current_career: str, current_skills: str, goal_skills: str, query: str):
     list_of_current_skills = current_skills.split(", ")
     list_of_goal_skills = goal_skills.split(", ")
@@ -313,20 +327,20 @@ def get_career_skills(goal_career: str, current_career: str, current_skills: str
     # fallback data
     else:
         return rag_pipeline_func(query)
+    
 def chatbot_with_fc(message, messages=[]):
     name_chat = ""
     if (messages==[]):
         name_chat = get_summarize_chat(message)
     if(message == []):
         messages.append(ChatMessage.from_system("Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt thì luôn trả lời bằng tiếng Việt. Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user. Và định dạng hình thức trả lời sao cho đẹp."))
-    messages.append(ChatMessage.from_system("Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt thì luôn trả lời bằng tiếng Việt. Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user. Cần định dạng hình thức câu trả lời sao cho rõ ràng và đẹp."))
-    chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
+    messages.append(ChatMessage.from_system("Không được tự suy luận thiếu thông tin từ dữ liệu chat. Nếu không có thông tin thì cần phải gọi tool_calls, không sử dụng thông tin từ bên ngoài. Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt thì luôn trả lời bằng tiếng Việt. Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user. Cần định dạng hình thức câu trả lời sao cho rõ ràng và đẹp."))
     tools = [
         {
             "type": "function",
             "function": {
                 "name": "rag_pipeline_func",
-                "description": "Get information about course",
+                "description": "Get information",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -396,13 +410,27 @@ def chatbot_with_fc(message, messages=[]):
     ]
 
     messages.append(ChatMessage.from_user(message))
+    chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
     response = chat_generator.run(messages=messages, generation_kwargs={"tools": tools})
-
+    llm = OpenAIGenerator(model="gpt-3.5-turbo")
+    check_tool = llm.run(f"Nếu nội dung của câu trả lời có ý thiếu thông tin hoặc cần cung cấp thông tin trả lời là 'yes', ngược lại trả kết quả 'no'. Câu trả lời như sau: {response['replies'][0].content}. ")
+    print(check_tool['replies'][0])
+    kq = check_tool['replies'][0]
     while True:
         # if OpenAI response is a tool call
-        if response and response["replies"][0].meta["finish_reason"] == "tool_calls":
-            function_calls = json.loads(response["replies"][0].content)
-            print(response["replies"][0])
+        print(response)
+        print(response["replies"][0].meta["finish_reason"])
+        temp = response["replies"][0].meta["finish_reason"]
+        if (temp == "tool_calls"):
+            list_func_call = json.loads(response["replies"][0].content)
+        print(str({"query": message}))
+        if (kq.lower() == "yes"):
+            temp = "tool_calls"
+            list_func_call= [{"function":{"name":"rag_pipeline_func","arguments": json.dumps({"query": message})}}]
+        kq = "no"
+        if response and temp == "tool_calls":
+            function_calls = list_func_call
+            print(function_calls)
             for function_call in function_calls:
                 ## Parse function calling information
                 function_name = function_call["function"]["name"]
@@ -425,16 +453,16 @@ def chatbot_with_fc(message, messages=[]):
                 response = chat_generator.run(
                     messages=messages, generation_kwargs={"tools": tools}
                 )
+                print("---------------------------------------------------------------------")
 
         # Regular Conversation
         else:
             messages.append(response["replies"][0])
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             break
         # get suggestions for user to ask
 
-    suggestions = get_suggestions(
-        message + ". Answer: " + response["replies"][0].content
-    )
+    suggestions = get_suggestions(message, response["replies"][0].content)
     print(response["replies"][0].content)
     return {
         "history": messages,
