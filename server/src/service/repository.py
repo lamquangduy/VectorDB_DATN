@@ -9,11 +9,10 @@ from bson import json_util
 import json
 
 
-
-
 def get_chat_result(text, history=[]):
     result = chatbot_with_fc(text, history)
     return {"response": result}
+
 
 def get_list_collection():
     qdrant_client = functions.load_collection()
@@ -23,47 +22,59 @@ def get_list_collection():
         list_collection.append(i.name)
     return list_collection
 
+
 def get_current_collection():
     db = mongo_client["chatbot"]
-    cur_collection = db["current_collection"].find()[0]['current_collection']
+    cur_collection = db["current_collection"]
+    if cur_collection.count_documents({}) == 0:
+        cur_collection.find_one_and_update(
+            {"current_collection": "ThongTinKhoaHoc_Cohere"},
+            {"$set": {"current_collection": "ThongTinKhoaHoc_Cohere"}},
+            upsert=True,
+        )
+
+    cur_collection = db["current_collection"].find()[0]["current_collection"]
     return cur_collection
+
 
 def create_new_collection(index_name: str):
     qdrant_client = functions.load_collection()
     list = get_list_collection()
-    if(index_name in list):
+    if index_name in list:
         return False
-    result =  qdrant_client.create_collection(collection_name=index_name,vectors_config={
-      "size": 1024,
-      "distance": "Cosine",
-      "on_disk": False
-    })
-    if (result==True):
+    result = qdrant_client.create_collection(
+        collection_name=index_name,
+        vectors_config={"size": 1024, "distance": "Cosine", "on_disk": False},
+    )
+    if result == True:
         return index_name
     else:
         return False
 
+
 def delete_collection(index_name: str):
     qdrant_client = functions.load_collection()
-    result =  qdrant_client.delete_collection(collection_name=index_name)
-    if (result==True):
+    result = qdrant_client.delete_collection(collection_name=index_name)
+    if result == True:
         return index_name
     else:
         return False
+
 
 def change_current_collection(index_name: str):
     cur_index = get_current_collection()
     db = mongo_client["chatbot"]
     cur_collection = db["current_collection"]
     result = cur_collection.find_one_and_update(
-              {"current_collection": cur_index },
-              {"$set":{"current_collection": index_name}},
-              upsert=True,
-          )
+        {"current_collection": cur_index},
+        {"$set": {"current_collection": index_name}},
+        upsert=True,
+    )
     if result != None:
         return index_name
     else:
         return False
+
 
 def dict_2_messages(history=[]):
     messages = []
@@ -81,7 +92,7 @@ def dict_2_messages(history=[]):
     return messages
 
 
-def embedding(formatFile: str, filepath:str, index_name: str):
+def embedding(formatFile: str, filepath: str, index_name: str):
     UPLOAD_DIR = (
         Path().resolve()
         / f"upload//{embedding_func.get_name_format_file(filepath)['file_name']}"
@@ -89,19 +100,19 @@ def embedding(formatFile: str, filepath:str, index_name: str):
     print(UPLOAD_DIR)
     match formatFile:
         case ".csv":
-            embedding_func.embedding_csv(UPLOAD_DIR,index_name)
+            embedding_func.embedding_csv(UPLOAD_DIR, index_name)
             return "zero"
         case ".docx":
-            embedding_func.embedding_docx(UPLOAD_DIR,index_name)
+            embedding_func.embedding_docx(UPLOAD_DIR, index_name)
             return "one"
         case ".pdf":
-            embedding_func.embedding_pdf(UPLOAD_DIR,index_name)
+            embedding_func.embedding_pdf(UPLOAD_DIR, index_name)
             return "two"
         case ".txt":
-            embedding_func.embedding_txt(UPLOAD_DIR,index_name)
+            embedding_func.embedding_txt(UPLOAD_DIR, index_name)
             return "three"
         case ".xlsx":
-            embedding_func.embedding_excel(UPLOAD_DIR,index_name)
+            embedding_func.embedding_excel(UPLOAD_DIR, index_name)
 
 
 def get_format(filepath: str):
@@ -123,6 +134,7 @@ def get_chat_history(email: str, chat_id: str = None):
     result = json.loads(json_util.dumps(result))
     return result
 
+
 def get_role(email: str):
     db = mongo_client["chatbot"]
     collection = db["chat_role"]
@@ -131,21 +143,22 @@ def get_role(email: str):
     result = json.loads(json_util.dumps(result))
     return result
 
+
 def save_chat_history(email: str, history: list, chat_name: str, chat_id: str = None):
     db = mongo_client["chatbot"]
     collection = db["chat_history"]
-    if(chat_name==""):
+    if chat_name == "":
         collection.find_one_and_update(
             {"email": email, "chat_id": chat_id},
             {"$set": {"history": history}},
             upsert=True,
         )
-    else: 
+    else:
         collection.find_one_and_update(
-            {"email": email, "chat_id": chat_id,"chat_name": chat_name},
+            {"email": email, "chat_id": chat_id, "chat_name": chat_name},
             {"$set": {"history": history}},
             upsert=True,
-        )        
+        )
     return "saved"
 
 
@@ -154,6 +167,3 @@ def delete_chat_history(email: str, chat_id: str):
     collection = db["chat_history"]
     collection.delete_one({"email": email, "chat_id": chat_id})
     return True
-
-
-

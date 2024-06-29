@@ -16,15 +16,15 @@ mongo_client = pymongo.MongoClient(
 db = mongo_client["chatbot"]
 collection = db["chat_role"]
 collection.find_one_and_update(
-            {"email": "huutai1515225@gmail.com", "role":"admin" },
-            {"$set":{"email": "huutai1515225@gmail.com", "role":"admin" }},
-            upsert=True,
-        )
+    {"email": "huutai1515225@gmail.com", "role": "admin"},
+    {"$set": {"email": "huutai1515225@gmail.com", "role": "admin"}},
+    upsert=True,
+)
 
 cur_collection = db["current_collection"]
-if (cur_collection.count_documents({})==0):
-  cur_collection.find_one_and_update(
-              {"current_collection": "ThongTinKhoaHoc_Cohere" },
-              {"$set":{"current_collection": "ThongTinKhoaHoc_Cohere"}},
-              upsert=True,
-          )
+if cur_collection.count_documents({}) == 0:
+    cur_collection.find_one_and_update(
+        {"current_collection": "ThongTinKhoaHoc_Cohere"},
+        {"$set": {"current_collection": "ThongTinKhoaHoc_Cohere"}},
+        upsert=True,
+    )
