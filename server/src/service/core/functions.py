@@ -49,7 +49,7 @@ api_cohere = "qi53enMDNySvAWICNhpPEGa9CnUotHqv3650RAXx"
 # model_name = "sentence-transformers/all-mpnet-base-v2"
 # embedding_dim = 768
 index_name = "ThongTinKhoaHoc_Cohere"
-model_name = "embed-multilingual-v3.0"
+model_name = "intfloat/multilingual-e5-large-instruct"
 embedding_dim = 1024
 
 
@@ -175,9 +175,7 @@ def embedding_csv(index_name: str = index_name, filepath: str = ".\courses.csv")
             )
         )
     # init embedder
-    doc_embedder = CohereDocumentEmbedder(
-        api_key=Secret.from_token(api_cohere), model=model_name
-    )
+    doc_embedder = SentenceTransformersDocumentEmbedder( model=model_name)  
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docs)
     doc_store.write_documents(
@@ -203,7 +201,7 @@ def get_current_collection():
 
 
 # RAG pipeline Q-A system
-def rag_pipe(index_name: str = get_current_collection()):
+def rag_pipe():
     print(get_current_collection())
     indexname = get_current_collection()
     template = """
@@ -226,10 +224,10 @@ def rag_pipe(index_name: str = get_current_collection()):
     ranker = CohereRanker(api_key=Secret.from_token(api_cohere))
     rag_pipe.add_component(
         "embedder",
-        CohereTextEmbedder(api_key=Secret.from_token(api_cohere), model=model_name),
+        SentenceTransformersTextEmbedder(model=model_name),
     )
     rag_pipe.add_component(
-        "retriever", QdrantEmbeddingRetriever(document_store=docstore, top_k=20)
+        "retriever", QdrantEmbeddingRetriever(document_store=docstore, top_k=15)
     )
     rag_pipe.add_component(instance=ranker, name="ranker")
     rag_pipe.add_component("prompt_builder", PromptBuilder(template=template))
@@ -314,6 +312,7 @@ def get_suggestions(query: str, answer: str):
         while check_and_strip_quotes(i) == 1:
             i = i[1:-1]
         clean_list.append(i)
+
     return clean_list[-4:]
 
 
@@ -460,7 +459,7 @@ def chatbot_with_fc(message, messages=[]):
     response = chat_generator.run(messages=messages, generation_kwargs={"tools": tools})
     llm = OpenAIGenerator(model="gpt-3.5-turbo")
     check_tool = llm.run(
-        f"Nếu nội dung của câu trả lời có ý thiếu thông tin hoặc cần cung cấp thông tin trả lời là 'yes', ngược lại trả kết quả 'no'. Câu trả lời như sau: {response['replies'][0].content}. "
+        f"Nếu nội dung của câu trả lời có ý thiếu thông tin hoặc cần cung cấp thông tin từ người dùng thì trả lời là 'yes', ngược lại trả kết quả 'no'. Câu trả lời như sau: {response['replies'][0].content}. "
     )
     print(check_tool["replies"][0])
     kq = check_tool["replies"][0]
@@ -508,14 +507,10 @@ def chatbot_with_fc(message, messages=[]):
                 response = chat_generator.run(
                     messages=messages, generation_kwargs={"tools": tools}
                 )
-                print(
-                    "---------------------------------------------------------------------"
-                )
 
         # Regular Conversation
         else:
             messages.append(response["replies"][0])
-            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             break
         # get suggestions for user to ask
 
