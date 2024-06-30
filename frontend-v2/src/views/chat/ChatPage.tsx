@@ -8,7 +8,7 @@ import Button from "@mui/material/Button";
 import React, { useEffect, useState } from "react";
 import getChatResponse, {
   deleteChat,
-  getChatRole,
+  // getChatRole,
 } from "../../services/chat/chat";
 import { getChatHistory } from "../../services/chat/chat";
 import Linkify from "react-linkify";
@@ -508,7 +508,7 @@ const ChatBotPage: React.FC = () => {
   const [action, setAction] = React.useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
   const [isRefresh, setIsRefresh] = React.useState<boolean>(false);
-  const [isAuth, setIsAuth] = React.useState<boolean>(false);
+  // const [isAuth, setIsAuth] = React.useState<boolean>(false);
   const navigate = useNavigate();
   const [abortController, setAbortController] = useState(new AbortController());
   useEffect(() => {
@@ -517,17 +517,17 @@ const ChatBotPage: React.FC = () => {
       abortController.abort();
     };
   }, []);
-  useEffect(() => {
-    getChatRole(user?.email)
-      .then((res) => {
-        if (res === "admin") {
-          setIsAuth(true);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
+  // useEffect(() => {
+  //   getChatRole(user?.email)
+  //     .then((res) => {
+  //       if (res === "admin") {
+  //         setIsAuth(true);
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // }, []);
   // useEffect(() => {
   //   console.log(user);
   //   if (user === null || user === undefined) {
@@ -759,7 +759,7 @@ const ChatBotPage: React.FC = () => {
                           navigate("/chat-admin");
                         }}
                         sx={{
-                          visibility: !isAuth ? "visible" : "hidden",
+                          visibility: "hidden",
                         }}
                       >
                         <Tooltip
