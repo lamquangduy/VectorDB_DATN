@@ -13,9 +13,10 @@ interface CreateDocument {
   setStatus:(value:string)=>void,
   setIsRefresh:(value:boolean)=>void,
   setIsAlert:(value:boolean)=>void,
+  listDocument:string[]
 };
 
-const CreateDocument:React.FC<CreateDocument> =({createDocument,setCreateDocument,setStatus,setIsRefresh,setIsAlert}) =>{
+const CreateDocument:React.FC<CreateDocument> =({createDocument,setCreateDocument,setStatus,setIsRefresh,setIsAlert,listDocument}) =>{
 
   const handleClose = () => {
    setCreateDocument(false)
@@ -30,14 +31,21 @@ const CreateDocument:React.FC<CreateDocument> =({createDocument,setCreateDocumen
           component: 'form',
           onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
+            // console.log(event)
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
             const email = formJson.email;
-            console.log(email);
             handleClose();
-            setIsRefresh(true)
+            setIsRefresh(true);
+            if(listDocument.includes(email)){
+              setStatus(`Document ${email} is exists`)
+                setTimeout(() => {
+                  setIsAlert(true)
+                }, 2000);
+                return;
+            }
+
             addDocument(email).then((res)=>{
-                console.log(res)
                 setStatus(`Create document successfully ${res}`)
                 setTimeout(() => {
                   setIsAlert(true)
@@ -45,6 +53,10 @@ const CreateDocument:React.FC<CreateDocument> =({createDocument,setCreateDocumen
                 setIsAlert(false)
                 setIsRefresh(false)
             }).catch((err)=>{
+              setStatus(`${err.message}`)
+              setTimeout(() => {
+                setIsAlert(true)
+              }, 2000);
                 console.log(err.message)
             })
            

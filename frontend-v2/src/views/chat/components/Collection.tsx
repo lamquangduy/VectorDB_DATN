@@ -91,6 +91,8 @@ const [isAlert,setIsAlert]=useState(false);
                <SuccessStatus title={`${status} successfully`}></SuccessStatus>}
                 {status.includes("Document is in use")&& isAlert&&
                <ErrorStatus title={`${status}`}></ErrorStatus>}
+                {status.includes("is exists")&& isAlert&&
+               <ErrorStatus title={`${status}`}></ErrorStatus>}
                {status.includes("Change")&& isAlert&&
                <SuccessStatus title={`Current Document is ${currentDocument}`}></SuccessStatus>}
                
@@ -271,7 +273,8 @@ const [isAlert,setIsAlert]=useState(false);
                 flexDirection:"column",
               }}
               >
-                {createDocument && <CreateDocument setIsRefresh={setIsRefresh} createDocument={createDocument} setCreateDocument={setCreateDocument} setStatus={setStatus} setIsAlert={setIsAlert}/>}
+                {createDocument && <CreateDocument setIsRefresh={setIsRefresh} createDocument={createDocument} setCreateDocument={setCreateDocument} setStatus={setStatus} setIsAlert={setIsAlert}
+                listDocument={listDocument}/>}
                 <Button onClick={()=>{setCreateDocument(true)}}>
                 <AddCircleOutlineIcon></AddCircleOutlineIcon>
                 </Button>

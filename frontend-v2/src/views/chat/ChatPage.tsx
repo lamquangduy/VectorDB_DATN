@@ -759,7 +759,7 @@ const ChatBotPage: React.FC = () => {
                           navigate("/chat-admin");
                         }}
                         sx={{
-                          visibility: isAuth ? "visible" : "hidden",
+                          visibility: !isAuth ? "visible" : "hidden",
                         }}
                       >
                         <Tooltip
