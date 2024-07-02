@@ -623,14 +623,6 @@ def chatbot_with_fc_stream(message, messages=[]):
                     )
                 )
     response = chat_generator.run(messages=messages)
-    for event in response:
-        if "content" in event["choices"][0].delta:
-            current_response = event["choices"][0].delta.content
-            # important format
-            yield "data: " + current_response + "\n\n"
-
-    messages.append(response["replies"][0])
-    suggestions = []
     end = time.time()
     print("chat time: ",end - start)
     # return {
