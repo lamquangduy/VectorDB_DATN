@@ -13,7 +13,7 @@ interface CreateDocument {
   setStatus:(value:string)=>void,
   setIsRefresh:(value:boolean)=>void,
   setIsAlert:(value:boolean)=>void,
-  listDocument:string[]
+  listDocument:string[],
 };
 
 const CreateDocument:React.FC<CreateDocument> =({createDocument,setCreateDocument,setStatus,setIsRefresh,setIsAlert,listDocument}) =>{
@@ -36,22 +36,14 @@ const CreateDocument:React.FC<CreateDocument> =({createDocument,setCreateDocumen
             const formJson = Object.fromEntries((formData as any).entries());
             const email = formJson.email;
             handleClose();
-            setIsRefresh(true);
+            
             if(listDocument.includes(email)){
               setStatus(`Document ${email} is exists`)
-                setTimeout(() => {
-                  setIsAlert(true)
-                }, 2000);
                 return;
             }
 
             addDocument(email).then((res)=>{
                 setStatus(`Create document successfully ${res}`)
-                setTimeout(() => {
-                  setIsAlert(true)
-                }, 2000);
-                setIsAlert(false)
-                setIsRefresh(false)
             }).catch((err)=>{
               setStatus(`${err.message}`)
               setTimeout(() => {

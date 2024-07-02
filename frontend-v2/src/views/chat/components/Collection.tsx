@@ -24,12 +24,14 @@ const [createDocument,setCreateDocument]=useState(false);
 const [isAlert,setIsAlert]=useState(false);
   useEffect(()=>{
     console.log(status)
-    if(status.includes("Create document successfully"))
+    if(status.includes("Create document successfully") || status.includes("is exist"))
       {
     setTimeout(() => {
       setIsAlert((p)=>!p)
     }, 2000);
     setIsAlert((p)=>!p)}
+
+    
     getDocuments().then((res)=>{
       setListCollection(res)
       setIsRefresh(false)
@@ -212,7 +214,8 @@ const [isAlert,setIsAlert]=useState(false);
             sx={{
                 display:"flex",
                 flexWrap:"wrap",
-                justifyContent:"center"
+                justifyContent:"center",
+                overflowY:"auto",
             }}>
               {listDocument.map((item:string)=>{
                 if(search.length && !item.includes(search)){
@@ -225,19 +228,20 @@ const [isAlert,setIsAlert]=useState(false);
                 border:1,
                 borderColor: "whitesmoke",
                 width:"30%",
-                height:70,
+                height:120,
                 margin:"1%",
-                borderRadius: 2
-              
+                borderRadius: 2,
+                boxShadow: 2
               }}>
                 <Box
                 sx={{
                     display:"flex",
-                    justifyContent:"center"
+                    justifyContent:"center",
+                    height: 40
                 }}>
-                  <Typography sx={{fontSize:18, marginTop:.5}}>{item}</Typography>
+                  <Typography sx={{fontSize:18, marginTop:1}}>{item}</Typography>
                 </Box>
-                <Divider></Divider>
+                <Divider sx={{margin: "4%"}}></Divider>
                 <Box
                 sx={{
                  display:"flex",
@@ -246,13 +250,25 @@ const [isAlert,setIsAlert]=useState(false);
                 }}>
                     <Button 
                   sx={{
-                    color:"black"
+                    color:"#f14343",
+                    border: 1,
+                    borderColor: "#f14343",
+
+                    ":hover":{
+                      backgroundColor: "red",
+                      color: "white",
+                    }
                 }}
-                  onClick={()=>handleChangeDocument(item)}>USE THIS</Button>
-                  <Button sx={{
-                      color:"black"
-                  }}
                   onClick={()=>handleDelete(item)}>DELETE</Button>
+                  <Button sx={{
+                      color:"white",
+                      backgroundImage: "linear-gradient(135deg, #008aff, #86d472)",
+                      ":hover":{
+                        backgroundImage:
+                      "linear-gradient(135deg, #488ecac5, #9cd18d)",
+                      }
+                  }}
+                  onClick={()=>handleChangeDocument(item)}>Select</Button>
 
                 </Box>
               </Box>
@@ -262,9 +278,10 @@ const [isAlert,setIsAlert]=useState(false);
               sx={{
                 backgroundColor:"white",
                 border:1,
+                boxShadow: 2,
                 borderColor: "whitesmoke",
                 width:"30%",
-                height:70,
+                height:120,
                 margin:"1%",
                 display:"flex",
                 borderRadius: 2,
@@ -274,6 +291,7 @@ const [isAlert,setIsAlert]=useState(false);
               }}
               >
                 {createDocument && <CreateDocument setIsRefresh={setIsRefresh} createDocument={createDocument} setCreateDocument={setCreateDocument} setStatus={setStatus} setIsAlert={setIsAlert}
+
                 listDocument={listDocument}/>}
                 <Button onClick={()=>{setCreateDocument(true)}}>
                 <AddCircleOutlineIcon></AddCircleOutlineIcon>

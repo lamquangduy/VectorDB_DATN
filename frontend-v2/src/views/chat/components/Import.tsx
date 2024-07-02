@@ -333,9 +333,12 @@ const Import: React.FC = () => {
               </Button>
               <Button
                 sx={{
+                  height: "50px",
+                  width: "300px",
                   marginY: 1,
                   fontWeight: "medium",
                   fontSize: 17,
+                  border: 1,
                   ":hover": {
                     backgroundColor: "white",
                     color: "#f14343",
