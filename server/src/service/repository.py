@@ -8,6 +8,9 @@ from src.database.mongodb.repository import mongo_client
 from bson import json_util
 import json
 
+def get_chat_result_stream(text, history=[]):
+    return functions.chatbot_with_fc_stream(text, history)
+    
 
 def get_chat_result(text, history=[]):
     result = chatbot_with_fc(text, history)

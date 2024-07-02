@@ -1,9 +1,10 @@
 from typing import Optional
 import uuid
 from fastapi import APIRouter, UploadFile, Request
+from fastapi.responses import StreamingResponse
 from . import repository
 from pathlib import Path
-
+import openai
 router = APIRouter()
 import os
 from pydantic import BaseModel
@@ -93,6 +94,13 @@ async def chat(data: ChatInput):
     result = repository.get_chat_result(data.text, messages)
 
     return result
+
+@router.post("/chat_stream")
+async def chat(data: ChatInput):
+    for i in data.history:
+        print(i)
+    messages = repository.dict_2_messages(data.history)
+    return  StreamingResponse(repository.get_chat_result(data.text, messages), media_type='text/event-stream')
 
 
 @router.post("/upload-file")
