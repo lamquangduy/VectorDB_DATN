@@ -70,7 +70,7 @@ const renderTextWithBoldAndLinks = (text: string) => {
   return parts.map((part, index) => {
     if (part && part.startsWith('**') && part.endsWith('**')) {
       return (
-        <span key={index} style={{ fontWeight: 'bold',fontFamily: "Montserrat", fontSize: 14 }}>
+        <span key={index} style={{ fontWeight: 'bold',fontFamily: "Montserrat", fontSize: 18 }}>
           {part.slice(2, -2)}
         </span>
       );
@@ -81,7 +81,7 @@ const renderTextWithBoldAndLinks = (text: string) => {
           <a
             key={index}
             href={match[2]}
-            style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 14 }}
+            style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 18 }}
           >
             {match[1]}
           </a>
@@ -197,7 +197,7 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
             overflow: "hidden",
             p: 1,
             textTransform: "capitalize",
-            fontSize: "0.8rem",
+            fontSize: 12,
           }}
         >
           {value}
@@ -275,7 +275,7 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
         height: "100%",
         border: 0.5,
         borderRight: 0,
-        color: "#36802d",
+        color: "#018D36",
         // marginTop: 4,
       }}
     >
@@ -283,7 +283,7 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
         sx={{
           height: "6%",
           width: "100%",
-          background: "#36802d",
+          background: "#018D36",
           display: "flex",
         }}
       >
@@ -384,12 +384,13 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
         >
           <Button
             sx={{
-              backgroundColor: "#222222",
+              backgroundColor: "#018D36",
               color: "white",
+              fontWeight: 800,
               width: "100%",
               height: "100%",
               ":hover": {
-                backgroundColor: "#222222",
+                backgroundColor: "#019b01",
               },
             }}
             onClick={handleNewChat}
@@ -421,15 +422,15 @@ const BotText: React.FC<ChatTag> = ({ props, isChat, isLoading, setIsLoading }) 
           // bgcolor: "#4E5652",
           // color: "#FFFFFF",
           color: "black",
-          bgcolor: "#f7f7f7",
+          bgcolor: "white",
           borderTopLeftRadius: "10px",
           borderTopRightRadius: "10px",
           borderBottomRightRadius: "10px",
           overflow: "hidden",
           m: 1,
           padding: 1,
-          boxShadow: 3,
-          fontSize: 14,
+          boxShadow: 2,
+          fontSize: 18,
         }}
       >
         {isChat ? (
@@ -440,15 +441,15 @@ const BotText: React.FC<ChatTag> = ({ props, isChat, isLoading, setIsLoading }) 
         <a
           key={key}
           href={decoratedHref}
-          style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 14 }}
+          style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 18 }}
         >
-          <span style={{ fontFamily: "Montserrat", fontSize: 14 }}>
+          <span style={{ fontFamily: "Montserrat", fontSize: 18 }}>
             {decoratedText}
           </span>
         </a>
       )}
     >
-      <span style={{ fontFamily: "Montserrat", fontSize: 14 }}>
+      <span style={{ fontFamily: "Montserrat", fontSize: 18 }}>
       {renderTextWithBoldAndLinks(props.message)}
       </span>
     </Linkify>
@@ -473,7 +474,7 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
         sx={{
           // bgcolor: "#25A18E",
           // bgcolor: "#2cac24",
-          bgcolor: "#097969",
+          bgcolor: "#019b01",
           color: "#FFFFFF",
           borderTopLeftRadius: "10px",
           borderTopRightRadius: "10px",
@@ -482,7 +483,7 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
           m: 1,
           padding: 1,
           boxShadow: 3,
-          fontSize: 14,
+          fontSize: 18,
           maxWidth: "65%",
         }}
       >
@@ -697,7 +698,7 @@ const ChatBotPage: React.FC = () => {
                 padding: 0,
                 margin: 0,
                 border: 0.5,
-                color: "#36802d",
+                color: "#018D36",
               }}
             >
               <>
@@ -713,7 +714,7 @@ const ChatBotPage: React.FC = () => {
                     sx={{
                       height: "6%",
                       width: "100%",
-                      background: "#36802d",
+                      background: "#018D36",
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
@@ -741,7 +742,7 @@ const ChatBotPage: React.FC = () => {
                       <Typography
                         sx={{
                           width: "100%",
-                          fontSize: "20px",
+                          fontSize: 28,
                           fontWeight: "bold",
                           color: "#e3e0e0",
                           padding: 0,
@@ -979,15 +980,15 @@ const Typewriter: React.FC<TypewriterProps> = ({ text, delay, isLoading, setIsLo
         <a
           key={key}
           href={decoratedHref}
-          style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 14 }}
+          style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 18 }}
         >
-          <span style={{ fontFamily: "Montserrat", fontSize: 14 }}>
+          <span style={{ fontFamily: "Montserrat", fontSize: 18 }}>
             {decoratedText}
           </span>
         </a>
       )}
     >
-      <span style={{ fontFamily: "Montserrat", fontSize: 14 }}>
+      <span style={{ fontFamily: "Montserrat", fontSize: 18 }}>
         {renderTextWithBoldAndLinks(currentText)}
       </span>
     </Linkify>
