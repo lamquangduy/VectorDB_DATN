@@ -78,7 +78,7 @@ export const deleteDocument = async (documentName: string) => {
 export const changeCurrentDocument = async (value: string) => {
   const response = await axiosInstance({
     method: "post",
-    url: `/collection/change-current?index_name=${value}`,
+    url: `/collection/change_current?index_name=${value}`,
   });
   return response.data;
 };
@@ -89,5 +89,6 @@ export const addDocument = async (value: string) => {
   });
   return response.data;
 };
+
 
 export default getChatResponse;

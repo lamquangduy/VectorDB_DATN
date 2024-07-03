@@ -535,6 +535,58 @@ const ChatBotPage: React.FC = () => {
   //     navigate("/login");
   //   }
   // }, [navigate, user]);
+  interface ReadResult {
+    done: boolean;
+    value?: Uint8Array;
+  }
+    async function sendMessage(message:string) {
+    var response = await fetch('http://localhost:8000/chat_stream/huutai1515225@gmail.com', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+            chat_id:"",
+            text:message,
+            history:[]
+         })
+    });
+
+    var reader = response.body?.getReader();
+    const length=chatHistory.length
+    var decoder = new TextDecoder('utf-8');
+    var message=""
+    reader?.read().then(function processResult(result:ReadResult) {
+        if (result.done) return;
+        let token = decoder.decode(result.value);
+        if (token.endsWith('.') || token.endsWith('!') || token.endsWith('?')|| token.endsWith(' ')) {
+            message+=token + '';
+            chatHistory[length]={
+              sender: "bot",
+              message: message.trim(),
+            }
+            setChatData(p=>{
+              p[length]=chatHistory[length]
+              return p;
+            });
+
+        } else {
+          message+=token + '';
+          chatHistory[chatHistory.length]={
+            sender: "bot",
+            message: message.trim(),
+          }
+          setChatData(p=>{
+            p[length]=chatHistory[length]
+            return p;
+          });
+        }
+        console.log(message)
+        return reader?.read().then(processResult);
+    });
+
+}
+
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
@@ -602,36 +654,36 @@ const ChatBotPage: React.FC = () => {
     if (!Boolean(value)) setMessage("");
     const newAbortController = new AbortController();
     setAbortController(newAbortController);
+    sendMessage(value??message);
+    // getChatResponse(user?.email, value ?? message, trackServer, chatID,newAbortController.signal)
+    //   .then((res) => {
+    //     console.log(res.response.answer)
+    //     chatHistory.push({
+    //       sender: "bot",
+    //       message: res.response.answer,
+    //       // .replaceAll("*", ""),
+    //     });
 
-    getChatResponse(user?.email, value ?? message, trackServer, chatID,newAbortController.signal)
-      .then((res) => {
-        console.log(res.response.answer)
-        chatHistory.push({
-          sender: "bot",
-          message: res.response.answer,
-          // .replaceAll("*", ""),
-        });
-
-        setChatData([...chatHistory]);
-        setTrackServer(res.response.history);
-        setSuggestion(res.response.tag);
-        if (chatID === "") {
-          setAction("newID");
-        }
-        setChatID(res.chatID);
-        setIsLoading(2);
-        scrollToBottom();
-      })
-      .catch((err) => {
-       if(err.message==="canceled") return;
-        chatHistory.push({
-          sender: "bot",
-          message: err.message ?? "There is somethings wrong!!",
-        });
-        setChatData([...chatHistory]);
+    //     setChatData([...chatHistory]);
+    //     setTrackServer(res.response.history);
+    //     setSuggestion(res.response.tag);
+    //     if (chatID === "") {
+    //       setAction("newID");
+    //     }
+    //     setChatID(res.chatID);
+    //     setIsLoading(2);
+    //     scrollToBottom();
+    //   })
+    //   .catch((err) => {
+    //    if(err.message==="canceled") return;
+    //     chatHistory.push({
+    //       sender: "bot",
+    //       message: err.message ?? "There is somethings wrong!!",
+    //     });
+    //     setChatData([...chatHistory]);
         setIsLoading(0);
         scrollToBottom();
-      });
+    //   });
   };
   const handleNewChat = () => {
     abortController.abort()
