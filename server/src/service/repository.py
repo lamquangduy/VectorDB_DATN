@@ -79,6 +79,19 @@ def change_current_collection(index_name: str):
         return False
 
 
+
+
+
+
+def get_list_suggestion(history = []):
+    print(history[-2]["content"] +"  "+ history[-1]["content"])
+    return functions.get_suggestions(history[-2]["content"], history[-1]["content"])
+
+
+def get_summarize_chat(history= []):
+    return functions.get_summarize_chat(history[-2]["content"])
+
+
 def dict_2_messages(history=[]):
     messages = []
     for n in history:

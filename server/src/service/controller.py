@@ -8,7 +8,8 @@ import openai
 router = APIRouter()
 import os
 from pydantic import BaseModel
-
+import asyncio
+from typing import AsyncIterable
 
 UPLOAD_DIR = Path().resolve() / "upload"
 if not os.path.exists(UPLOAD_DIR):
@@ -102,7 +103,18 @@ async def chat(email: str, data: ChatInput):
 
     return StreamingResponse(repository.get_chat_result_stream(data.text,history), media_type='text/event-stream')
 
-
+@router.post("/handle_after_chat/{email}")
+async def handle_after_chat(email: str, data: ChatInput):
+    name_chat = ""
+    if data.chat_id == "":
+        data.chat_id = str(uuid.uuid4())
+        name_chat = repository.get_summarize_chat(data.history)
+    history = repository.dict_2_messages(data.history)
+    list_suggestion = repository.get_list_suggestion(data.history)
+    data_to_save = jsonable_encoder(history)
+    name_chat_to_save = jsonable_encoder(name_chat)
+    repository.save_chat_history(email, data_to_save, name_chat_to_save, data.chat_id)
+    return {"chatID":data.chat_id, "tag": list_suggestion, "name_chat": name_chat}
 
 
 @router.post("/upload-file")

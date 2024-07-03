@@ -22,7 +22,7 @@ const NavBar:React.FC<NavBar>=({isFile,setIsFile})=> {
   return (
     <List
       sx={{ width: '100%',
-       maxWidth: 360,
+       maxWidth: 400,
     display:'flex',
     gap:"7px",
     marginLeft:3,
