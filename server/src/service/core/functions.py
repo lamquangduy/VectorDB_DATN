@@ -634,9 +634,12 @@ def chatbot_with_fc_stream(message, messages=[]):
             messages=[mess.to_openai_format() for mess in messages],
             stream=True
         ):
-        if "content" in event.choices[0].delta:
+        # if "content" in event.choices[0].delta:
             current_response = event.choices[0].delta.content
-            yield current_response
+            if current_response is not None :
+                yield current_response
+    
+            
     # return {
     #     "history": messages,
     #     "answer": response["replies"][0].content,
