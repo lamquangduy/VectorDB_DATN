@@ -19,7 +19,7 @@ from haystack.components.embedders import (
 from haystack.components.classifiers import DocumentLanguageClassifier
 from haystack.components.builders import PromptBuilder
 from haystack.components.generators import OpenAIGenerator
-from haystack.dataclasses import ChatMessage
+from haystack.dataclasses import ChatMessage, StreamingChunk
 from haystack.components.generators.chat import OpenAIChatGenerator
 from haystack.components.generators.utils import print_streaming_chunk
 from haystack import Document
@@ -255,20 +255,20 @@ def rag_pipe():
     # rag_pipe.add_component(
     #     "embedder", SentenceTransformersTextEmbedder(model=model_name)
     # )
-    ranker = CohereRanker(model='rerank-multilingual-v3.0')
+    # ranker = CohereRanker(model='rerank-multilingual-v3.0')
     rag_pipe.add_component(
         "embedder",
         # SentenceTransformersTextEmbedder(model=model_name),
         CohereTextEmbedder(model=model_name)
     )
     rag_pipe.add_component(
-        "retriever", QdrantEmbeddingRetriever(document_store=docstore, top_k=15)
+        "retriever", QdrantEmbeddingRetriever(document_store=docstore, top_k=10)
     )
-    rag_pipe.add_component(instance=ranker, name="ranker")
+    # rag_pipe.add_component(instance=ranker, name="ranker")
     # rag_pipe.add_component("prompt_builder", PromptBuilder(template=template))
     # rag_pipe.add_component("llm", OpenAIGenerator(model="gpt-3.5-turbo"))
     rag_pipe.connect("embedder.embedding", "retriever.query_embedding")
-    rag_pipe.connect("retriever.documents", "ranker.documents")
+    # rag_pipe.connect("retriever.documents", "ranker.documents")
     # rag_pipe.connect("ranker.documents", "prompt_builder.documents")
     # rag_pipe.connect("prompt_builder", "llm")
 
@@ -281,11 +281,11 @@ def rag_pipeline_func(query: str):
     result = rag_pipe().run(
         {
             "embedder": {"text": query},
-            "ranker": {"query": query, "top_k": 10},
+            # "ranker": {"query": query, "top_k": 10},
         }
     )
     content = ""
-    x = result['ranker']['documents']
+    x = result['retriever']['documents']
     for y in x:
         content= content + y.content + ". "
     end = time.time()
@@ -608,7 +608,9 @@ def chatbot_with_fc_stream(message, messages=[]):
             )
         )
     messages.append(ChatMessage.from_user(message))
-    chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo",streaming_callback=lambda chunk: print(chunk.content, end="", flush=True))
+    chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
+                                        #  ,streaming_callback=lambda chunk: print(chunk.content, end="", flush=True))
+    # chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
     messages.append(
         ChatMessage.from_system(
             "Trả lời ngắn gọn đủ ý. Không được tự suy luận thiếu thông tin từ dữ liệu chat. Nếu câu trả lời của bạn thông báo không có thông tin hoặc cần cung cấp thông tin thông tin thì bạn phải truyền giá trị cho finish_reason là 'tool_calls', không sử dụng thông tin từ bên ngoài. Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt thì luôn trả lời bằng tiếng Việt. Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user. Cần định dạng hình thức câu trả lời sao cho rõ ràng và đẹp."
@@ -622,9 +624,19 @@ def chatbot_with_fc_stream(message, messages=[]):
                         content=json.dumps(rag_result), name="rag_pipeline_func"
                     )
                 )
-    response = chat_generator.run(messages=messages)
+    # response = chat_generator.run(messages=messages)
     end = time.time()
     print("chat time: ",end - start)
+    
+    
+    for event in chat_generator.client.chat.completions.create(
+            model=chat_generator.model,
+            messages=[mess.to_openai_format() for mess in messages],
+            stream=True
+        ):
+        if "content" in event.choices[0].delta:
+            current_response = event.choices[0].delta.content
+            yield current_response
     # return {
     #     "history": messages,
     #     "answer": response["replies"][0].content,
