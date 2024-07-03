@@ -99,7 +99,9 @@ async def chat(data: ChatInput):
 @router.post("/chat_stream/{email}")
 async def chat(email: str, data: ChatInput):
     history = repository.dict_2_messages(data.history)
-    return  StreamingResponse(repository.get_chat_result(data.text, history), media_type='text/event-stream')
+
+    return StreamingResponse(repository.get_chat_result_stream(data.text,history), media_type='text/event-stream')
+
 
 
 
