@@ -298,58 +298,87 @@ const Import: React.FC = () => {
               onDragLeave={handleDragLeave}
             >
               <Box
-                component="img"
                 sx={{
-                  width: "150px",
-                  height: "150px",
-                }}
-                src={getFileIcon(file.name)}
-              ></Box>
-              <Typography
-                sx={{
-                  fontSize: 20,
-                  fontWeight:10,
-                  marginY: 1,
+                  width: "100%",
+                  height: "100%",
                 }}
               >
-                {file.name}
-              </Typography>
-              <Button
-                sx={{
-                  height: "50px",
-                  width: "300px",
-                  backgroundImage: "linear-gradient(135deg, #008aff, #86d472)",
-                  color: "white",
-                  fontWeight: 700,
-                  marginY: 1,
-                  ":hover": {
-                    backgroundImage:
-                      "linear-gradient(135deg, #488ecac5, #9cd18d)",
-                  },
-                }}
-                onClick={handleSubmit}
-              >
-                Upload file
-              </Button>
-              <Button
-                sx={{
-                  height: "50px",
-                  width: "300px",
-                  marginY: 1,
-                  fontWeight: "medium",
-                  fontSize: 17,
-                  border: 1,
-                  ":hover": {
-                    backgroundColor: "white",
-                    color: "#f14343",
-                  },
-                }}
-                onClick={() => {
-                  setFile(null);
-                }}
-              >
-                Cancel
-              </Button>
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: "40%",
+                    fontSize: 20,
+                    fontWeight:10,
+                  }}
+                >
+                  <Box
+                    component="img"
+                    sx={{
+                      marginY: 1,
+                      width: "100%",
+                      height: "70%",
+                    }}
+                    src={getFileIcon(file.name)}
+                  ></Box>
+                  <Typography
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {file.name}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: "65%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Button
+                    sx={{
+                      height: "30%",
+                      width: "30%",
+                      backgroundImage: "linear-gradient(135deg, #008aff, #86d472)",
+                      color: "white",
+                      fontWeight: 700,
+                      marginY: 1,
+                      ":hover": {
+                        backgroundImage:
+                          "linear-gradient(135deg, #488ecac5, #9cd18d)",
+                      },
+                    }}
+                    onClick={handleSubmit}
+                  >
+                    Upload file
+                  </Button>
+                  <Button
+                    sx={{
+                      height: "30%",
+                      width: "30%",
+                      marginY: 1,
+                      fontWeight: "medium",
+                      fontSize: 17,
+                      border: 1,
+                      ":hover": {
+                        backgroundColor: "white",
+                        color: "#f14343",
+                      },
+                    }}
+                    onClick={() => {
+                      setFile(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </Box>
+              </Box>
             </Box>
           </Box>
         ) : (
