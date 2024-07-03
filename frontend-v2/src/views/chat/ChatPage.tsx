@@ -33,8 +33,8 @@ const theme = createTheme({
 });
 
 interface IChatData {
-  sender?: string;
-  message: string;
+  role?: string;
+  content: string;
 }
 interface ChatTag {
   props: IChatData;
@@ -61,7 +61,7 @@ const scrollToBottom = () => {
   }
 };
 const mockData: IChatData[] = [
-  { sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" },
+  { role: "bot", content: "Xin chào, bạn cần hỗ trợ gì?" },
 ];
 
 
@@ -93,7 +93,7 @@ const renderTextWithBoldAndLinks = (text: string) => {
   });
 };
 
-const loadingMessage: IChatData = { sender: "bot", message: "Loading..." };
+const loadingcontent: IChatData = { role: "bot", content: "Loading..." };
 // const SuggestedTag: React.FC<SuggestedTagProps> = ({
 //   value,
 //   handleClick,
@@ -434,7 +434,7 @@ const BotText: React.FC<ChatTag> = ({ props, isChat, isLoading, setIsLoading }) 
         }}
       >
         {isChat ? (
-          <Typewriter text={props.message} delay={9} isLoading={isLoading} setIsLoading={setIsLoading} />
+          <Typewriter text={props.content} delay={9} isLoading={isLoading} setIsLoading={setIsLoading} />
         ) : (
         <Linkify
       componentDecorator={(decoratedHref, decoratedText, key) => (
@@ -450,7 +450,7 @@ const BotText: React.FC<ChatTag> = ({ props, isChat, isLoading, setIsLoading }) 
       )}
     >
       <span style={{ fontFamily: "Montserrat", fontSize: 18 }}>
-      {renderTextWithBoldAndLinks(props.message)}
+      {renderTextWithBoldAndLinks(props.content)}
       </span>
     </Linkify>
         )}
@@ -487,7 +487,7 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
           maxWidth: "65%",
         }}
       >
-        {props.message}
+        {props.content}
       </Typography>
       <Avatar />
     </Box>
@@ -500,7 +500,7 @@ const ChatBotPage: React.FC = () => {
   const { user } = useAuth0();
   const [chatHistory, setChatHistory] = React.useState<IChatData[]>(mockData);
   const [chatData, setChatData] = React.useState<IChatData[]>(chatHistory);
-  const [message, setMessage] = React.useState<string>("");
+  const [content, setcontent] = React.useState<string>("");
   // const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [isLoading, setIsLoading] = React.useState(0);
   const [suggestion, setSuggestion] = React.useState<string[]>(initialTag);
@@ -539,49 +539,78 @@ const ChatBotPage: React.FC = () => {
     done: boolean;
     value?: Uint8Array;
   }
-    async function sendMessage(message:string) {
-    var response = await fetch('http://localhost:8000/chat_stream/huutai1515225@gmail.com', {
+    async function sendcontent(user: any,
+      text: string,
+      history: any[],
+      chatId: string,
+      signal: any) {
+    var response = await fetch(`http://localhost:8000/chat_stream/${user}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ 
-            chat_id:"",
-            text:message,
-            history:[]
-         })
+            chat_id:chatId,
+            text:text,
+            history:history
+         }),
+         signal: signal,
     });
-
-    var reader = response.body?.getReader();
     const length=chatHistory.length
+    var reader = response.body?.getReader();
     var decoder = new TextDecoder('utf-8');
-    var message=""
+    var content=""
+    setIsLoading(2);
+    scrollToBottom();
     reader?.read().then(function processResult(result:ReadResult) {
-        if (result.done) return;
+        if (result.done) {
+          const response = fetch(`http://localhost:8000/handle_after_chat/${user}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+            chat_id:chatId,
+            text:text,
+            history:chatHistory
+         }),
+         signal: signal,
+    }).then((res)=>{
+      return res.json(); // Giải mã nội dung JSON của phản hồi
+    }).then((data) => {
+       setAction("newID")
+       setChatID(data.chatID);
+       setSuggestion(data.tag);
+       setIsLoading(0);
+      scrollToBottom();
+    })
+    return;
+        };
         let token = decoder.decode(result.value);
         if (token.endsWith('.') || token.endsWith('!') || token.endsWith('?')|| token.endsWith(' ')) {
-            message+=token + '';
+            content+=token + '';
             chatHistory[length]={
-              sender: "bot",
-              message: message.trim(),
+              role: "assistant",
+              content: content.trim(),
             }
+            
+            
             setChatData(p=>{
               p[length]=chatHistory[length]
               return p;
             });
 
         } else {
-          message+=token + '';
-          chatHistory[chatHistory.length]={
-            sender: "bot",
-            message: message.trim(),
+          content+=token + '';
+          chatHistory[length]={
+            role: "assistant",
+            content: content.trim(),
           }
           setChatData(p=>{
             p[length]=chatHistory[length]
             return p;
           });
         }
-        console.log(message)
         return reader?.read().then(processResult);
     });
 
@@ -595,17 +624,17 @@ const ChatBotPage: React.FC = () => {
       setIsRefresh((p) => !p);
     }, 200);
     setIsChat(false);
-    const messageTags = value.history.map(
+    const contentTags = value.history.map(
       (history: { role: any; content: any }) => {
-        return { sender: history.role, message: history.content };
+        return { role: history.role, content: history.content };
       }
     );
     console.log("Handle History");
     setSuggestion(initialTag);
-    setChatHistory(messageTags);
+    setChatHistory(contentTags);
     setChatID(value.chat_id);
-    console.log(messageTags);
-    setChatData(messageTags);
+    console.log(contentTags);
+    setChatData(contentTags);
     scrollToBottom();
     setIsRefresh((p) => !p);
     setTrackServer(value.history);
@@ -622,10 +651,10 @@ const ChatBotPage: React.FC = () => {
     deleteChat(user?.email, value.chat_id);
     if (chatID === value.chat_id) {
       setChatHistory([
-        { sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" },
+        { role: "assistant", content: "Xin chào, bạn cần hỗ trợ gì?" },
       ]);
       setChatID("");
-      setChatData([{ sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" }]);
+      setChatData([{ role: "assistant", content: "Xin chào, bạn cần hỗ trợ gì?" }]);
       setTrackServer([]);
       setSuggestion(initialTag);
       setAction("create");
@@ -639,28 +668,29 @@ const ChatBotPage: React.FC = () => {
   }, [isLoading]);
 
   const handleChat = (value?: string) => {
-    if (value === undefined && message.length === 0) {
+    if (value === undefined && content.length === 0) {
       return;
     }
     if (isLoading === 1) {
       return;
     }
     setIsChat(true);
-    // setMessage(value);
-    chatHistory.push({ sender: "user", message: value ?? message });
+    // setcontent(value);
+    chatHistory.push({ role: "user", content: value ?? content });
     setChatData([...chatHistory]);
     setIsLoading(1);
     scrollToBottom();
-    if (!Boolean(value)) setMessage("");
+    if (!Boolean(value)) setcontent("");
     const newAbortController = new AbortController();
     setAbortController(newAbortController);
-    sendMessage(value??message);
-    // getChatResponse(user?.email, value ?? message, trackServer, chatID,newAbortController.signal)
+    sendcontent(user?.email, value ?? content,trackServer,chatID,newAbortController.signal);
+
+    //  getChatResponse(user?.email, value ?? content, trackServer, chatID,newAbortController.signal)
     //   .then((res) => {
     //     console.log(res.response.answer)
     //     chatHistory.push({
-    //       sender: "bot",
-    //       message: res.response.answer,
+    //       role: "bot",
+    //       content: res.response.answer,
     //       // .replaceAll("*", ""),
     //     });
 
@@ -675,14 +705,12 @@ const ChatBotPage: React.FC = () => {
     //     scrollToBottom();
     //   })
     //   .catch((err) => {
-    //    if(err.message==="canceled") return;
+    //    if(err.content==="canceled") return;
     //     chatHistory.push({
-    //       sender: "bot",
-    //       message: err.message ?? "There is somethings wrong!!",
+    //       role: "bot",
+    //       content: err.content ?? "There is somethings wrong!!",
     //     });
     //     setChatData([...chatHistory]);
-        setIsLoading(0);
-        scrollToBottom();
     //   });
   };
   const handleNewChat = () => {
@@ -692,10 +720,10 @@ const ChatBotPage: React.FC = () => {
     }, 200);
     setIsLoading(0);
     setChatHistory([
-      { sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" },
+      { role: "bot", content: "Xin chào, bạn cần hỗ trợ gì?" },
     ]);
     setChatID("");
-    setChatData([{ sender: "bot", message: "Xin chào, bạn cần hỗ trợ gì?" }]);
+    setChatData([{ role: "bot", content: "Xin chào, bạn cần hỗ trợ gì?" }]);
     setTrackServer([]);
     setSuggestion(initialTag);
     setAction("create");
@@ -866,8 +894,8 @@ const ChatBotPage: React.FC = () => {
                     {!isRefresh && (
                       <Box>
                         {chatData.map((data: IChatData, idx: number) => {
-                          return data.sender === "bot" ||
-                            data.sender === "assistant" ? (
+                          return data.role === "bot" ||
+                            data.role === "assistant" ? (
                             <BotText
                               props={data}
                               isChat={isChat && idx === chatData.length - 1}
@@ -876,13 +904,13 @@ const ChatBotPage: React.FC = () => {
                             
                             />
                           ) : (
-                            data.sender === "user" && (
-                              <UserText message={data.message} />
+                            data.role === "user" && (
+                              <UserText content={data.content} />
                             )
                           );
                         })}
                         {isLoading ===1 && (
-                          <BotText props={loadingMessage} isChat={isChat} isLoading={isLoading} setIsLoading= {setIsLoading}/>
+                          <BotText props={loadingcontent} isChat={isChat} isLoading={isLoading} setIsLoading= {setIsLoading}/>
                         )}
                       </Box>
                     )}
@@ -935,16 +963,16 @@ const ChatBotPage: React.FC = () => {
                         onClick={() => {
                           chatHistory.splice(0, chatHistory.length);
                           chatHistory.push({
-                            sender: "bot",
-                            message: "Xin chào, bạn cần hỗ trợ gì?",
+                            role: "bot",
+                            content: "Xin chào, bạn cần hỗ trợ gì?",
                           });
                           setChatData([]);
                           setTimeout(() => {
                             setChatData(() => {
                               return [
                                 {
-                                  sender: "bot",
-                                  message: "Xin chào, bạn cần hỗ trợ gì?",
+                                  role: "bot",
+                                  content: "Xin chào, bạn cần hỗ trợ gì?",
                                 },
                               ];
                             });
@@ -971,14 +999,14 @@ const ChatBotPage: React.FC = () => {
                           "::placeholder": "bold",
                         }}
                         onKeyDown={(e) => {
-                          if (message !== "" && e.key === "Enter") {
+                          if (content !== "" && e.key === "Enter") {
                             handleChat();
                           }
                         }}
-                        placeholder="Type a new message here"
-                        value={message}
+                        placeholder="Type a new content here"
+                        value={content}
                         onChange={(e) => {
-                          setMessage(e.target.value);
+                          setcontent(e.target.value);
                         }}></OutlinedInput>
                       <Button
                         onClick={() => {
