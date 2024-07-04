@@ -16,7 +16,7 @@ interface CreateDocument {
   listDocument:string[],
 };
 
-const CreateDocument:React.FC<CreateDocument> =({createDocument,setCreateDocument,setStatus,setIsRefresh,setIsAlert,listDocument}) =>{
+const CreateDocument:React.FC<CreateDocument> =({createDocument,setCreateDocument,setStatus,setIsAlert,listDocument}) =>{
 
   const handleClose = () => {
    setCreateDocument(false)

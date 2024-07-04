@@ -6,7 +6,7 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import React, { useEffect, useState } from "react";
-import getChatResponse, {
+import  {
   deleteChat,
   // getChatRole,
 } from "../../services/chat/chat";
@@ -561,10 +561,10 @@ const ChatBotPage: React.FC = () => {
     var decoder = new TextDecoder('utf-8');
     var content=""
     scrollToBottom();
-    reader?.read().then(function processResult(result:ReadResult) {
+    reader?.read().then(function processResult(result:ReadResult):any {
       setIsLoading(2);
         if (result.done) {
-          const response = fetch(`http://localhost:8000/handle_after_chat/${user}`, {
+          fetch(`http://localhost:8000/handle_after_chat/${user}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
