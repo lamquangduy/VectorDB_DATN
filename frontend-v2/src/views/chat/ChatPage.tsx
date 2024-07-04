@@ -560,9 +560,9 @@ const ChatBotPage: React.FC = () => {
     var reader = response.body?.getReader();
     var decoder = new TextDecoder('utf-8');
     var content=""
-    setIsLoading(2);
     scrollToBottom();
     reader?.read().then(function processResult(result:ReadResult) {
+      setIsLoading(2);
         if (result.done) {
           const response = fetch(`http://localhost:8000/handle_after_chat/${user}`, {
         method: 'POST',
@@ -581,7 +581,7 @@ const ChatBotPage: React.FC = () => {
        setAction("newID")
        setChatID(data.chatID);
        setSuggestion(data.tag);
-       setIsLoading(0);
+       setIsLoading(2);
       scrollToBottom();
     })
     return;
@@ -593,6 +593,7 @@ const ChatBotPage: React.FC = () => {
               role: "assistant",
               content: content.trim(),
             }
+            setAction(p=>p+1)
             
             
             setChatData(p=>{
@@ -610,6 +611,7 @@ const ChatBotPage: React.FC = () => {
             p[length]=chatHistory[length]
             return p;
           });
+          setAction(p=>p+1)
         }
         return reader?.read().then(processResult);
     });
@@ -642,6 +644,7 @@ const ChatBotPage: React.FC = () => {
   useEffect(() => {    
     abortController.abort()
     setAction("swap");
+    setIsLoading(0)
     console.log(isLoading)
   }, [chatID]);
   const handleDelete = (value: any) => {
