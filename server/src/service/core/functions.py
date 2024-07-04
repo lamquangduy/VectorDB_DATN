@@ -162,7 +162,7 @@ def embedding_csv(index_name: str = index_name, filepath: str = ".\courses.csv")
     ):
         docs.append(
             Document(
-                content=f"Course Name: {name}. This course has a web link (or url) is: {url} .With course description: {description}. And this course will help you for improving skills such as: {skill}",
+                content=f"Course Name: {name}. How to access: {url} .With course description: {description}. And this course will help you for improving skills such as: {skill}",
                 meta={
                     "name": name or "",
                     "url": url or "",
@@ -613,7 +613,14 @@ def chatbot_with_fc_stream(message, messages=[]):
     # chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
     messages.append(
         ChatMessage.from_system(
-            "Trả lời ngắn gọn đủ ý. Không được tự suy luận thiếu thông tin từ dữ liệu chat. Nếu câu trả lời của bạn thông báo không có thông tin hoặc cần cung cấp thông tin thông tin thì bạn phải truyền giá trị cho finish_reason là 'tool_calls', không sử dụng thông tin từ bên ngoài. Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt thì luôn trả lời bằng tiếng Việt. Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user. Cần định dạng hình thức câu trả lời sao cho rõ ràng và đẹp."
+            f"""Trả lời ngắn gọn đủ ý. Không được tự suy luận thiếu thông tin từ dữ liệu chat.
+            Nếu câu trả lời của bạn thông báo không có thông tin hoặc 
+            cần cung cấp thông tin thông 
+            tin thì bạn phải truyền giá trị cho finish_reason là 'tool_calls', không sử dụng thông tin từ bên ngoài. 
+            Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt
+            thì luôn trả lời bằng tiếng Việt.
+            Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user.
+            Cần định dạng hình thức câu trả lời sao cho rõ ràng và đẹp. Nếu cung cấp thông tin về khoá học thì nên có thêm địa truy cập nếu có"""
         )
     )
     start2 = time.time()
