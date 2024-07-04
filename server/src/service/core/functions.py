@@ -607,7 +607,7 @@ def chatbot_with_fc_stream(message, messages=[]):
                 "Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt thì luôn trả lời bằng tiếng Việt. Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user. Và định dạng hình thức trả lời sao cho đẹp."
             )
         )
-    messages.append(ChatMessage.from_user(message))
+    
     chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
                                         #  ,streaming_callback=lambda chunk: print(chunk.content, end="", flush=True))
     # chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
@@ -624,6 +624,7 @@ def chatbot_with_fc_stream(message, messages=[]):
                         content=json.dumps(rag_result), name="rag_pipeline_func"
                     )
                 )
+    messages.append(ChatMessage.from_user(message))
     # response = chat_generator.run(messages=messages)
     end = time.time()
     print("chat time: ",end - start)
