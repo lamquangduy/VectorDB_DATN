@@ -581,8 +581,8 @@ const ChatBotPage: React.FC = () => {
        setAction("newID")
        setChatID(data.chatID);
        setSuggestion(data.tag);
-       setIsLoading(2);
-      scrollToBottom();
+      //  setIsLoading(2);
+      // scrollToBottom();
     })
     return;
         };
