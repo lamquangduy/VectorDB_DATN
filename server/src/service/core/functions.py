@@ -50,8 +50,8 @@ api_key = "U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA"
 # model_name = "sentence-transformers/all-mpnet-base-v2"
 # embedding_dim = 768
 index_name = "ThongTinKhoaHoc_Cohere"
-# model_name = "embed-multilingual-v3.0"
-model_name = "intfloat/multilingual-e5-large-instruct"
+model_name = "embed-multilingual-v3.0"
+# model_name = "intfloat/multilingual-e5-large-instruct"
 embedding_dim = 1024
 
 
@@ -177,9 +177,9 @@ def embedding_csv(index_name: str = index_name, filepath: str = ".\courses.csv")
             )
         )
     # init embedder
-    # doc_embedder = CohereDocumentEmbedder(model=model_name)
-    doc_embedder = SentenceTransformersDocumentEmbedder(model=model_name)
-    doc_embedder.warm_up()
+    doc_embedder = CohereDocumentEmbedder(model=model_name)
+    # doc_embedder = SentenceTransformersDocumentEmbedder(model=model_name)
+    # doc_embedder.warm_up()
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docs)
     doc_store.write_documents(
@@ -254,17 +254,17 @@ def rag_pipe():
     if docstore.count_documents() == 0:
         return 0
     rag_pipe = Pipeline()
-    rag_pipe.add_component(
-        "embedder", SentenceTransformersTextEmbedder(model=model_name)
-    )
-    # ranker = CohereRanker(model='rerank-multilingual-v3.0')
     # rag_pipe.add_component(
-    #     "embedder",
-    #     # SentenceTransformersTextEmbedder(model=model_name),
-    #     CohereTextEmbedder(model=model_name)
+    #     "embedder", SentenceTransformersTextEmbedder(model=model_name)
     # )
+    # ranker = CohereRanker(model='rerank-multilingual-v3.0')
     rag_pipe.add_component(
-        "retriever", QdrantEmbeddingRetriever(document_store=docstore, top_k=5)
+        "embedder",
+        # SentenceTransformersTextEmbedder(model=model_name),
+        CohereTextEmbedder(model=model_name)
+    )
+    rag_pipe.add_component(
+        "retriever", QdrantEmbeddingRetriever(document_store=docstore, top_k=10)
     )
     # rag_pipe.add_component(instance=ranker, name="ranker")
     # rag_pipe.add_component("prompt_builder", PromptBuilder(template=template))
