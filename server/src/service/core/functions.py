@@ -289,8 +289,7 @@ def rag_pipeline_func(query: str):
     content = ""
     x = result['retriever']['documents']
     for y in x:
-        if y.score >=0.9:
-            content= content + y.content + ". "
+        content= content + y.content + ". "
     end = time.time()
     print("Rag time:", end - start)
     return {"reply": content}
@@ -641,27 +640,6 @@ def chatbot_with_fc_stream(message, messages=[]):
                             }
                         },
                         "required": ["query"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "get_content_course",
-                    "description": "Get similarity courses",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "course_name": {
-                                "type": "string",
-                                "description": "Name of the course, e.g. Applied Software Engineering Fundamentals Specialization, AI Foundations for Everyone Specialization",
-                            },
-                            "query": {
-                                "type": "string",
-                                "description": "The query to use in the search. Infer this from the user's message. It should be a question or a statement",
-                            },
-                        },
-                        "required": ["course_name", "query"],
                     },
                 },
             },
