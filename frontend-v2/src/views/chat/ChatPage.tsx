@@ -561,7 +561,7 @@ const ChatBotPage: React.FC = () => {
     signal: any
   ) {
     const endpoint =
-      import.meta.env.VITE_APP_CHAT_SERVER_URL + `/chat-stream/${user}`;
+      import.meta.env.VITE_APP_CHAT_SERVER_URL + `/chat/chat-stream/${user}`;
 
     var response = await fetch(endpoint, {
       method: "POST",
@@ -585,7 +585,7 @@ const ChatBotPage: React.FC = () => {
       if (result.done) {
         const endpoint =
           import.meta.env.VITE_APP_CHAT_SERVER_URL +
-          `handle-after-chat/${user}`;
+          `/chat/handle-after-chat/${user}`;
         fetch(endpoint, {
           method: "POST",
           headers: {
