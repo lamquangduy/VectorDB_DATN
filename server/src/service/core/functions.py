@@ -50,8 +50,8 @@ api_key = "U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA"
 # model_name = "sentence-transformers/all-mpnet-base-v2"
 # embedding_dim = 768
 index_name = "ThongTinKhoaHoc_Cohere"
-model_name = "embed-multilingual-v3.0"
-# model_name = "intfloat/multilingual-e5-large-instruct"
+# model_name = "embed-multilingual-v3.0"
+model_name = "intfloat/multilingual-e5-large-instruct"
 embedding_dim = 1024
 
 
@@ -177,7 +177,9 @@ def embedding_csv(index_name: str = index_name, filepath: str = ".\courses.csv")
             )
         )
     # init embedder
-    doc_embedder = CohereDocumentEmbedder(model=model_name)
+    # doc_embedder = CohereDocumentEmbedder(model=model_name)
+    doc_embedder = SentenceTransformersDocumentEmbedder(model=model_name)
+    doc_embedder.warm_up()
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docs)
     doc_store.write_documents(
@@ -252,17 +254,17 @@ def rag_pipe():
     if docstore.count_documents() == 0:
         return 0
     rag_pipe = Pipeline()
-    # rag_pipe.add_component(
-    #     "embedder", SentenceTransformersTextEmbedder(model=model_name)
-    # )
-    # ranker = CohereRanker(model='rerank-multilingual-v3.0')
     rag_pipe.add_component(
-        "embedder",
-        # SentenceTransformersTextEmbedder(model=model_name),
-        CohereTextEmbedder(model=model_name)
+        "embedder", SentenceTransformersTextEmbedder(model=model_name)
     )
+    # ranker = CohereRanker(model='rerank-multilingual-v3.0')
+    # rag_pipe.add_component(
+    #     "embedder",
+    #     # SentenceTransformersTextEmbedder(model=model_name),
+    #     CohereTextEmbedder(model=model_name)
+    # )
     rag_pipe.add_component(
-        "retriever", QdrantEmbeddingRetriever(document_store=docstore, top_k=10)
+        "retriever", QdrantEmbeddingRetriever(document_store=docstore, top_k=5)
     )
     # rag_pipe.add_component(instance=ranker, name="ranker")
     # rag_pipe.add_component("prompt_builder", PromptBuilder(template=template))
@@ -287,7 +289,8 @@ def rag_pipeline_func(query: str):
     content = ""
     x = result['retriever']['documents']
     for y in x:
-        content= content + y.content + ". "
+        if y.score >=0.9:
+            content= content + y.content + ". "
     end = time.time()
     print("Rag time:", end - start)
     return {"reply": content}
@@ -600,7 +603,6 @@ def chatbot_with_fc(message, messages=[]):
 
 def chatbot_with_fc_stream(message, messages=[]):
     start = time.time()
-    name_chat = ""
     if message == []:
         messages.append(
             ChatMessage.from_system(
@@ -614,38 +616,158 @@ def chatbot_with_fc_stream(message, messages=[]):
     messages.append(
         ChatMessage.from_system(
             f"""Trả lời ngắn gọn đủ ý. Không được tự suy luận thiếu thông tin từ dữ liệu chat.
-            Nếu câu trả lời của bạn thông báo không có thông tin hoặc 
-            cần cung cấp thông tin thông 
-            tin thì bạn phải truyền giá trị cho finish_reason là 'tool_calls', không sử dụng thông tin từ bên ngoài. 
+            Thêm ngữ cảnh cho câu hỏi dựa vào các câu hỏi trước của user. Nếu thiếu thông tin cần gọi hàm để lấy thêm thông tin.
+            Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user.
             Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt
             thì luôn trả lời bằng tiếng Việt.
-            Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user.
             Cần định dạng hình thức câu trả lời sao cho rõ ràng và đẹp. Nếu cung cấp thông tin về khoá học thì nên có thêm địa truy cập nếu có"""
         )
     )
-    start2 = time.time()
-    rag_result = rag_pipeline_func(message)
-    print("Rag time: ", time.time() - start2)
-    messages.append(
-                    ChatMessage.from_function(
-                        content=json.dumps(rag_result), name="rag_pipeline_func"
-                    )
-                )
-    messages.append(ChatMessage.from_user(message))
+    
     # response = chat_generator.run(messages=messages)
-    end = time.time()
-    print("chat time: ",end - start)
-    
-    
-    for event in chat_generator.client.chat.completions.create(
-            model=chat_generator.model,
-            messages=[mess.to_openai_format() for mess in messages],
-            stream=True
-        ):
+
+    tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "rag_pipeline_func",
+                    "description": "Get information",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "query": {
+                                "type": "string",
+                                "description": "The query to use in the search. Infer this from the user's message. It should be a question or a statement. Add context for the query.",
+                            }
+                        },
+                        "required": ["query"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_content_course",
+                    "description": "Get similarity courses",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "course_name": {
+                                "type": "string",
+                                "description": "Name of the course, e.g. Applied Software Engineering Fundamentals Specialization, AI Foundations for Everyone Specialization",
+                            },
+                            "query": {
+                                "type": "string",
+                                "description": "The query to use in the search. Infer this from the user's message. It should be a question or a statement",
+                            },
+                        },
+                        "required": ["course_name", "query"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_career_skills",
+                    "description": "Get user's goal and current career and get user's goal and current skills",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "goal_career": {
+                                "type": "string",
+                                "description": "Name of user's goal career, e.g. Backend Developer, Business Analyst, Data Analysts, Data Engineer, Data Scientist, Database Administrator,Devops Engineer,Frontend Developer,Game Development,Mobile Developer",
+                            },
+                            "current_career": {
+                                "type": "string",
+                                "description": "Name of user's current career, e.g. Backend Developer, Business Analyst, Data Analysts, Data Engineer, Data Scientist, Database Administrator,Devops Engineer,Frontend Developer,Game Development,Mobile Developer",
+                            },
+                            "goal_skills": {
+                                "type": "string",
+                                "description": "List name of user's goal skills, e.g. power bi, ssis,sql server,mysql ,redis ,docker ,software product management,.net core framework ,github, object-oriented programming (oop) ,relational database management systems (rdbms),data visualization,data warehouse,graphql,java,javascript ,machine learning,data analysis,business intelligence ,r,python , sql,golang...",
+                            },
+                            "current_skills": {
+                                "type": "string",
+                                "description": "List name of user's current skills, e.g. power bi, ssis,sql server,mysql ,redis ,docker ,software product management,.net core framework ,github, object-oriented programming (oop) ,relational database management systems (rdbms),data visualization,data warehouse,graphql,java,javascript ,machine learning,data analysis,business intelligence ,r,python , sql,golang...",
+                            },
+                            "query": {
+                                "type": "string",
+                                "description": "The query to use in the search. Infer this from the user's message. It should be a question or a statement",
+                            },
+                        },
+                        "required": [
+                            "goal_career",
+                            "current_career",
+                            "goal_skills",
+                            "current_skills",
+                            "query",
+                        ],
+                    },
+                },
+            },
+        ]
+    messages_temp = messages
+    messages.append(ChatMessage.from_user(message))
+
+    response = chat_generator.client.chat.completions.create(
+                model=chat_generator.model,
+                messages=[mess.to_openai_format() for mess in messages],
+                tools=tools,
+                tool_choice="auto")
+        
+    response_message = response.choices[0].message
+    print(response_message)
+    if dict(response_message).get('tool_calls'): 
+            # Which function call was invoked
+        function_called = response_message.tool_calls[0].function.name
+        print(function_called)    
+            # Extracting the arguments
+        function_args  = json.loads(response_message.tool_calls[0].function.arguments)
+            
+            # Function names
+        available_functions = {
+                        "rag_pipeline_func": rag_pipeline_func,
+                        "get_content_course": get_content_course,
+                        "get_career_skills": get_career_skills,
+                    }
+            
+        fuction_to_call = available_functions[function_called]
+        response_message = fuction_to_call(*list(function_args.values()))
+        messages_temp.append(
+                    ChatMessage.from_function(
+                        content=json.dumps(response_message), name=function_called
+                    )
+                )  
+        print(response_message)
+        messages_temp.append(ChatMessage.from_user(message))
+        for event in chat_generator.client.chat.completions.create(
+                model=chat_generator.model,
+                messages=[mess.to_openai_format() for mess in messages_temp],            
+                stream=True ):
         # if "content" in event.choices[0].delta:
             current_response = event.choices[0].delta.content
             if current_response is not None :
                 yield current_response
+    else:
+        messages.pop()
+        print(rag_pipeline_func(message))
+        messages.append(
+                    ChatMessage.from_function(
+                        content=json.dumps(rag_pipeline_func(message)), name="rag_pipeline_func"
+                    )
+                )  
+        messages.append(ChatMessage.from_user(message))
+        for event in  chat_generator.client.chat.completions.create(
+                model=chat_generator.model,
+                messages=[mess.to_openai_format() for mess in messages],            
+                stream=True ):
+        # if "content" in event.choices[0].delta:
+            current_response = event.choices[0].delta.content
+            if current_response is not None :
+                yield current_response
+    
+    end = time.time()
+    print("chat time: ",end - start)
+
     
             
     # return {
