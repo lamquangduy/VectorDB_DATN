@@ -289,7 +289,7 @@ def rag_pipeline_func(query: str):
     content = ""
     x = result['retriever']['documents']
     for y in x:
-        content= content + y.content + ". "
+        content= content + '\n' + y.content + ". "
     end = time.time()
     print("Rag time:", end - start)
     return {"reply": content}
@@ -417,7 +417,7 @@ def get_career_skills(
         print(list_of_goal_skills)
         print(current_career)
 
-        return {"reply": "Data from fucntions"}
+        return {"reply": "Hiện thông tin cho lộ trình chưa được cung cấp. Hãy thử lại vào lần sau!"}
     # fallback data
     else:
         return rag_pipeline_func(query)
@@ -614,12 +614,12 @@ def chatbot_with_fc_stream(message, messages=[]):
     # chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
     messages.append(
         ChatMessage.from_system(
-            f"""Trả lời ngắn gọn đủ ý. Không được tự suy luận thiếu thông tin từ dữ liệu chat.
+            f"""Nếu cung cấp thông tin về khoá học thì cần thêm web link (đường dẫn web) kèm theo. Trả lời ngắn gọn đủ ý. Không được tự suy luận thiếu thông tin từ dữ liệu chat.
             Thêm ngữ cảnh cho câu hỏi dựa vào các câu hỏi trước của user. Nếu thiếu thông tin cần gọi hàm để lấy thêm thông tin.
             Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user.
             Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt
             thì luôn trả lời bằng tiếng Việt.
-            Cần định dạng hình thức câu trả lời sao cho rõ ràng và đẹp. Nếu cung cấp thông tin về khoá học thì nên có thêm địa truy cập nếu có"""
+            Cần định dạng hình thức câu trả lời sao cho rõ ràng và đẹp. """
         )
     )
     
