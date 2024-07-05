@@ -4,12 +4,13 @@ from fastapi import APIRouter, UploadFile, Request
 from fastapi.responses import StreamingResponse
 from . import repository
 from pathlib import Path
-import openai
-router = APIRouter()
+
+router = APIRouter(
+    prefix="/chat",
+)
 import os
 from pydantic import BaseModel
-import asyncio
-from typing import AsyncIterable
+
 
 UPLOAD_DIR = Path().resolve() / "upload"
 if not os.path.exists(UPLOAD_DIR):
@@ -87,23 +88,17 @@ async def chat(email: str, chat_id: str):
     return {"message": "Chat history deleted"}
 
 
-@router.post("/chat")
-async def chat(data: ChatInput):
-    for i in data.history:
-        print(i)
-    messages = repository.dict_2_messages(data.history)
-    result = repository.get_chat_result(data.text, messages)
-
-    return result
-
-
-@router.post("/chat_stream/{email}")
+@router.post("chat/chat-stream/{email}")
 async def chat(email: str, data: ChatInput):
     history = repository.dict_2_messages(data.history)
 
-    return StreamingResponse(repository.get_chat_result_stream(data.text,history), media_type='text/event-stream')
+    return StreamingResponse(
+        repository.get_chat_result_stream(data.text, history),
+        media_type="text/event-stream",
+    )
 
-@router.post("/handle_after_chat/{email}")
+
+@router.post("chat/handle-after-chat/{email}")
 async def handle_after_chat(email: str, data: ChatInput):
     name_chat = ""
     if data.chat_id == "":
@@ -114,10 +109,10 @@ async def handle_after_chat(email: str, data: ChatInput):
     data_to_save = jsonable_encoder(history)
     name_chat_to_save = jsonable_encoder(name_chat)
     repository.save_chat_history(email, data_to_save, name_chat_to_save, data.chat_id)
-    return {"chatID":data.chat_id, "tag": list_suggestion, "name_chat": name_chat}
+    return {"chatID": data.chat_id, "tag": list_suggestion, "name_chat": name_chat}
 
 
-@router.post("/upload-file")
+@router.post("/chat/upload-file")
 async def create_upload_file(file_upload: UploadFile, index_name: str):
     data = await file_upload.read()
     save_to = UPLOAD_DIR / file_upload.filename
@@ -136,3 +131,13 @@ async def upload_url(request: Request, index_name: str):
     url = data.get("url")
     repository.embedding_URL(url, index_name)
     return {"url": url}
+
+
+@router.post("/")
+async def chat(data: ChatInput):
+    for i in data.history:
+        print(i)
+    messages = repository.dict_2_messages(data.history)
+    result = repository.get_chat_result(data.text, messages)
+
+    return result

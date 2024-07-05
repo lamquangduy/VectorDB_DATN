@@ -6,7 +6,7 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import React, { useEffect, useState } from "react";
-import  {
+import {
   deleteChat,
   // getChatRole,
 } from "../../services/chat/chat";
@@ -64,17 +64,19 @@ const mockData: IChatData[] = [
   { role: "bot", content: "Xin chào, bạn cần hỗ trợ gì?" },
 ];
 
-
 const renderTextWithBoldAndLinks = (text: string) => {
   const parts = text.split(/(\*\*[^*]+\*\*)|(\[.*?\]\(.*?\))/);
   return parts.map((part, index) => {
-    if (part && part.startsWith('**') && part.endsWith('**')) {
+    if (part && part.startsWith("**") && part.endsWith("**")) {
       return (
-        <span key={index} style={{ fontWeight: 'bold',fontFamily: "Montserrat", fontSize: 18 }}>
+        <span
+          key={index}
+          style={{ fontWeight: "bold", fontFamily: "Montserrat", fontSize: 18 }}
+        >
           {part.slice(2, -2)}
         </span>
       );
-    } else if (part && part.startsWith('[') && part.endsWith(')')) {
+    } else if (part && part.startsWith("[") && part.endsWith(")")) {
       const match = part.match(/\[(.*?)\]\((.*?)\)/);
       if (match) {
         return (
@@ -139,7 +141,7 @@ const loadingcontent: IChatData = { role: "bot", content: "Loading..." };
 //     </Box>
 //   );
 // };
-import { keyframes } from '@emotion/react';
+import { keyframes } from "@emotion/react";
 // import { log } from "console";
 
 const fadeIn = keyframes`
@@ -157,7 +159,7 @@ const SuggestedTag: React.FC<SuggestedTagProps> = ({
   value,
   handleClick,
   sx,
-  delay,  // Add a delay prop to control the staggered effect
+  delay, // Add a delay prop to control the staggered effect
 }) => {
   const [visible, setVisible] = useState(false);
 
@@ -375,36 +377,40 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
                 );
               })}{" "}
         </Box>
-        </Box>
-        <Box
+      </Box>
+      <Box
+        sx={{
+          height: "8%",
+          width: "100%",
+        }}
+      >
+        <Button
           sx={{
-            height: "8%",
+            backgroundColor: "#018D36",
+            color: "white",
+            fontWeight: 800,
             width: "100%",
+            height: "100%",
+            ":hover": {
+              backgroundColor: "#019b01",
+            },
           }}
+          onClick={handleNewChat}
         >
-          <Button
-            sx={{
-              backgroundColor: "#018D36",
-              color: "white",
-              fontWeight: 800,
-              width: "100%",
-              height: "100%",
-              ":hover": {
-                backgroundColor: "#019b01",
-              },
-            }}
-            onClick={handleNewChat}
-          >
-            <OpenInNew sx={{}}></OpenInNew>
-            New Chat
-          </Button>{" "}
-        </Box>
-      
+          <OpenInNew sx={{}}></OpenInNew>
+          New Chat
+        </Button>{" "}
+      </Box>
     </Box>
   );
 };
 
-const BotText: React.FC<ChatTag> = ({ props, isChat, isLoading, setIsLoading }) => {
+const BotText: React.FC<ChatTag> = ({
+  props,
+  isChat,
+  isLoading,
+  setIsLoading,
+}) => {
   return (
     <Box
       sx={{
@@ -434,25 +440,34 @@ const BotText: React.FC<ChatTag> = ({ props, isChat, isLoading, setIsLoading }) 
         }}
       >
         {isChat ? (
-          <Typewriter text={props.content} delay={9} isLoading={isLoading} setIsLoading={setIsLoading} />
+          <Typewriter
+            text={props.content}
+            delay={9}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+          />
         ) : (
-        <Linkify
-      componentDecorator={(decoratedHref, decoratedText, key) => (
-        <a
-          key={key}
-          href={decoratedHref}
-          style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 18 }}
-        >
-          <span style={{ fontFamily: "Montserrat", fontSize: 18 }}>
-            {decoratedText}
-          </span>
-        </a>
-      )}
-    >
-      <span style={{ fontFamily: "Montserrat", fontSize: 18 }}>
-      {renderTextWithBoldAndLinks(props.content)}
-      </span>
-    </Linkify>
+          <Linkify
+            componentDecorator={(decoratedHref, decoratedText, key) => (
+              <a
+                key={key}
+                href={decoratedHref}
+                style={{
+                  color: "#92b9e3",
+                  fontFamily: "Montserrat",
+                  fontSize: 18,
+                }}
+              >
+                <span style={{ fontFamily: "Montserrat", fontSize: 18 }}>
+                  {decoratedText}
+                </span>
+              </a>
+            )}
+          >
+            <span style={{ fontFamily: "Montserrat", fontSize: 18 }}>
+              {renderTextWithBoldAndLinks(props.content)}
+            </span>
+          </Linkify>
         )}
       </Typography>
     </Box>
@@ -493,7 +508,6 @@ const UserText: React.FC<IChatData> = (props: IChatData) => {
     </Box>
   );
 };
-
 
 const ChatBotPage: React.FC = () => {
   const [chatID, setChatID] = useState<string>("");
@@ -539,86 +553,98 @@ const ChatBotPage: React.FC = () => {
     done: boolean;
     value?: Uint8Array;
   }
-    async function sendcontent(user: any,
-      text: string,
-      history: any[],
-      chatId: string,
-      signal: any) {
-    var response = await fetch(`http://localhost:8000/chat_stream/${user}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 
-            chat_id:chatId,
-            text:text,
-            history:history
-         }),
-         signal: signal,
+  async function sendcontent(
+    user: any,
+    text: string,
+    history: any[],
+    chatId: string,
+    signal: any
+  ) {
+    const endpoint =
+      import.meta.env.VITE_APP_CHAT_SERVER_URL + `/chat-stream/${user}`;
+
+    var response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: text,
+        history: history,
+      }),
+      signal: signal,
     });
-    const length=chatHistory.length
+    const length = chatHistory.length;
     var reader = response.body?.getReader();
-    var decoder = new TextDecoder('utf-8');
-    var content=""
+    var decoder = new TextDecoder("utf-8");
+    var content = "";
     scrollToBottom();
-    reader?.read().then(function processResult(result:ReadResult):any {
+    reader?.read().then(function processResult(result: ReadResult): any {
       setIsLoading(2);
-        if (result.done) {
-          fetch(`http://localhost:8000/handle_after_chat/${user}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 
-            chat_id:chatId,
-            text:text,
-            history:chatHistory
-         }),
-         signal: signal,
-    }).then((res)=>{
-      return res.json(); // Giải mã nội dung JSON của phản hồi
-    }).then((data) => {
-      if(action===""){
-       setAction("newID")
-       setChatID(data.chatID);
-      }
-       setSuggestion(data.tag);
-      //  setIsLoading(2);
-      // scrollToBottom();
-    })
-    return;
-        };
-        let token = decoder.decode(result.value);
-        if (token.endsWith('.') || token.endsWith('!') || token.endsWith('?')|| token.endsWith(' ')) {
-            content+=token + '';
-            chatHistory[length]={
-              role: "assistant",
-              content: content.trim(),
+      if (result.done) {
+        const endpoint =
+          import.meta.env.VITE_APP_CHAT_SERVER_URL +
+          `handle-after-chat/${user}`;
+        fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: text,
+            history: chatHistory,
+          }),
+          signal: signal,
+        })
+          .then((res) => {
+            return res.json(); // Giải mã nội dung JSON của phản hồi
+          })
+          .then((data) => {
+            if (action === "") {
+              setAction("newID");
+              setChatID(data.chatID);
             }
-            setAction(p=>p+1)
-            
-            
-            setChatData(p=>{
-              p[length]=chatHistory[length]
-              return p;
-            });
-
-        } else {
-          content+=token + '';
-          chatHistory[length]={
-            role: "assistant",
-            content: content.trim(),
-          }
-          setChatData(p=>{
-            p[length]=chatHistory[length]
-            return p;
+            setSuggestion(data.tag);
+            //  setIsLoading(2);
+            // scrollToBottom();
           });
-          setAction(p=>p+1)
-        }
-        return reader?.read().then(processResult);
-    });
+        return;
+      }
+      let token = decoder.decode(result.value);
+      if (
+        token.endsWith(".") ||
+        token.endsWith("!") ||
+        token.endsWith("?") ||
+        token.endsWith(" ")
+      ) {
+        content += token + "";
+        chatHistory[length] = {
+          role: "assistant",
+          content: content.trim(),
+        };
+        setAction((p) => p + 1);
 
-}
+        setChatData((p) => {
+          p[length] = chatHistory[length];
+          return p;
+        });
+      } else {
+        content += token + "";
+        chatHistory[length] = {
+          role: "assistant",
+          content: content.trim(),
+        };
+        setChatData((p) => {
+          p[length] = chatHistory[length];
+          return p;
+        });
+        setAction((p) => p + 1);
+      }
+      return reader?.read().then(processResult);
+    });
+  }
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -643,11 +669,11 @@ const ChatBotPage: React.FC = () => {
     setIsRefresh((p) => !p);
     setTrackServer(value.history);
   };
-  useEffect(() => {    
-    abortController.abort()
+  useEffect(() => {
+    abortController.abort();
     setAction("swap");
-    setIsLoading(0)
-    console.log(isLoading)
+    setIsLoading(0);
+    console.log(isLoading);
   }, [chatID]);
   const handleDelete = (value: any) => {
     setTimeout(() => {
@@ -659,7 +685,9 @@ const ChatBotPage: React.FC = () => {
         { role: "assistant", content: "Xin chào, bạn cần hỗ trợ gì?" },
       ]);
       setChatID("");
-      setChatData([{ role: "assistant", content: "Xin chào, bạn cần hỗ trợ gì?" }]);
+      setChatData([
+        { role: "assistant", content: "Xin chào, bạn cần hỗ trợ gì?" },
+      ]);
       setTrackServer([]);
       setSuggestion(initialTag);
       setAction("create");
@@ -683,13 +711,19 @@ const ChatBotPage: React.FC = () => {
     // setcontent(value);
     chatHistory.push({ role: "user", content: value ?? content });
     setChatData([...chatHistory]);
-    setSuggestion([])
+    setSuggestion([]);
     setIsLoading(1);
     scrollToBottom();
     if (!Boolean(value)) setcontent("");
     const newAbortController = new AbortController();
     setAbortController(newAbortController);
-    sendcontent(user?.email, value ?? content,trackServer,chatID,newAbortController.signal);
+    sendcontent(
+      user?.email,
+      value ?? content,
+      trackServer,
+      chatID,
+      newAbortController.signal
+    );
 
     //  getChatResponse(user?.email, value ?? content, trackServer, chatID,newAbortController.signal)
     //   .then((res) => {
@@ -720,14 +754,12 @@ const ChatBotPage: React.FC = () => {
     //   });
   };
   const handleNewChat = () => {
-    abortController.abort()
+    abortController.abort();
     setTimeout(() => {
       setIsRefresh((p) => !p);
     }, 200);
     setIsLoading(0);
-    setChatHistory([
-      { role: "bot", content: "Xin chào, bạn cần hỗ trợ gì?" },
-    ]);
+    setChatHistory([{ role: "bot", content: "Xin chào, bạn cần hỗ trợ gì?" }]);
     setChatID("");
     setChatData([{ role: "bot", content: "Xin chào, bạn cần hỗ trợ gì?" }]);
     setTrackServer([]);
@@ -906,8 +938,7 @@ const ChatBotPage: React.FC = () => {
                               props={data}
                               isChat={isChat && idx === chatData.length - 1}
                               isLoading={isLoading}
-                              setIsLoading = {setIsLoading}
-                            
+                              setIsLoading={setIsLoading}
                             />
                           ) : (
                             data.role === "user" && (
@@ -915,34 +946,40 @@ const ChatBotPage: React.FC = () => {
                             )
                           );
                         })}
-                        {isLoading ===1 && (
-                          <BotText props={loadingcontent} isChat={isChat} isLoading={isLoading} setIsLoading= {setIsLoading}/>
+                        {isLoading === 1 && (
+                          <BotText
+                            props={loadingcontent}
+                            isChat={isChat}
+                            isLoading={isLoading}
+                            setIsLoading={setIsLoading}
+                          />
                         )}
                       </Box>
                     )}
-                    {!isRefresh &&
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        justifyContent: "center",
-                      }}
-                    >
-                      {suggestion.length !== 0 &&
-                        isLoading === 0 &&
-                        suggestion.map((tag: string, idx: number) => {
-                          if (tag.length !== 0)
-                            return (
-                              <SuggestedTag
-                                value={tag}
-                                handleClick={handleChat}
-                                sx="5"
-                                key={idx}
-                                delay={idx * 100}
-                              />
-                            );
-                        })}
-                    </Box>}
+                    {!isRefresh && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {suggestion.length !== 0 &&
+                          isLoading === 0 &&
+                          suggestion.map((tag: string, idx: number) => {
+                            if (tag.length !== 0)
+                              return (
+                                <SuggestedTag
+                                  value={tag}
+                                  handleClick={handleChat}
+                                  sx="5"
+                                  key={idx}
+                                  delay={idx * 100}
+                                />
+                              );
+                          })}
+                      </Box>
+                    )}
                   </Box>
 
                   <Box
@@ -984,7 +1021,7 @@ const ChatBotPage: React.FC = () => {
                             });
                           }, 500);
                         }}
-                        disabled={isLoading === 0? false : true}
+                        disabled={isLoading === 0 ? false : true}
                       >
                         <DeleteIcon />
                       </Button>
@@ -1013,7 +1050,8 @@ const ChatBotPage: React.FC = () => {
                         value={content}
                         onChange={(e) => {
                           setcontent(e.target.value);
-                        }}></OutlinedInput>
+                        }}
+                      ></OutlinedInput>
                       <Button
                         onClick={() => {
                           // handleChat();
@@ -1041,27 +1079,31 @@ interface TypewriterProps {
   setIsLoading: (value: any) => void;
 }
 
-const Typewriter: React.FC<TypewriterProps> = ({ text, delay, isLoading, setIsLoading }) => {
+const Typewriter: React.FC<TypewriterProps> = ({
+  text,
+  delay,
+  isLoading,
+  setIsLoading,
+}) => {
   const [currentText, setCurrentText] = React.useState("");
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
   React.useEffect(() => {
     if (currentIndex < text.length) {
-      if(currentIndex===text.length -1 && isLoading===2 ) setIsLoading(0);
-      else
-      {
-      const timeoutId = setTimeout(() => {
-        setCurrentText((prev) => prev + text[currentIndex]);
-        setCurrentIndex((prev) => prev + 1);
-      }, delay);
-      scrollToBottom();
-      return () => clearTimeout(timeoutId);}
+      if (currentIndex === text.length - 1 && isLoading === 2) setIsLoading(0);
+      else {
+        const timeoutId = setTimeout(() => {
+          setCurrentText((prev) => prev + text[currentIndex]);
+          setCurrentIndex((prev) => prev + 1);
+        }, delay);
+        scrollToBottom();
+        return () => clearTimeout(timeoutId);
+      }
     }
   }, [currentIndex, text, delay]);
 
-
   return (
-<Linkify
+    <Linkify
       componentDecorator={(decoratedHref, decoratedText, key) => (
         <a
           key={key}
