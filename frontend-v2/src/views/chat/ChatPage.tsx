@@ -683,6 +683,7 @@ const ChatBotPage: React.FC = () => {
     // setcontent(value);
     chatHistory.push({ role: "user", content: value ?? content });
     setChatData([...chatHistory]);
+    setSuggestion([])
     setIsLoading(1);
     scrollToBottom();
     if (!Boolean(value)) setcontent("");
