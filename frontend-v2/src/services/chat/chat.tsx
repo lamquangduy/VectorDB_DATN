@@ -15,7 +15,7 @@ const getChatResponse = async (
 ) => {
   const response = await axiosInstance({
     method: "post",
-    url: `/chat/${user}`,
+    url: `/${user}`,
     data: {
       chat_id: chatId,
       text: text,
@@ -36,7 +36,7 @@ export const getChatRole = async (user: any) => {
 export const deleteChat = async (user: any, chatId: string) => {
   const response = await axiosInstance({
     method: "delete",
-    url: `/chat/${user}/${chatId}`,
+    url: `/${user}/${chatId}`,
   });
   return response.status;
 };
@@ -44,7 +44,7 @@ export const deleteChat = async (user: any, chatId: string) => {
 export const getChatHistory = async (user: any) => {
   const response = await axiosInstance({
     method: "get",
-    url: `/chat/${user}`,
+    url: `/${user}`,
   });
 
   return response.data;
