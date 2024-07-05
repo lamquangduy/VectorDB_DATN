@@ -23,12 +23,6 @@ class ChatInput(BaseModel):
     history: Optional[list]
 
 
-@router.get("/chat/{email}", response_model=list[dict])
-async def chat(email: str):
-    messages = repository.get_chat_history(email)
-    return messages
-
-
 @router.get("/collection/list")
 async def list_collection():
     list_collection = repository.get_list_collection()
@@ -66,7 +60,7 @@ async def chat(email: str):
 from fastapi.encoders import jsonable_encoder
 
 
-@router.post("/chat/{email}")
+@router.post("/{email}")
 async def chat(email: str, data: ChatInput):
     if data.chat_id == "":
         data.chat_id = str(uuid.uuid4())
@@ -81,14 +75,14 @@ async def chat(email: str, data: ChatInput):
     return result
 
 
-@router.delete("/chat/{email}/{chat_id}")
+@router.delete("/{email}/{chat_id}")
 async def chat(email: str, chat_id: str):
     repository.delete_chat_history(email, chat_id)
 
     return {"message": "Chat history deleted"}
 
 
-@router.post("chat/chat-stream/{email}")
+@router.post("/chat-stream/{email}")
 async def chat(email: str, data: ChatInput):
     history = repository.dict_2_messages(data.history)
 
@@ -98,7 +92,7 @@ async def chat(email: str, data: ChatInput):
     )
 
 
-@router.post("chat/handle-after-chat/{email}")
+@router.post("/handle-after-chat/{email}")
 async def handle_after_chat(email: str, data: ChatInput):
     name_chat = ""
     if data.chat_id == "":
@@ -112,7 +106,7 @@ async def handle_after_chat(email: str, data: ChatInput):
     return {"chatID": data.chat_id, "tag": list_suggestion, "name_chat": name_chat}
 
 
-@router.post("/chat/upload-file")
+@router.post("/upload-file")
 async def create_upload_file(file_upload: UploadFile, index_name: str):
     data = await file_upload.read()
     save_to = UPLOAD_DIR / file_upload.filename
@@ -131,6 +125,12 @@ async def upload_url(request: Request, index_name: str):
     url = data.get("url")
     repository.embedding_URL(url, index_name)
     return {"url": url}
+
+
+@router.get("/{email}", response_model=list[dict])
+async def chat(email: str):
+    messages = repository.get_chat_history(email)
+    return messages
 
 
 @router.post("/")
