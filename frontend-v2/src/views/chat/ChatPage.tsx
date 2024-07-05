@@ -578,8 +578,10 @@ const ChatBotPage: React.FC = () => {
     }).then((res)=>{
       return res.json(); // Giải mã nội dung JSON của phản hồi
     }).then((data) => {
+      if(action===""){
        setAction("newID")
        setChatID(data.chatID);
+      }
        setSuggestion(data.tag);
       //  setIsLoading(2);
       // scrollToBottom();
