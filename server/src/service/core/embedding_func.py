@@ -21,8 +21,10 @@ from haystack_integrations.components.embedders.cohere import CohereDocumentEmbe
 file_path = ".\courses.csv"
 url_cloud = "https://f15cf5fc-0771-4b8a-aad5-c4f5c6ae1f1d.us-east4-0.gcp.cloud.qdrant.io:6333"
 api_key = "U5tzMbWaGxk3wDvR9yzHCvnFVsTXosi5BR7qFcb7X_j7JOmo4L7RBA"
+# index_name = "ThongTinKhoaHoc_Cohere"
+# model_name = "embed-multilingual-v3.0"
 index_name = "ThongTinKhoaHoc_Cohere"
-model_name = "embed-multilingual-v3.0"
+model_name = "intfloat/multilingual-e5-large-instruct"
 #embedding_dim = 768
 embedding_dim = 	1024
 split_by="word"
@@ -71,12 +73,12 @@ def embedding_content_fromURL( url: str, index_name:str = index_name):
     #load qdrant cloud
     document_store = load_store(index_name=index_name)
     # init embedder
-    doc_embedder = CohereDocumentEmbedder(model=model_name)
-    # SentenceTransformersDocumentEmbedder( model=model_name)   
-    # doc_embedder.warm_up()
+    # doc_embedder = CohereDocumentEmbedder(model=model_name)
+    doc_embedder = SentenceTransformersDocumentEmbedder( model=model_name)   
+    doc_embedder.warm_up()
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docu)
-    document_store.write_documents(docs_with_embeddings["documents"], policy=DuplicatePolicy.SKIP)
+    document_store.write_documents(docs_with_embeddings["documents"], policy=DuplicatePolicy.OVERWRITE)
     
     return "Success!"
   
@@ -95,12 +97,12 @@ def embedding_txt(filepath: str = "test.txt", index_name: str = index_name):
     res = pipeline.run({"converter": {"sources": [filepath]}})
     docu = res['splitter']['documents']
         # init embedder
-    doc_embedder = CohereDocumentEmbedder(model=model_name)
-    # SentenceTransformersDocumentEmbedder( model=model_name)  
-    # doc_embedder.warm_up()
+    # doc_embedder = CohereDocumentEmbedder(model=model_name)
+    doc_embedder =SentenceTransformersDocumentEmbedder( model=model_name)  
+    doc_embedder.warm_up()
     ## Use embedder Embedding file document for Fetch và Indexing
     docs_with_embeddings = doc_embedder.run(docu)
-    document_store.write_documents(docs_with_embeddings["documents"], policy=DuplicatePolicy.SKIP)
+    document_store.write_documents(docs_with_embeddings["documents"], policy=DuplicatePolicy.OVERWRITE)
     return "Success!"
 
 
@@ -131,9 +133,9 @@ def embedding_pdf(filepath: str = "test.txt", index_name: str = index_name):
     pipeline.add_component("converter",  PyPDFToDocument())
     pipeline.add_component("cleaner", DocumentCleaner())
     pipeline.add_component("splitter", DocumentSplitter(split_by=split_by, split_length=split_length, split_overlap = split_overlap))
-    # pipeline.add_component("embedder", SentenceTransformersDocumentEmbedder( model=model_name))
-    pipeline.add_component("embedder", CohereDocumentEmbedder (model=model_name))
-    pipeline.add_component("writer", DocumentWriter(document_store=document_store, policy=DuplicatePolicy.SKIP))
+    pipeline.add_component("embedder", SentenceTransformersDocumentEmbedder( model=model_name))
+    # pipeline.add_component("embedder", CohereDocumentEmbedder (model=model_name))
+    pipeline.add_component("writer", DocumentWriter(document_store=document_store, policy=DuplicatePolicy.OVERWRITE))
     pipeline.connect("converter", "cleaner")
     pipeline.connect("cleaner", "splitter")
     pipeline.connect("splitter","embedder")
@@ -159,11 +161,11 @@ def embedding_csv(filepath: str = ".\courses.csv", index_name: str = index_name)
     # init qdrant cloud instance
     document_store = load_store(index_name=index_name)
     ## Use embedder Embedding file document for Fetch và Indexing
-    embedder = CohereDocumentEmbedder(model=model_name)
-    # SentenceTransformersDocumentEmbedder( model=model_name)  
-    # embedder.warm_up()
+    # embedder = CohereDocumentEmbedder(model=model_name)
+    embedder =  SentenceTransformersDocumentEmbedder( model=model_name)  
+    embedder.warm_up()
     docs_with_embeddings =  embedder.run(docu)
-    document_store.write_documents(docs_with_embeddings["documents"], policy=DuplicatePolicy.SKIP)
+    document_store.write_documents(docs_with_embeddings["documents"], policy=DuplicatePolicy.OVERWRITE)
     return "Success!"
     
 
