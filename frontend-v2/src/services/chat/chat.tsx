@@ -28,7 +28,7 @@ const getChatResponse = async (
 export const getChatRole = async (user: any) => {
   const response = await axiosInstance({
     method: "get",
-    url: `/chat-role/${user}`,
+    url: `chat/chat-role/${user}`,
   });
   return response.data[0].role;
 };
@@ -36,7 +36,7 @@ export const getChatRole = async (user: any) => {
 export const deleteChat = async (user: any, chatId: string) => {
   const response = await axiosInstance({
     method: "delete",
-    url: `/${user}/${chatId}`,
+    url: `chat/${user}/${chatId}`,
   });
   return response.status;
 };
@@ -44,7 +44,7 @@ export const deleteChat = async (user: any, chatId: string) => {
 export const getChatHistory = async (user: any) => {
   const response = await axiosInstance({
     method: "get",
-    url: `/${user}`,
+    url: `/chat/${user}`,
   });
 
   return response.data;
@@ -53,7 +53,7 @@ export const getChatHistory = async (user: any) => {
 export const getDocuments = async () => {
   const response = await axiosInstance({
     method: "get",
-    url: "/collection/list",
+    url: "chat/collection/list",
   });
 
   return response.data;
@@ -62,7 +62,7 @@ export const getDocuments = async () => {
 export const getCurrentDocument = async () => {
   const response = await axiosInstance({
     method: "get",
-    url: "/collection/current",
+    url: "chat/collection/current",
   });
 
   return response.data;
@@ -71,7 +71,7 @@ export const getCurrentDocument = async () => {
 export const deleteDocument = async (documentName: string) => {
   const response = await axiosInstance({
     method: "delete",
-    url: `/collection/delete?index_name=${documentName}`,
+    url: `chat/collection/delete?index_name=${documentName}`,
   });
   return response.status;
 };
@@ -79,14 +79,14 @@ export const deleteDocument = async (documentName: string) => {
 export const changeCurrentDocument = async (value: string) => {
   const response = await axiosInstance({
     method: "post",
-    url: `/collection/change_current?index_name=${value}`,
+    url: `chat/collection/change_current?index_name=${value}`,
   });
   return response.data;
 };
 export const addDocument = async (value: string) => {
   const response = await axiosInstance({
     method: "post",
-    url: `/collection/create-new?index_name=${value}`,
+    url: `chat/collection/create-new?index_name=${value}`,
   });
   return response.data;
 };

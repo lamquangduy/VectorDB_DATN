@@ -47,7 +47,7 @@ const ChooseDocument: React.FC<ChooseDocument> = ({
       try {
         const endpoint =
           import.meta.env.VITE_APP_CHAT_SERVER_URL +
-          `/upload-file?index_name=${age}`;
+          `/chat/upload-file?index_name=${age}`;
         const res = await fetch(endpoint, {
           method: "POST",
           body: formData,
@@ -77,7 +77,7 @@ const ChooseDocument: React.FC<ChooseDocument> = ({
       try {
         const endpoint =
           import.meta.env.VITE_APP_CHAT_SERVER_URL +
-          `/upload-url?index_name=${age}`;
+          `/chat/upload-url?index_name=${age}`;
         setIsValidInput(() => "inProgress");
         const res = await fetch(endpoint, {
           method: "POST",

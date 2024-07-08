@@ -231,6 +231,7 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
 
   useEffect(() => {
+    console.log(user)
     const fetchChatHistory = async () => {
       const chatHistory = await getChatHistory(user);
       setHistoryList(chatHistory);
@@ -791,7 +792,7 @@ const ChatBotPage: React.FC = () => {
         >
           <Box
             sx={{
-              width: "100%",
+              width: "80vw",
               height: "100%",
               display: "flex",
               justifyContent: "center",
