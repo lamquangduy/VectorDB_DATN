@@ -1,6 +1,6 @@
 from typing import Optional
 import uuid
-from fastapi import APIRouter, UploadFile, Request
+from fastapi import APIRouter, UploadFile, Request, Form
 from fastapi.responses import StreamingResponse
 from . import repository
 from pathlib import Path
@@ -21,6 +21,10 @@ class ChatInput(BaseModel):
     chat_id: str
     text: str
     history: Optional[list]
+
+class UrlInput(BaseModel):
+    Url: str
+    index_name: str
 
 
 @router.get("/collection/list")
@@ -106,8 +110,8 @@ async def handle_after_chat(email: str, data: ChatInput):
     return {"chatID": data.chat_id, "tag": list_suggestion, "name_chat": name_chat}
 
 
-@router.post("/upload-file")
-async def create_upload_file(file_upload: UploadFile, index_name: str):
+@router.post("/upload-file/")
+async def create_upload_file(file_upload: UploadFile, index_name : str = Form(...)):
     data = await file_upload.read()
     save_to = UPLOAD_DIR / file_upload.filename
     with open(os.path.join(save_to), "wb") as f:
@@ -119,12 +123,10 @@ async def create_upload_file(file_upload: UploadFile, index_name: str):
     return {"filenames": file_upload.filename}
 
 
-@router.post("/upload-url")
-async def upload_url(request: Request, index_name: str):
-    data = await request.json()
-    url = data.get("url")
-    repository.embedding_URL(url, index_name)
-    return {"url": url}
+@router.post("/upload-url/")
+async def upload_url(data: UrlInput):
+    repository.embedding_URL(data.Url, data.index_name)
+    return {"url": data.Url}
 
 
 @router.get("/{email}", response_model=list[dict])

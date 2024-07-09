@@ -106,21 +106,26 @@ def embedding_txt(filepath: str = "test.txt", index_name: str = index_name):
     return "Success!"
 
 
+
 def embedding_docx(file_path: str, index_name: str = index_name): 
-  doc = docx.Document(file_path) 
-  file = get_name_format_file(file_path)['split_name']
-  # print the list of paragraphs in the document 
-  print('List of paragraph objects:->>>') 
-  document_text= ""
-  for n in doc.paragraphs:
-    document_text = f"{document_text} \n {n.text}"
+    doc = docx.Document(file_path) 
+    file = get_name_format_file(file_path)['split_name']
+    # print the list of paragraphs in the document 
+    print('List of paragraph objects:->>>') 
+    document_text= ""
+    for n in doc.paragraphs:
+        document_text = f"{document_text} \n {n.text}"
 
-  new_file = os.path.join(os.path.dirname(file_path),f"{file[0]}.txt")
-  with open(new_file, "w", encoding="utf-8") as file:
-          file.write(document_text)
+    new_file = os.path.join(os.path.dirname(file_path),f"{file[0]}.txt")
+    with open(new_file, "w", encoding="utf-8") as file:
+            file.write(document_text)
 
-  embedding_txt(new_file,index_name)
-  return "Success!"
+    embedding_txt(new_file,index_name)
+    return "Success!"
+
+
+
+    
 
     
 
