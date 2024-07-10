@@ -4,6 +4,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LinkIcon from '@mui/icons-material/Link';
+import { Tooltip } from '@mui/material';
 
 
 interface NavBar{
@@ -49,7 +50,9 @@ const NavBar:React.FC<NavBar>=({isFile,setIsFile})=> {
             color:isFile ? "white":"black"
           }} />
         </ListItemIcon>
+        <Tooltip title="Choose your file to embedding">
         <ListItemText primary="Import File" />
+        </Tooltip>
       </ListItemButton>
       <ListItemButton sx={{
         backgroundColor:isFile ?"#BBDEFB":"#1d649f",
@@ -70,7 +73,9 @@ const NavBar:React.FC<NavBar>=({isFile,setIsFile})=> {
             color:isFile ? "black":"white"
           }}/>
         </ListItemIcon>
+        <Tooltip title="Embedding text content of web">
         <ListItemText primary="Import URL" />
+        </Tooltip>
       </ListItemButton>
     </List>
   );
