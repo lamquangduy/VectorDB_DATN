@@ -12,6 +12,7 @@ import AddToPhotosIcon from '@mui/icons-material/AddToPhotos';
 import Import from './Import';
 import Collection from './Collection';
 import { useState } from 'react';
+import { Tooltip } from '@mui/material';
 
 
 const drawerWidth = 200;
@@ -34,20 +35,22 @@ export default function AdminSideBar() {
         <Toolbar/>
         <Box sx={{ overflow: 'auto'}}>
           <List>
-            {['Collections', 'Import'].map((text, index) => (
-              <ListItem key={text} disablePadding>
-                <ListItemButton onClick={()=>setSideBar(text)}>
+            {[{'dir':'Collections',"tip":"Choose your document to use"}, {'dir':'Import','tip':'Add more information for chat bot'}].map((text, index) => (
+              <ListItem key={text.dir} disablePadding>
+                <ListItemButton onClick={()=>setSideBar(text.dir)}>
                   <ListItemIcon sx={{color:"green"}}>
                     {index % 2 === 0 ? <LibraryBooksIcon /> : <AddToPhotosIcon />}
                   </ListItemIcon>
+                  <Tooltip title={text.tip}>
                     <Typography sx={{
                       fontWeight:"bold",
                       color:"green",
                       margin:0,
                       fontSize:20
                     }}>
-                      {text}
+                      {text.dir}
                     </Typography>
+                    </Tooltip>
                 </ListItemButton>
               </ListItem>
             ))}
@@ -61,8 +64,12 @@ export default function AdminSideBar() {
         </List>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1,margin: 0}}>
-        {sideBar==="Collections" && <Collection/>}
-        {sideBar==="Import" && <Import/>}
+        {sideBar==="Collections" && <><Typography variant="h4">
+                      Control your Document
+                    </Typography><Collection/></>}
+        {sideBar==="Import" && <><Typography variant="h4">
+                      Add More Knowledge To Your VectorDB
+                    </Typography><Import/></>}
       </Box>
     </Box>
   );
