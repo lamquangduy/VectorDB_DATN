@@ -617,6 +617,8 @@ def chatbot_with_fc(message, messages=[]):
         "tag": suggestions,
         "name_chat": name_chat,
     }
+
+
 def chatbot_pipeline(query:str, history = []):
     start = time.time()
     document_store = load_store()
@@ -650,11 +652,13 @@ def chatbot_pipeline(query:str, history = []):
     messages = pipeline.run(data={"embedder": {"text": query}, "prompt_builder": { "prompt_source": history, "query": query}})['prompt_builder']['prompt']
     chat_generator = OpenAIChatGenerator(model= "gpt-3.5-turbo")
     # print(messages)
-    print("Câu hỏi nè: ",query)
+    # print("Câu hỏi nè: ",query)
     return chat_generator.client.chat.completions.create(
                 model=chat_generator.model,
                 messages=[mess.to_openai_format() for mess in messages],            
                 stream=True )
+
+
 
 def chatbot_with_fc_stream(query:str, history = []):
     tools = [
@@ -698,15 +702,15 @@ def chatbot_with_fc_stream(query:str, history = []):
             thì luôn trả lời bằng tiếng Việt.
             Cần định dạng hình thức câu trả lời sao cho rõ ràng và đẹp. """
         )
-
+    history_temp = history
     history.append(system_message)
     # history.append(ChatMessage.from_system(prompt))
     history.append(ChatMessage.from_user(query))
-    
+    history_temp.append(ChatMessage.from_user(query))
     # history.append(ChatMessage.from_user(query))
     response = chat_generator.run(messages=history, generation_kwargs={"tools": tools})
-    print(response)
-    print(history)
+    # print(response)
+    # print(history)
     if response and response["replies"][0].meta["finish_reason"] == "tool_calls":
         function_call = json.loads(response["replies"][0].content)[0]
         function_name = function_call["function"]["name"]
@@ -857,178 +861,178 @@ def chatbot_with_fc_stream(query:str, history = []):
 #                 yield current_response
 
 
-def chatbot_with_fc_stream4(message, messages=[]):
-    start = time.time()
-    if message == []:
-        messages.append(
-            ChatMessage.from_system(
-                "Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt thì luôn trả lời bằng tiếng Việt. Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user. Và định dạng hình thức trả lời sao cho đẹp."
-            )
-        )
+# def chatbot_with_fc_stream4(message, messages=[]):
+#     start = time.time()
+#     if message == []:
+#         messages.append(
+#             ChatMessage.from_system(
+#                 "Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt thì luôn trả lời bằng tiếng Việt. Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user. Và định dạng hình thức trả lời sao cho đẹp."
+#             )
+#         )
     
-    chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
-                                        #  ,streaming_callback=lambda chunk: print(chunk.content, end="", flush=True))
-    # chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
-    messages.append(
-        ChatMessage.from_system(
-            f"""Nếu cung cấp thông tin về khoá học thì cần thêm web link (đường dẫn web) kèm theo. Trả lời ngắn gọn đủ ý. Không được tự suy luận thiếu thông tin từ dữ liệu chat.
-            Thêm ngữ cảnh cho câu hỏi dựa vào các câu hỏi trước của user. Nếu thiếu thông tin cần gọi hàm để lấy thêm thông tin.
-            Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user.
-            Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt
-            thì luôn trả lời bằng tiếng Việt.
-            Cần định dạng hình thức câu trả lời sao cho rõ ràng và đẹp. """
-        )
-    )
+#     chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
+#                                         #  ,streaming_callback=lambda chunk: print(chunk.content, end="", flush=True))
+#     # chat_generator = OpenAIChatGenerator(model="gpt-3.5-turbo")
+#     messages.append(
+#         ChatMessage.from_system(
+#             f"""Nếu cung cấp thông tin về khoá học thì cần thêm web link (đường dẫn web) kèm theo. Trả lời ngắn gọn đủ ý. Không được tự suy luận thiếu thông tin từ dữ liệu chat.
+#             Thêm ngữ cảnh cho câu hỏi dựa vào các câu hỏi trước của user. Nếu thiếu thông tin cần gọi hàm để lấy thêm thông tin.
+#             Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user.
+#             Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt
+#             thì luôn trả lời bằng tiếng Việt.
+#             Cần định dạng hình thức câu trả lời sao cho rõ ràng và đẹp. """
+#         )
+#     )
     
-    # response = chat_generator.run(messages=messages)
+#     # response = chat_generator.run(messages=messages)
 
-    tools = [
-            {
-                "type": "function",
-                "function": {
-                    "name": "chat_pipeline",
-                    "description": "Get information",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "query": {
-                                "type": "string",
-                                "description": "The query to use in the search. Infer this from the user's message. It should be a question or a statement. Add context for the query.",
-                            }
-                        },
-                        "required": ["query"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "get_career_skills",
-                    "description": "Get user's goal and current career and get user's goal and current skills",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "goal_career": {
-                                "type": "string",
-                                "description": "Name of user's goal career, e.g. Backend Developer, Business Analyst, Data Analysts, Data Engineer, Data Scientist, Database Administrator,Devops Engineer,Frontend Developer,Game Development,Mobile Developer",
-                            },
-                            "current_career": {
-                                "type": "string",
-                                "description": "Name of user's current career, e.g. Backend Developer, Business Analyst, Data Analysts, Data Engineer, Data Scientist, Database Administrator,Devops Engineer,Frontend Developer,Game Development,Mobile Developer",
-                            },
-                            "goal_skills": {
-                                "type": "string",
-                                "description": "List name of user's goal skills, e.g. power bi, ssis,sql server,mysql ,redis ,docker ,software product management,.net core framework ,github, object-oriented programming (oop) ,relational database management systems (rdbms),data visualization,data warehouse,graphql,java,javascript ,machine learning,data analysis,business intelligence ,r,python , sql,golang...",
-                            },
-                            "current_skills": {
-                                "type": "string",
-                                "description": "List name of user's current skills, e.g. power bi, ssis,sql server,mysql ,redis ,docker ,software product management,.net core framework ,github, object-oriented programming (oop) ,relational database management systems (rdbms),data visualization,data warehouse,graphql,java,javascript ,machine learning,data analysis,business intelligence ,r,python , sql,golang...",
-                            },
-                            "query": {
-                                "type": "string",
-                                "description": "The query to use in the search. Infer this from the user's message. It should be a question or a statement",
-                            },
-                        },
-                        "required": [
-                            "goal_career",
-                            "current_career",
-                            "goal_skills",
-                            "current_skills",
-                            "query",
-                        ],
-                    },
-                },
-            },
-        ]
-    messages_temp = messages
-    messages.append(ChatMessage.from_user(message))
+#     tools = [
+#             {
+#                 "type": "function",
+#                 "function": {
+#                     "name": "chat_pipeline",
+#                     "description": "Get information",
+#                     "parameters": {
+#                         "type": "object",
+#                         "properties": {
+#                             "query": {
+#                                 "type": "string",
+#                                 "description": "The query to use in the search. Infer this from the user's message. It should be a question or a statement. Add context for the query.",
+#                             }
+#                         },
+#                         "required": ["query"],
+#                     },
+#                 },
+#             },
+#             {
+#                 "type": "function",
+#                 "function": {
+#                     "name": "get_career_skills",
+#                     "description": "Get user's goal and current career and get user's goal and current skills",
+#                     "parameters": {
+#                         "type": "object",
+#                         "properties": {
+#                             "goal_career": {
+#                                 "type": "string",
+#                                 "description": "Name of user's goal career, e.g. Backend Developer, Business Analyst, Data Analysts, Data Engineer, Data Scientist, Database Administrator,Devops Engineer,Frontend Developer,Game Development,Mobile Developer",
+#                             },
+#                             "current_career": {
+#                                 "type": "string",
+#                                 "description": "Name of user's current career, e.g. Backend Developer, Business Analyst, Data Analysts, Data Engineer, Data Scientist, Database Administrator,Devops Engineer,Frontend Developer,Game Development,Mobile Developer",
+#                             },
+#                             "goal_skills": {
+#                                 "type": "string",
+#                                 "description": "List name of user's goal skills, e.g. power bi, ssis,sql server,mysql ,redis ,docker ,software product management,.net core framework ,github, object-oriented programming (oop) ,relational database management systems (rdbms),data visualization,data warehouse,graphql,java,javascript ,machine learning,data analysis,business intelligence ,r,python , sql,golang...",
+#                             },
+#                             "current_skills": {
+#                                 "type": "string",
+#                                 "description": "List name of user's current skills, e.g. power bi, ssis,sql server,mysql ,redis ,docker ,software product management,.net core framework ,github, object-oriented programming (oop) ,relational database management systems (rdbms),data visualization,data warehouse,graphql,java,javascript ,machine learning,data analysis,business intelligence ,r,python , sql,golang...",
+#                             },
+#                             "query": {
+#                                 "type": "string",
+#                                 "description": "The query to use in the search. Infer this from the user's message. It should be a question or a statement",
+#                             },
+#                         },
+#                         "required": [
+#                             "goal_career",
+#                             "current_career",
+#                             "goal_skills",
+#                             "current_skills",
+#                             "query",
+#                         ],
+#                     },
+#                 },
+#             },
+#         ]
+#     messages_temp = messages
+#     messages.append(ChatMessage.from_user(message))
 
-    response = chat_generator.client.chat.completions.create(
-                model=chat_generator.model,
-                messages=[mess.to_openai_format() for mess in messages],
-                tools=tools,
-                tool_choice="auto")
+#     response = chat_generator.client.chat.completions.create(
+#                 model=chat_generator.model,
+#                 messages=[mess.to_openai_format() for mess in messages],
+#                 tools=tools,
+#                 tool_choice="auto")
         
-    response_message = response.choices[0].message
-    if dict(response_message).get('tool_calls'): 
-            # Which function call was invoked
-        function_called = response_message.tool_calls[0].function.name   
-            # Extracting the arguments
-        function_args  = json.loads(response_message.tool_calls[0].function.arguments)
-            # Function names
-        available_functions = {
-                        "chat_pipeline": chat_pipeline,
-                        "get_content_course": get_content_course,
-                        "get_career_skills": get_career_skills,
-                    }
+#     response_message = response.choices[0].message
+#     if dict(response_message).get('tool_calls'): 
+#             # Which function call was invoked
+#         function_called = response_message.tool_calls[0].function.name   
+#             # Extracting the arguments
+#         function_args  = json.loads(response_message.tool_calls[0].function.arguments)
+#             # Function names
+#         available_functions = {
+#                         "chat_pipeline": chat_pipeline,
+#                         "get_content_course": get_content_course,
+#                         "get_career_skills": get_career_skills,
+#                     }
             
-        fuction_to_call = available_functions[function_called]
-        if function_called =="chat_pipeline":
-            for event in fuction_to_call(*list(function_args.values()),messages):
-        # if "content" in event.choices[0].delta:
-                current_response = event.choices[0].delta.content
-                if current_response is not None :
-                    yield current_response
+#         fuction_to_call = available_functions[function_called]
+#         if function_called =="chat_pipeline":
+#             for event in fuction_to_call(*list(function_args.values()),messages):
+#         # if "content" in event.choices[0].delta:
+#                 current_response = event.choices[0].delta.content
+#                 if current_response is not None :
+#                     yield current_response
 
-        else:             
-            response_message = fuction_to_call(*list(function_args.values()),messages)
+#         else:             
+#             response_message = fuction_to_call(*list(function_args.values()),messages)
 
-            print(response_message)
-            messages_temp.append(ChatMessage.from_user(message))
-            for event in chat_generator.client.chat.completions.create(
-                    model=chat_generator.model,
-                    messages=[mess.to_openai_format() for mess in messages_temp],            
-                    stream=True ):
-            # if "content" in event.choices[0].delta:
-                current_response = event.choices[0].delta.content
-                if current_response is not None :
-                    yield current_response
-    else:
-        # messages.pop()
-        # print(rag_pipeline_func(message))
-        # messages.append(
-        #             ChatMessage.from_function(
-        #                 content=json.dumps(rag_pipeline_func(message)), name="rag_pipeline_func"
-        #             )
-        #         )  
-        # messages.append(ChatMessage.from_user(message))
-        # messages = prompt_pipeline(message,messages)
-        for event in  chat_generator.client.chat.completions.create(
-                model=chat_generator.model,
-                messages=[mess.to_openai_format() for mess in messages],            
-                stream=True ):
-        # if "content" in event.choices[0].delta:
-            current_response = event.choices[0].delta.content
-            if current_response is not None :
-                yield current_response
+#             print(response_message)
+#             messages_temp.append(ChatMessage.from_user(message))
+#             for event in chat_generator.client.chat.completions.create(
+#                     model=chat_generator.model,
+#                     messages=[mess.to_openai_format() for mess in messages_temp],            
+#                     stream=True ):
+#             # if "content" in event.choices[0].delta:
+#                 current_response = event.choices[0].delta.content
+#                 if current_response is not None :
+#                     yield current_response
+#     else:
+#         # messages.pop()
+#         # print(rag_pipeline_func(message))
+#         # messages.append(
+#         #             ChatMessage.from_function(
+#         #                 content=json.dumps(rag_pipeline_func(message)), name="rag_pipeline_func"
+#         #             )
+#         #         )  
+#         # messages.append(ChatMessage.from_user(message))
+#         # messages = prompt_pipeline(message,messages)
+#         for event in  chat_generator.client.chat.completions.create(
+#                 model=chat_generator.model,
+#                 messages=[mess.to_openai_format() for mess in messages],            
+#                 stream=True ):
+#         # if "content" in event.choices[0].delta:
+#             current_response = event.choices[0].delta.content
+#             if current_response is not None :
+#                 yield current_response
     
-    end = time.time()
-    print("chat time: ",end - start)
+#     end = time.time()
+#     print("chat time: ",end - start)
 
     
 
 
 
 
-def chatbot_with_fc_stream1(question:str, history = []):
-    start = time.time()
+# def chatbot_with_fc_stream1(question:str, history = []):
+#     start = time.time()
 
-    prompt= f"""Using Vietnames. Create a SINGLE standalone question. The question should be based on the New question plus the Chat history. 
-    If the New question can stand on its own you should return the New question {question}. New question: \"{question}\", Chat history: \"{history}\"."""
-    history.append(ChatMessage.from_system(prompt))
-    chat_generator = OpenAIChatGenerator()
-    question = chat_generator.run(history)['replies'][0].content
-    print(question)
-    history.pop()
-    messages = prompt_pipeline(question,history)
-    chat_generator = OpenAIChatGenerator()
-    for event in  chat_generator.client.chat.completions.create(
-                model=chat_generator.model,
-                messages=[mess.to_openai_format() for mess in messages],            
-                stream=True ):
-        # if "content" in event.choices[0].delta:
-            current_response = event.choices[0].delta.content
-            if current_response is not None :
-                yield current_response
+#     prompt= f"""Using Vietnames. Create a SINGLE standalone question. The question should be based on the New question plus the Chat history. 
+#     If the New question can stand on its own you should return the New question {question}. New question: \"{question}\", Chat history: \"{history}\"."""
+#     history.append(ChatMessage.from_system(prompt))
+#     chat_generator = OpenAIChatGenerator()
+#     question = chat_generator.run(history)['replies'][0].content
+#     print(question)
+#     history.pop()
+#     messages = prompt_pipeline(question,history)
+#     chat_generator = OpenAIChatGenerator()
+#     for event in  chat_generator.client.chat.completions.create(
+#                 model=chat_generator.model,
+#                 messages=[mess.to_openai_format() for mess in messages],            
+#                 stream=True ):
+#         # if "content" in event.choices[0].delta:
+#             current_response = event.choices[0].delta.content
+#             if current_response is not None :
+#                 yield current_response
 
-    print("Chat time: ", time.time()- start)
+#     print("Chat time: ", time.time()- start)
