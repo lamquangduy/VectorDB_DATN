@@ -81,6 +81,7 @@ const renderTextWithBoldAndLinks = (text: string) => {
       if (match) {
         return (
           <a
+          target="_blank"
             key={index}
             href={match[2]}
             style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 18 }}
@@ -453,10 +454,12 @@ const BotText: React.FC<ChatTag> = ({
               <a
                 key={key}
                 href={decoratedHref}
+                target="_blank"
                 style={{
                   color: "#92b9e3",
                   fontFamily: "Montserrat",
                   fontSize: 18,
+                  
                 }}
               >
                 <span style={{ fontFamily: "Montserrat", fontSize: 18 }}>
@@ -1105,17 +1108,20 @@ const Typewriter: React.FC<TypewriterProps> = ({
 
   return (
     <Linkify
+    
       componentDecorator={(decoratedHref, decoratedText, key) => (
         <a
           key={key}
           href={decoratedHref}
           style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 18 }}
+          target="_blank"
         >
           <span style={{ fontFamily: "Montserrat", fontSize: 18 }}>
             {decoratedText}
           </span>
         </a>
       )}
+      
     >
       <span style={{ fontFamily: "Montserrat", fontSize: 18 }}>
         {renderTextWithBoldAndLinks(currentText)}
