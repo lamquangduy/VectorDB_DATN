@@ -603,7 +603,7 @@ const ChatBotPage: React.FC = () => {
             return res.json(); // Giải mã nội dung JSON của phản hồi
           })
           .then((data) => {
-            if (action === "") {
+            if (chatID === "") {
               setAction("newID");
               setChatID(data.chatID);
             }
