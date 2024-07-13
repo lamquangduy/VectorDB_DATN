@@ -611,9 +611,11 @@ const ChatBotPage: React.FC = () => {
               setChatID(data.chatID);
             }
             setSuggestion(data.tag);
-            //  setIsLoading(2);
+            
+            // setIsLoading(2);
             // scrollToBottom();
           });
+          scrollToBottom();
         return;
       }
       let token = decoder.decode(result.value);
@@ -669,15 +671,16 @@ const ChatBotPage: React.FC = () => {
     setChatID(value.chat_id);
     // console.log(contentTags);
     setChatData(contentTags);
-    scrollToBottom();
     setIsRefresh((p) => !p);
     setTrackServer(value.history);
+    scrollToBottom();
   };
   useEffect(() => {
     abortController.abort();
     setAction("swap");
     setIsLoading(0);
     console.log(isLoading);
+    scrollToBottom();
   }, [chatID]);
   const handleDelete = (value: any) => {
     setTimeout(() => {
@@ -702,7 +705,7 @@ const ChatBotPage: React.FC = () => {
   };
   useEffect(() => {
     scrollToBottom();
-  }, [isLoading]);
+  }, [isLoading,suggestion]);
 
   const handleChat = (value?: string) => {
     if (value === undefined && content.length === 0) {
