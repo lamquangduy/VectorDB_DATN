@@ -563,7 +563,6 @@ const ChatBotPage: React.FC = () => {
   ) {
     const endpoint =
       import.meta.env.VITE_APP_CHAT_SERVER_URL + `/chat/chat-stream/${user}`;
-
     var response = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -579,6 +578,7 @@ const ChatBotPage: React.FC = () => {
     const length = chatHistory.length;
     var reader = response.body?.getReader();
     var decoder = new TextDecoder("utf-8");
+    console.log(history)
     var content = "";
     scrollToBottom();
     reader?.read().then(function processResult(result: ReadResult): any {
@@ -660,11 +660,11 @@ const ChatBotPage: React.FC = () => {
         return { role: history.role, content: history.content };
       }
     );
-    console.log("Handle History");
+    // console.log("Handle History");
     setSuggestion(initialTag);
     setChatHistory(contentTags);
     setChatID(value.chat_id);
-    console.log(contentTags);
+    // console.log(contentTags);
     setChatData(contentTags);
     scrollToBottom();
     setIsRefresh((p) => !p);
@@ -721,7 +721,7 @@ const ChatBotPage: React.FC = () => {
     sendcontent(
       user?.email,
       value ?? content,
-      trackServer,
+      chatData,
       chatID,
       newAbortController.signal
     );
