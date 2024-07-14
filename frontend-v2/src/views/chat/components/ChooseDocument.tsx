@@ -11,10 +11,15 @@ import {
   Select,
   SelectChangeEvent,
 } from "@mui/material";
+
+interface ListCollection {
+  collection: string;
+  count: number;
+}
 interface ChooseDocument {
   chooseDocument: boolean;
   setChooseDocument: (value: boolean) => void;
-  listDocument: string[];
+  listDocument: ListCollection[];
   currentDocument: string;
   file: File | null;
   url: string;
@@ -155,8 +160,8 @@ const ChooseDocument: React.FC<ChooseDocument> = ({
                 width: 300,
               }}
             >
-              {listDocument.map((item: string) => {
-                return <MenuItem value={item}>{item}</MenuItem>;
+              {listDocument.map((item: ListCollection) => {
+                return <MenuItem value={item.collection}>{item.collection}</MenuItem>;
               })}
             </Select>
           </FormControl>

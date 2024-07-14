@@ -36,7 +36,10 @@ const getFileIcon = (fileName: string) => {
   const fileIcon = `/img/${fileType}.svg`;
   return fileIcon;
 };
-
+interface ListCollection {
+  collection: string;
+  count: number;
+}
 
 const Import: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -45,7 +48,7 @@ const Import: React.FC = () => {
   const [isFile, setIsFile] = useState<boolean>(true);
   const [isValidInput, setIsValidInput] = useState<string>("");
   const [currentDocument,setCurrentDocuement]=useState("")
-  const [listDocuments,setListDocuments]=useState([])
+  const [listDocuments,setListDocuments]=useState<ListCollection[]>([])
   const [chooseDocument,setChooseDocument]=useState(false)
   useEffect(()=>{
     getDocuments().then((res)=>{

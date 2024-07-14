@@ -13,9 +13,13 @@ import InProgress from "./InProgress";
 import CreateDocument from "./CreateDocument";
 import { ErrorStatus, SuccessStatus } from "./AlertStatus";
 
+interface ListCollection {
+  collection: string;
+  count: number;
+}
 
 const Collection: React.FC = () => {
-const [listDocument,setListCollection]=useState([]);
+const [listDocument,setListCollection]=useState<ListCollection[]>([]);
 const [status,setStatus]=useState("");
 const [isRefresh,setIsRefresh]=useState(true);
 const [currentDocument,setCurrentDocument]=useState("undifined")
@@ -217,8 +221,8 @@ const [isAlert,setIsAlert]=useState(false);
                 justifyContent:"center",
                 overflowY:"auto",
             }}>
-              {listDocument.map((item:string)=>{
-                if(search.length && !item.includes(search)){
+              {listDocument.map((item:ListCollection)=>{
+                if(search.length && !item.collection.includes(search)){
                   return ;
                 }
                 return (
@@ -239,7 +243,7 @@ const [isAlert,setIsAlert]=useState(false);
                     justifyContent:"center",
                     height: 40
                 }}>
-                  <Typography sx={{fontSize:18, marginTop:1}}>{item}</Typography>
+                  <Typography sx={{fontSize:18, marginTop:1}}>{item.collection}</Typography>
                 </Box>
                 <Divider sx={{margin: "4%"}}></Divider>
                 <Box
@@ -248,18 +252,29 @@ const [isAlert,setIsAlert]=useState(false);
                  justifyContent:"space-between",
                  paddingX:1
                 }}>
+
+                    <Typography
+                      sx={{
+                        fontSize: 18,
+                        
+                      }}
+                    >
+                      <span style={{ fontWeight: 'bold', color:"#008000",fontFamily: "Montserrat" }}>{"Points count: "} </span> {item.count}
+                    </Typography>
+                  <Box>
                     <Button 
                   sx={{
                     color:"#f14343",
                     border: 1,
                     borderColor: "#f14343",
+                    marginRight: 2,
 
                     ":hover":{
                       backgroundColor: "red",
                       color: "white",
                     }
                 }}
-                  onClick={()=>handleDelete(item)}>DELETE</Button>
+                  onClick={()=>handleDelete(item.collection)}>DELETE</Button>
                   <Button sx={{
                       color:"white",
                       backgroundImage: "linear-gradient(135deg, #008aff, #86d472)",
@@ -268,8 +283,8 @@ const [isAlert,setIsAlert]=useState(false);
                       "linear-gradient(135deg, #488ecac5, #9cd18d)",
                       }
                   }}
-                  onClick={()=>handleChangeDocument(item)}>Select</Button>
-
+                  onClick={()=>handleChangeDocument(item.collection)}>Select</Button>
+                  </Box>
                 </Box>
               </Box>
                 )

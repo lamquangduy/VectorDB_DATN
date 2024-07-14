@@ -8,6 +8,8 @@ from src.database.mongodb.repository import mongo_client
 from bson import json_util
 import json
 
+functions.load_store(index_name="ThongTinKhoaHoc_Cohere")
+
 def get_chat_result_stream(text, history=[]):
     return functions.chatbot_with_fc_stream(text, history)
     
@@ -22,7 +24,7 @@ def get_list_collection():
     list_collection = []
     qc = qdrant_client.get_collections().collections
     for i in qc:
-        list_collection.append(i.name)
+        list_collection.append({"collection":i.name,"count": qdrant_client.count(collection_name=i.name).count})
     return list_collection
 
 

@@ -7,13 +7,18 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { addDocument } from '../../../services/chat/chat';
 
+interface ListCollection {
+  collection: string;
+  count: number;
+}
+
 interface CreateDocument {
   createDocument:boolean,
   setCreateDocument:(value:boolean)=>void,
   setStatus:(value:string)=>void,
   setIsRefresh:(value:boolean)=>void,
   setIsAlert:(value:boolean)=>void,
-  listDocument:string[],
+  listDocument:ListCollection[],
 };
 
 const CreateDocument:React.FC<CreateDocument> =({createDocument,setCreateDocument,setStatus,setIsAlert,listDocument}) =>{
