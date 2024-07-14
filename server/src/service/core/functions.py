@@ -623,38 +623,43 @@ def chatbot_with_fc(message, messages=[]):
 
 def chatbot_pipeline(query:str, history = []):
     start = time.time()
-    document_store = load_store()
-    pipeline = Pipeline()
-    pipeline.add_component("embedder", CohereTextEmbedder(model=model_name))
-    pipeline.add_component("retriever", QdrantEmbeddingRetriever(document_store=document_store))
-    pipeline.add_component("prompt_builder", DynamicChatPromptBuilder(runtime_variables=["query", "documents"]))
-    # pipeline.add_component("llm", OpenAIChatGenerator(model= "gpt-3.5-turbo"))
-    pipeline.connect("embedder.embedding", "retriever.query_embedding")
-    pipeline.connect("retriever.documents", "prompt_builder.documents")
-    # pipeline.connect("prompt_builder.prompt", "llm.messages")
-    system_message =    ChatMessage.from_system(
-            f"""Nếu thông tin có đường dẫn (web link) thì phải dùng để trả lời, nếu không có thì không được tự ý thêm bậy. Trả lời ngắn gọn đủ ý. Không được tự suy luận thiếu thông tin từ dữ liệu chat.
-            Thêm ngữ cảnh cho câu hỏi dựa vào các câu hỏi trước của user. Nếu thiếu thông tin cần gọi hàm để lấy thêm thông tin.
-            Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user.
-            Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt
-            thì luôn trả lời bằng tiếng Việt.
-            Cần định dạng hình thức câu trả lời sao cho rõ ràng và đẹp. """
-        )
+    document_store = load_store(index_name=get_current_collection())
+    if document_store.count_documents() == 0:
+        messages = history
+        messages.append(ChatMessage.from_function(content=f"Không có dữ liệu trong hệ thống cho câu hỏi : {query}",name="chatbot_pipeline"))
+        messages.append(ChatMessage.from_user(query))
+    else:     
+        pipeline = Pipeline()
+        pipeline.add_component("embedder", CohereTextEmbedder(model=model_name))
+        pipeline.add_component("retriever", QdrantEmbeddingRetriever(document_store=document_store))
+        pipeline.add_component("prompt_builder", DynamicChatPromptBuilder(runtime_variables=["query", "documents"]))
+        # pipeline.add_component("llm", OpenAIChatGenerator(model= "gpt-3.5-turbo"))
+        pipeline.connect("embedder.embedding", "retriever.query_embedding")
+        pipeline.connect("retriever.documents", "prompt_builder.documents")
+        # pipeline.connect("prompt_builder.prompt", "llm.messages")
+        system_message =    ChatMessage.from_system(
+                f"""Nếu thông tin có đường dẫn (web link) kèm theo thì phải thêm vào câu trả lời, nếu không có thì không được tự ý đường dẫn không có trong dữ liệu. Trả lời ngắn gọn đủ ý. Không được tự suy luận thiếu thông tin từ dữ liệu chat.
+                Thêm ngữ cảnh cho câu hỏi dựa vào các câu hỏi trước của user. Nếu thiếu thông tin cần gọi hàm để lấy thêm thông tin.
+                Bạn chỉ trả lời dựa trên thông tin được cung cấp, không được tự lấy thông tin ngoài để trả lời cho user.
+                Nếu không có yêu cầu chuyển ngôn ngữ từ user, thì luôn trả lời bằng tiếng việt. Nếu ngôn ngữ của user là tiếng việt
+                thì luôn trả lời bằng tiếng Việt.
+                Cần định dạng hình thức câu trả lời sao cho rõ ràng và đẹp. """
+            )
 
-    history.append(system_message)
-    history.append(ChatMessage.from_user("""
-    Given these documents , answer the question.\nDocuments:
-        {% for doc in documents %}
-            {{ doc.content }}
-        {% endfor %}
+        history.append(system_message)
+        history.append(ChatMessage.from_user("""
+        Given these documents , answer the question. If data has link, must add into the answer. And if you use bold text then you need to bold numbering. \nDocuments:
+            {% for doc in documents %}
+                {{ doc.content }}
+            {% endfor %}
 
-        \nQuestion: {{query}}
-        \nAnswer:
-    """))
-    messages = pipeline.run(data={"embedder": {"text": query}, "prompt_builder": { "prompt_source": history, "query": query}})['prompt_builder']['prompt']
+            \nQuestion: {{query}}
+            \nAnswer:
+        """))
+        messages = pipeline.run(data={"embedder": {"text": query}, "prompt_builder": { "prompt_source": history, "query": query}})['prompt_builder']['prompt']
     chat_generator = OpenAIChatGenerator(model= "gpt-3.5-turbo")
-    # print(messages)
-    # print("Câu hỏi nè: ",query)
+        # print(messages)
+        # print("Câu hỏi nè: ",query)
     return chat_generator.client.chat.completions.create(
                 model=chat_generator.model,
                 messages=[mess.to_openai_format() for mess in messages],            

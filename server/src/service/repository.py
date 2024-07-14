@@ -86,7 +86,6 @@ def change_current_collection(index_name: str):
 
 
 def get_list_suggestion(history = []):
-    print(history[-2]["content"] +"  "+ history[-1]["content"])
     return functions.get_suggestions(history[-2]["content"], history[-1]["content"])
 
 
