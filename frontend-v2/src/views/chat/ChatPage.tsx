@@ -408,10 +408,7 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
 };
 
 const BotText: React.FC<ChatTag> = ({
-  props,
-  isChat,
-  isLoading,
-  setIsLoading,
+  props
 }) => {
   return (
     <Box
@@ -441,14 +438,7 @@ const BotText: React.FC<ChatTag> = ({
           fontSize: 18,
         }}
       >
-        {isChat ? (
-          <Typewriter
-            text={props.content}
-            delay={9}
-            isLoading={isLoading}
-            setIsLoading={setIsLoading}
-          />
-        ) : (
+        
           <Linkify
             componentDecorator={(decoratedHref, decoratedText, key) => (
               <a
@@ -472,7 +462,6 @@ const BotText: React.FC<ChatTag> = ({
               {renderTextWithBoldAndLinks(props.content)}
             </span>
           </Linkify>
-        )}
       </Typography>
     </Box>
   );
@@ -577,11 +566,10 @@ const ChatBotPage: React.FC = () => {
         history: history,
       }),
       signal: signal,
-    });
+    })
     const length = chatHistory.length;
     var reader = response.body?.getReader();
     var decoder = new TextDecoder("utf-8");
-    console.log(history)
     var content = "";
     scrollToBottom();
     reader?.read().then(function processResult(result: ReadResult): any {
@@ -610,11 +598,19 @@ const ChatBotPage: React.FC = () => {
               setAction("newID");
               setChatID(data.chatID);
             }
+            setAction((p)=>p+1)
             setSuggestion(data.tag);
-            
-            // setIsLoading(2);
+           
+             setIsLoading(0);
             // scrollToBottom();
-          });
+          }).catch((err) => {
+               if(err.content==="canceled") return;
+                chatHistory.push({
+                  role: "bot",
+                  content: err.content ?? "There is somethings wrong!!",
+                });
+                setChatData([...chatHistory]);
+              });
           scrollToBottom();
         return;
       }
@@ -625,19 +621,20 @@ const ChatBotPage: React.FC = () => {
         token.endsWith("?") ||
         token.endsWith(" ")
       ) {
-        content += token + "";
+        content += token;
         chatHistory[length] = {
           role: "assistant",
           content: content.trim(),
         };
-        setAction((p) => p + 1);
 
         setChatData((p) => {
           p[length] = chatHistory[length];
           return p;
         });
+        setAction((p) => p + 1);
       } else {
-        content += token + "";
+        
+        content += token;
         chatHistory[length] = {
           role: "assistant",
           content: content.trim(),
@@ -646,8 +643,10 @@ const ChatBotPage: React.FC = () => {
           p[length] = chatHistory[length];
           return p;
         });
+        scrollToBottom();
         setAction((p) => p + 1);
       }
+      setAction((p) => p + 1);
       return reader?.read().then(processResult);
     });
   }
@@ -662,9 +661,11 @@ const ChatBotPage: React.FC = () => {
     setIsChat(false);
     const contentTags = value.history.map(
       (history: { role: any; content: any }) => {
+        scrollToBottom();
         return { role: history.role, content: history.content };
       }
     );
+    
     // console.log("Handle History");
     setSuggestion(initialTag);
     setChatHistory(contentTags);
@@ -674,12 +675,12 @@ const ChatBotPage: React.FC = () => {
     setIsRefresh((p) => !p);
     setTrackServer(value.history);
     scrollToBottom();
-  };
+  }
   useEffect(() => {
     abortController.abort();
     setAction("swap");
     setIsLoading(0);
-    console.log(isLoading);
+    // console.log(isLoading);
     scrollToBottom();
   }, [chatID]);
   const handleDelete = (value: any) => {
@@ -1079,57 +1080,7 @@ const ChatBotPage: React.FC = () => {
   );
 };
 
-interface TypewriterProps {
-  text: string;
-  delay: number;
-  isLoading: number;
-  setIsLoading: (value: any) => void;
-}
 
-const Typewriter: React.FC<TypewriterProps> = ({
-  text,
-  delay,
-  isLoading,
-  setIsLoading,
-}) => {
-  const [currentText, setCurrentText] = React.useState("");
-  const [currentIndex, setCurrentIndex] = React.useState(0);
 
-  React.useEffect(() => {
-    if (currentIndex < text.length) {
-      if (currentIndex === text.length - 1 && isLoading === 2) setIsLoading(0);
-      else {
-        const timeoutId = setTimeout(() => {
-          setCurrentText((prev) => prev + text[currentIndex]);
-          setCurrentIndex((prev) => prev + 1);
-        }, delay);
-        scrollToBottom();
-        return () => clearTimeout(timeoutId);
-      }
-    }
-  }, [currentIndex, text, delay]);
 
-  return (
-    <Linkify
-    
-      componentDecorator={(decoratedHref, decoratedText, key) => (
-        <a
-          key={key}
-          href={decoratedHref}
-          style={{ color: "#92b9e3", fontFamily: "Montserrat", fontSize: 18 }}
-          target="_blank"
-        >
-          <span style={{ fontFamily: "Montserrat", fontSize: 18 }}>
-            {decoratedText}
-          </span>
-        </a>
-      )}
-      
-    >
-      <span style={{ fontFamily: "Montserrat", fontSize: 18 }}>
-        {renderTextWithBoldAndLinks(currentText)}
-      </span>
-    </Linkify>
-  );
-};
 export default ChatBotPage;
