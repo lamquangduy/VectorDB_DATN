@@ -53,13 +53,17 @@ const initialTag = [
   "Khoá học Python dành cho Data Science",
   "Tôi cần thông tin về khoá học",
 ];
-
+let shouldScrollToBottom = true;
 const scrollToBottom = () => {
   const chatBox = document.getElementById("chat-box");
-  if (chatBox) {
+  if (chatBox && shouldScrollToBottom) {
     chatBox.scrollTop = chatBox.scrollHeight;
+    shouldScrollToBottom = false;
+    console.log(chatBox.scrollTop,":",chatBox.scrollHeight)
   }
 };
+
+
 const mockData: IChatData[] = [
   { role: "bot", content: "Xin chào, bạn cần hỗ trợ gì?" },
 ];
@@ -244,6 +248,7 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
     // setSelectedIndex(null);
     switch (action) {
       case "create":
+        console.log("hehehehehehehe");
         setSelectedIndex(null);
         break;
       case "deleteCur":
@@ -253,9 +258,12 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
         console.log("delete");
         break;
       case "newID":
+        console.log("hahahahahah");
         setSelectedIndex(0);
         break;
     }
+    
+
   }, [action, selectedIndex]);
 
   const handleItemClick = (index: number) => {
@@ -571,7 +579,7 @@ const ChatBotPage: React.FC = () => {
     var reader = response.body?.getReader();
     var decoder = new TextDecoder("utf-8");
     var content = "";
-    scrollToBottom();
+    // scrollToBottom();
     reader?.read().then(function processResult(result: ReadResult): any {
       setIsLoading(2);
       if (result.done) {
@@ -598,7 +606,9 @@ const ChatBotPage: React.FC = () => {
               setAction("newID");
               setChatID(data.chatID);
             }
+
             setAction((p)=>p+1)
+
             setSuggestion(data.tag);
            
              setIsLoading(0);
@@ -611,7 +621,7 @@ const ChatBotPage: React.FC = () => {
                 });
                 setChatData([...chatHistory]);
               });
-          scrollToBottom();
+          // scrollToBottom();
         return;
       }
       let token = decoder.decode(result.value);
@@ -643,7 +653,8 @@ const ChatBotPage: React.FC = () => {
           p[length] = chatHistory[length];
           return p;
         });
-        scrollToBottom();
+        shouldScrollToBottom = true;
+        setTimeout(scrollToBottom, 100);
         setAction((p) => p + 1);
       }
       setAction((p) => p + 1);
@@ -661,7 +672,7 @@ const ChatBotPage: React.FC = () => {
     setIsChat(false);
     const contentTags = value.history.map(
       (history: { role: any; content: any }) => {
-        scrollToBottom();
+
         return { role: history.role, content: history.content };
       }
     );
@@ -674,14 +685,16 @@ const ChatBotPage: React.FC = () => {
     setChatData(contentTags);
     setIsRefresh((p) => !p);
     setTrackServer(value.history);
-    scrollToBottom();
+    console.log("hoho");
+    shouldScrollToBottom = true;
+    setTimeout(scrollToBottom, 500);
+
   }
   useEffect(() => {
     abortController.abort();
     setAction("swap");
     setIsLoading(0);
     // console.log(isLoading);
-    scrollToBottom();
   }, [chatID]);
   const handleDelete = (value: any) => {
     setTimeout(() => {
@@ -705,7 +718,9 @@ const ChatBotPage: React.FC = () => {
     setIsRefresh((p) => !p);
   };
   useEffect(() => {
-    scrollToBottom();
+    // scrollToBottom();
+    shouldScrollToBottom = true;
+    setTimeout(scrollToBottom, 100);
   }, [isLoading,suggestion]);
 
   const handleChat = (value?: string) => {
@@ -721,7 +736,7 @@ const ChatBotPage: React.FC = () => {
     setChatData([...chatHistory]);
     setSuggestion([]);
     setIsLoading(1);
-    scrollToBottom();
+    // scrollToBottom();
     if (!Boolean(value)) setcontent("");
     const newAbortController = new AbortController();
     setAbortController(newAbortController);
@@ -928,6 +943,7 @@ const ChatBotPage: React.FC = () => {
                     }}
                     id="chat-box"
                   >
+                    
                     {isRefresh && (
                       <Box
                         sx={{
@@ -988,6 +1004,7 @@ const ChatBotPage: React.FC = () => {
                           })}
                       </Box>
                     )}
+                    
                   </Box>
 
                   <Box
