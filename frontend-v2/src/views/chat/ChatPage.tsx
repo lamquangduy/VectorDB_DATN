@@ -248,7 +248,6 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
     // setSelectedIndex(null);
     switch (action) {
       case "create":
-        console.log("hehehehehehehe");
         setSelectedIndex(null);
         break;
       case "deleteCur":
@@ -604,7 +603,7 @@ const ChatBotPage: React.FC = () => {
               setAction("newID");
               setChatID(data.chatID);
             }
-
+            else
             setAction((p)=>p+1)
 
             setSuggestion(data.tag);
