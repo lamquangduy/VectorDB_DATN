@@ -49,9 +49,9 @@ interface SuggestedTagProps {
   delay: any;
 }
 const initialTag = [
-  "Khoá học lập trình cơ bản",
+  "Khoá học dành cho Backend",
   "Khoá học Python dành cho Data Science",
-  "Tôi cần thông tin về khoá học",
+  "Khoá học lập trình Java cơ bản",
 ];
 let shouldScrollToBottom = true;
 const scrollToBottom = () => {
