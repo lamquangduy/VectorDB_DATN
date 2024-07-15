@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Avatar, Typography, Menu, MenuItem, IconButton, CardActions } from '@mui/material';
+import { Box, Avatar, Typography, Menu, MenuItem, IconButton, CardActions, Tooltip } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 interface ChatCard {
@@ -35,6 +35,7 @@ const ChatCard:React.FC<ChatCard> = ({ selectedIndex, setSelectedIndex, history,
         
     }
   return (
+    <Tooltip title={history.chat_name?history.chat_name:history.history[0].content}>
     <CardActions  sx={{ display: 'flex', justifyContent:"center", alignItems: 'center', width: '100%', 
   ":hover":{
     cursor:"pointer"
@@ -75,6 +76,7 @@ const ChatCard:React.FC<ChatCard> = ({ selectedIndex, setSelectedIndex, history,
         <MenuItem onClick={handleClose}>Close</MenuItem>
       </Menu>
     </CardActions>
+    </Tooltip>
   );
 };
 
