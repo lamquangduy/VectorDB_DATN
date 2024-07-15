@@ -64,12 +64,8 @@ export default function AdminSideBar() {
         </List>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1,margin: 0}}>
-        {sideBar==="Collections" && <><Typography variant="h4">
-                      Control your Document
-                    </Typography><Collection/></>}
-        {sideBar==="Import" && <><Typography variant="h4">
-                      Add More Knowledge To Your VectorDB
-                    </Typography><Import/></>}
+        {sideBar==="Collections" && <><Collection/></>}
+        {sideBar==="Import" && <><Import/></>}
       </Box>
     </Box>
   );
