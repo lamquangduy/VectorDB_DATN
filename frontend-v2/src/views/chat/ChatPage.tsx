@@ -691,10 +691,10 @@ const ChatBotPage: React.FC = () => {
     abortController.abort();
     setAction("swap");
     setIsLoading(0);
-    setTimeout(() => {
-      setIsRefresh(p=>!p);
-    }, 300);
-    setIsRefresh(p=>!p)
+    // setTimeout(() => {
+    //   setIsRefresh(p=>!p);
+    // }, 300);
+    // setIsRefresh(p=>!p)
     shouldScrollToBottom = true;
     setTimeout(scrollToBottom, 500);
     // console.log(isLoading);
