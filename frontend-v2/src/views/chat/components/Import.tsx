@@ -96,6 +96,7 @@ const Import: React.FC = () => {
     setFile(e.dataTransfer.files[0]);
     console.log(e.dataTransfer.files[0]);
     setIsOver(false);
+    
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {

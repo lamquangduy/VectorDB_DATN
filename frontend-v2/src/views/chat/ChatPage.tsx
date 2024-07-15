@@ -255,10 +255,9 @@ const HistoryPanel: React.FC<HistoryPanel> = ({
         setSelectedIndex(null);
         break;
       case "swap":
-        console.log("delete");
+        console.log("swap");
         break;
       case "newID":
-        console.log("hahahahahah");
         setSelectedIndex(0);
         break;
     }
@@ -519,7 +518,6 @@ const ChatBotPage: React.FC = () => {
   // const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [isLoading, setIsLoading] = React.useState(0);
   const [suggestion, setSuggestion] = React.useState<string[]>(initialTag);
-  const [trackServer, setTrackServer] = React.useState([]);
   const [isChat, setIsChat] = React.useState(false);
   const [action, setAction] = React.useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
@@ -684,8 +682,7 @@ const ChatBotPage: React.FC = () => {
     // console.log(contentTags);
     setChatData(contentTags);
     setIsRefresh((p) => !p);
-    setTrackServer(value.history);
-    console.log("hoho");
+    // console.log("hoho");
     shouldScrollToBottom = true;
     setTimeout(scrollToBottom, 500);
 
@@ -694,6 +691,12 @@ const ChatBotPage: React.FC = () => {
     abortController.abort();
     setAction("swap");
     setIsLoading(0);
+    setTimeout(() => {
+      setIsRefresh(p=>!p);
+    }, 300);
+    setIsRefresh(p=>!p)
+    shouldScrollToBottom = true;
+    setTimeout(scrollToBottom, 500);
     // console.log(isLoading);
   }, [chatID]);
   const handleDelete = (value: any) => {
@@ -709,7 +712,6 @@ const ChatBotPage: React.FC = () => {
       setChatData([
         { role: "assistant", content: "Xin chào, bạn cần hỗ trợ gì?" },
       ]);
-      setTrackServer([]);
       setSuggestion(initialTag);
       setAction("create");
     } else {
@@ -785,7 +787,6 @@ const ChatBotPage: React.FC = () => {
     setChatHistory([{ role: "bot", content: "Xin chào, bạn cần hỗ trợ gì?" }]);
     setChatID("");
     setChatData([{ role: "bot", content: "Xin chào, bạn cần hỗ trợ gì?" }]);
-    setTrackServer([]);
     setSuggestion(initialTag);
     setAction("create");
     setIsRefresh((p) => !p);
