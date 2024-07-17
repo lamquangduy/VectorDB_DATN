@@ -1,8 +1,9 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import NavBar from "@layouts/navBar";
-import { Box, Typography } from "@mui/material";
+import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import useCustomMediaQuery from "@hooks/useCustomMediaQuery";
+import ChatIcon from "@mui/icons-material/Chat";
 
 const MainLayout: React.FC = (): JSX.Element => {
   const useMediaQuery = useCustomMediaQuery();
@@ -67,7 +68,6 @@ const MainLayout: React.FC = (): JSX.Element => {
             overflow: "visible",
             backgroundColor: "#005f06",
             height: "60px",
-            
           }}
         >
           <Box
@@ -86,6 +86,20 @@ const MainLayout: React.FC = (): JSX.Element => {
           </Box>
         </Box>
       </Box>
+
+      <Tooltip title="Click to have a chat" placement="left">
+        <IconButton
+          sx={{
+            position: "fixed",
+            bottom: "20px",
+            right: "30px",
+            border: "2px solid #005f06",
+            zIndex: 1000,
+          }}
+        >
+          <ChatIcon fontSize="large" color="primary" />
+        </IconButton>
+      </Tooltip>
     </Box>
   );
 };
