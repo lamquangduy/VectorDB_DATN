@@ -340,15 +340,15 @@ def get_suggestions(query: str, answer: str):
     start = time.time()
     language_classifier = OpenAIGenerator(model="gpt-3.5-turbo")
     language = language_classifier.run(
-        f"Luôn sử dụng tiếng Việt và trả kết quả là 'vi'. Nếu có yêu cầu sử dụng một ngôn ngữ khác, cần phát hiện ngôn ngữ cho đoạn nội dung sau và trả kết quả hoặc là 'vi' hoặc là 'en'. Đoạn nội dung đó là: {query}"
+        f"Luôn sử dụng tiếng Việt và trả kết quả là 'vi'. Nếu có yêu cầu sử dụng một ngôn ngữ khác, phát hiện ngôn ngữ dựa vào đoạn nội dung sau, nếu là tiếng anh thì trả kết quả 'en'. Đoạn nội dung đó là: {query}"
     )
     llm = OpenAIGenerator(model="gpt-3.5-turbo")
     # Function to detect the language of content
     if language["replies"][0] == "vi":  # Vietnamese
-        print("Hỏi bằng tiếng Việt")
+        # print("Hỏi bằng tiếng Việt")
         response = llm.run(
             prompt = f"""
-    Dựa trên ngữ cảnh sau, tạo danh sách các câu hỏi gợi ý mà người dùng có thể muốn hỏi tiếp theo. Mỗi câu hỏi có dưới 7 từ.
+    Dựa trên ngữ cảnh sau, tạo danh sách các câu hỏi gợi ý mà người dùng có thể muốn hỏi tiếp theo. Tạo ra các câu hỏi gợi ý cho người dùng để hỏi hệ thống thông qua chatbot. Mỗi câu hỏi viết gọn chỉ dưới 7 từ. Chủ 
 
     Ngữ cảnh:
     Câu hỏi: {query}. Câu trả lời: {answer}
@@ -361,10 +361,10 @@ def get_suggestions(query: str, answer: str):
     """
         )
     else:  # Assuming English if not Vietnamese
-        print("Hỏi bằng tiếng Anh")
+        # print("Hỏi bằng tiếng Anh")
         response = llm.run(
             f"""
-    Given the following context, generate a list of suggested questions that the user might ask next. Each question has less than 7 words.
+    Given the following context, generate a list of suggested questions that the user might ask. Generate suggested questions for users to ask the system via chatbot. Each question has less than 7 words. 
 
     Context:
     Query: {query}. Answer: {answer}
@@ -376,7 +376,7 @@ def get_suggestions(query: str, answer: str):
     4.
     """ )
     list_of_lines = response["replies"][0].splitlines()
-    print(list_of_lines)
+    # print(list_of_lines)
     clean_list = []
     char = check(list_of_lines[-1])
     if char != "":
@@ -387,14 +387,14 @@ def get_suggestions(query: str, answer: str):
                 list = list[1:-1]
             clean_list.append(list)
         end = time.time()
-        print("Suggestion time: ",end - start)
+        # print("Suggestion time: ",end - start)
         return clean_list[-4:]
     for i in list_of_lines:
         while check_and_strip_quotes(i) == 1:
             i = i[1:-1]
         clean_list.append(i)
     end = time.time()
-    print("Suggestion time: ",end - start)
+    # print("Suggestion time: ",end - start)
     return clean_list[-4:]
 
 
@@ -402,7 +402,7 @@ def get_summarize_chat(query: str):
     start = time.time()
     llm = OpenAIGenerator(model="gpt-3.5-turbo")
     response = llm.run(
-        f"Sử dụng tiếng Việt và tóm tắt nội dung bằng một câu dưới 10 từ của nội dung sau {query}"
+        f"Sử dụng tiếng Việt và tóm tắt chủ đề và hiểu ý định mong muốn của user từ câu hỏi bằng một câu dưới 10 từ. Không cần chủ ngữ. Câu hỏi đó là: {query}"
     )
     summary = response["replies"][0]
     char = check(summary)
@@ -414,7 +414,7 @@ def get_summarize_chat(query: str):
     while check_and_strip_quotes(summary) == 1:
         summary = summary[1:-1]
     end = time.time()
-    print("summarize time: ",end - start)
+    # print("summarize time: ",end - start)
     return summary
 
 
@@ -624,10 +624,10 @@ def chatbot_with_fc(message, messages=[]):
 def chatbot_pipeline(query:str, history = []):
     start = time.time()
     document_store = load_store(index_name=get_current_collection())
+    print(get_current_collection())
     if document_store.count_documents() == 0:
         messages = history
         messages.append(ChatMessage.from_function(content=f"Không có dữ liệu trong hệ thống cho câu hỏi : {query}",name="chatbot_pipeline"))
-        messages.append(ChatMessage.from_user(query))
     else:     
         pipeline = Pipeline()
         pipeline.add_component("embedder", CohereTextEmbedder(model=model_name))
@@ -648,7 +648,7 @@ def chatbot_pipeline(query:str, history = []):
 
         history.append(system_message)
         history.append(ChatMessage.from_user("""
-        Given these documents , answer the question. If data has link, must add into the answer. And if you use bold text then you need to bold numbering. \nDocuments:
+        Given these documents , answer the question. If data has link, must add link into the answer, else don't need to create to add. Bold the numbering and the content within the list items to enhance readability and organization. \nDocuments:
             {% for doc in documents %}
                 {{ doc.content }}
             {% endfor %}
