@@ -51,15 +51,13 @@ interface SuggestedTagProps {
 const initialTag = [
   "Khoá học dành cho Backend",
   "Khoá học Python dành cho Data Science",
-  "Khoá học lập trình Java cơ bản",
+  "Khoá học lập trình cơ bản",
 ];
-let shouldScrollToBottom = true;
 const scrollToBottom = () => {
   const chatBox = document.getElementById("chat-box");
-  if (chatBox && shouldScrollToBottom) {
+  if (chatBox) {
     chatBox.scrollTop = chatBox.scrollHeight;
-    shouldScrollToBottom = false;
-    console.log(chatBox.scrollTop,":",chatBox.scrollHeight)
+    // console.log(chatBox.scrollTop,":",chatBox.scrollHeight)
   }
 };
 
@@ -650,7 +648,6 @@ const ChatBotPage: React.FC = () => {
           p[length] = chatHistory[length];
           return p;
         });
-        shouldScrollToBottom = true;
         setTimeout(scrollToBottom, 100);
         setAction((p) => p + 1);
       }
@@ -682,7 +679,6 @@ const ChatBotPage: React.FC = () => {
     setChatData(contentTags);
     setIsRefresh((p) => !p);
     // console.log("hoho");
-    shouldScrollToBottom = true;
     setTimeout(scrollToBottom, 500);
 
   }
@@ -694,7 +690,6 @@ const ChatBotPage: React.FC = () => {
     //   setIsRefresh(p=>!p);
     // }, 300);
     // setIsRefresh(p=>!p)
-    shouldScrollToBottom = true;
     setTimeout(scrollToBottom, 500);
     // console.log(isLoading);
   }, [chatID]);
@@ -720,7 +715,6 @@ const ChatBotPage: React.FC = () => {
   };
   useEffect(() => {
     // scrollToBottom();
-    shouldScrollToBottom = true;
     setTimeout(scrollToBottom, 100);
   }, [isLoading,suggestion]);
 
