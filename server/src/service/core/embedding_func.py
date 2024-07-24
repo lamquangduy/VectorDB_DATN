@@ -38,9 +38,9 @@ def load_store(
 
     return QdrantDocumentStore(
         index=index_name,
-        # url=url,
-        # api_key=Secret.from_token(token=token), 
-        host= "qdrant",
+        url=url,
+        api_key=Secret.from_token(token=token), 
+        # host= "qdrant",
         embedding_dim= embedding_dim
 )
 

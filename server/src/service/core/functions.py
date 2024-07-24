@@ -53,9 +53,9 @@ embedding_dim = 1024
 
 def load_collection():
     qdrant_client = QdrantClient(
-        # url=url_cloud,
-        # api_key=api_key,
-        host= "qdrant",
+        url=url_cloud,
+        api_key=api_key,
+        # host= "qdrant",
     )
 
     return qdrant_client
@@ -95,9 +95,9 @@ def load_store(
 
     return QdrantDocumentStore(
         index=index_name,
-        # url=url,
-        # api_key=Secret.from_token(token=token),
-        host = "qdrant",
+        url=url,
+        api_key=Secret.from_token(token=token),
+        # host = "qdrant",
         embedding_dim=embedding_dim,
     )
     # "m": 16,
