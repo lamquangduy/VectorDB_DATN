@@ -145,6 +145,7 @@ const loadingcontent: IChatData = { role: "bot", content: "Loading..." };
 //   );
 // };
 import { keyframes } from "@emotion/react";
+import useCustomMediaQuery from "@hooks/useCustomMediaQuery";
 // import { log } from "console";
 
 const fadeIn = keyframes`
@@ -519,6 +520,7 @@ const ChatBotPage: React.FC = () => {
   const [action, setAction] = React.useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
   const [isRefresh, setIsRefresh] = React.useState<boolean>(false);
+  const useMediaQuery = useCustomMediaQuery();
   // const [isAuth, setIsAuth] = React.useState<boolean>(false);
   const navigate = useNavigate();
   const [abortController, setAbortController] = useState(new AbortController());
@@ -1090,8 +1092,6 @@ const ChatBotPage: React.FC = () => {
     </ThemeProvider>
   );
 };
-
-
 
 
 export default ChatBotPage;

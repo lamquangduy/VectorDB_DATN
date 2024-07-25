@@ -21,7 +21,7 @@ interface CreateDocument {
   listDocument:ListCollection[],
 };
 
-const CreateDocument:React.FC<CreateDocument> =({createDocument,setCreateDocument,setStatus,setIsAlert,listDocument}) =>{
+const CreateDocument:React.FC<CreateDocument> =({createDocument,setCreateDocument,setStatus,setIsAlert,listDocument,setIsRefresh}) =>{
 
   const handleClose = () => {
    setCreateDocument(false)
@@ -46,15 +46,12 @@ const CreateDocument:React.FC<CreateDocument> =({createDocument,setCreateDocumen
               setStatus(`Document ${email} is exists`)
                 return;
             }
+            setIsRefresh(true)
 
             addDocument(email).then((res)=>{
-                setStatus(`Create document successfully ${res}`)
+                setStatus(`Create document ${res} successfully`)
             }).catch((err)=>{
               setStatus(`${err.message}`)
-              setTimeout(() => {
-                setIsAlert(true)
-              }, 2000);
-                console.log(err.message)
             })
            
           },

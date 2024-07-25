@@ -35,10 +35,13 @@ const [isAlert,setIsAlert]=useState(false);
     }, 2000);
     setIsAlert((p)=>!p)}
 
-    
     getDocuments().then((res)=>{
       setListCollection(res)
       setIsRefresh(false)
+      setTimeout(() => {
+        setIsAlert((p)=>!p)
+      }, 2000);
+      setIsAlert((p)=>!p)
     })
     getCurrentDocument().then((res)=>{
       setCurrentDocument(res)
@@ -58,16 +61,10 @@ const [isAlert,setIsAlert]=useState(false);
       setIsRefresh(false)
       return;
     }
-    setIsRefresh(p=>!p);
+    setIsRefresh(true);
     deleteDocument(value).then((res)=>{
       setStatus(`Delete ${value}`);
       console.log(res)
-      setIsRefresh(false)
-      setTimeout(() => {
-        setIsAlert((p)=>!p)
-      }, 2000);
-      setIsAlert((p)=>!p)
-      setIsRefresh(false)
     }).catch((err)=>{
       console.log(err.message);
     })
@@ -80,10 +77,6 @@ const [isAlert,setIsAlert]=useState(false);
       setStatus(`Change Document: ${value}`);
       setIsRefresh(false)
       setCurrentDocument(value)
-      setTimeout(() => {
-        setIsAlert((p)=>!p)
-      }, 2000);
-      setIsAlert((p)=>!p)
     }).catch((err)=>{
       console.log(err.message);
     });
@@ -94,7 +87,7 @@ const [isAlert,setIsAlert]=useState(false);
              {status.includes("Delete")&& isAlert&&
                <SuccessStatus title={`${status} successfully`}></SuccessStatus>}
                  {status.includes("Create")&& isAlert&&
-               <SuccessStatus title={`${status} successfully`}></SuccessStatus>}
+               <SuccessStatus title={`${status}`}></SuccessStatus>}
                 {status.includes("Document is in use")&& isAlert&&
                <ErrorStatus title={`${status}`}></ErrorStatus>}
                 {status.includes("is exists")&& isAlert&&
