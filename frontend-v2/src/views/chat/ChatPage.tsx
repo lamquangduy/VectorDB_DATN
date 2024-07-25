@@ -145,7 +145,8 @@ const loadingcontent: IChatData = { role: "bot", content: "Loading..." };
 //   );
 // };
 import { keyframes } from "@emotion/react";
-import useCustomMediaQuery from "@hooks/useCustomMediaQuery";
+// import useCustomMediaQuery from "@hooks/useCustomMediaQuery";
+// import ConfirmNotification from "./components/ConfirmNofication";
 // import { log } from "console";
 
 const fadeIn = keyframes`
