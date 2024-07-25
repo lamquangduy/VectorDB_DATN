@@ -520,7 +520,7 @@ const ChatBotPage: React.FC = () => {
   const [action, setAction] = React.useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
   const [isRefresh, setIsRefresh] = React.useState<boolean>(false);
-  const useMediaQuery = useCustomMediaQuery();
+  // const useMediaQuery = useCustomMediaQuery();
   // const [isAuth, setIsAuth] = React.useState<boolean>(false);
   const navigate = useNavigate();
   const [abortController, setAbortController] = useState(new AbortController());
@@ -1044,7 +1044,7 @@ const ChatBotPage: React.FC = () => {
                         }}
                         disabled={isLoading === 0 ? false : true}
                       >
-                        <DeleteIcon />
+                        <Tooltip title="Remove current chat"><DeleteIcon /></Tooltip>
                       </Button>
                       <OutlinedInput
                         sx={{
